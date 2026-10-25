@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Seren Reading · The Lantern on Willow Street · 2026-10-25</title>
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --card: #fffdf9;
+    --ink: #1c1917;
+    --muted: #57534e;
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #15803d;
+    --ok-soft: #dcfce7;
+    --border: #e7e5e4;
+    --shadow: 0 8px 24px rgba(28, 25, 23, 0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(160deg, #fdf2f8 0%, #fffbeb 50%, #eff6ff 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    font-size: 0.88rem;
+    color: #9d174d;
+  }
+  .passage {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow);
+    font-size: 1.2rem;
+    line-height: 1.85;
+    position: relative;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .passage p { margin: 0 0 1rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(219,39,119,0.2);
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .passage .word:hover { background: rgba(219, 39, 119, 0.1); }
+  .passage .word.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  #gloss {
+    display: none;
+    position: sticky;
+    bottom: 0.75rem;
+    margin-top: 1rem;
+    background: #831843;
+    color: #fdf2f8;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 5;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  #gloss .g-en { opacity: 0.95; }
+  #gloss .g-zh { margin-top: 0.2rem; color: #fbcfe8; }
+  #gloss .g-hint { margin-top: 0.45rem; font-size: 0.78rem; opacity: 0.75; }
+  .quiz {
+    margin-top: 1.25rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quiz h2 { margin: 0 0 0.75rem; font-size: 1.15rem; }
+  .q {
+    border-top: 1px solid var(--border);
+    padding: 1rem 0;
+  }
+  .q:first-of-type { border-top: none; padding-top: 0.25rem; }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; }
+  .opt {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0.2rem 0;
+  }
+  .opt:hover { background: #f5f5f4; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: var(--ok-soft); }
+  .opt.mark-bad { background: var(--wrong-soft); }
+  .explain {
+    display: none;
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .explain.show { display: block; }
+  .explain.ok { background: var(--ok-soft); color: #14532d; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+  button {
+    border: none;
+    border-radius: 999px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #e7e5e4; color: var(--ink); }
+  #copyBtn { background: #1d4ed8; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #15803d; }
+  #score {
+    display: none;
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-weight: 600;
+  }
+  #score.show { display: block; }
+  footer {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🏮 The Lantern on Willow Street</h1>
+    <div class="meta">Seren · ≈800–850L · US Grade 4 · 2026-10-25<br />
+    CA CCSS literary (RL.4) · self-written, aligned to CA · English Tutor</div>
+    <div class="tip">💡 看到不懂的單字，<strong>點一下</strong> → 下方出現英文解釋＋中文；<strong>再點一下同一個字</strong>（或點說明卡）就關掉。<br/>做完 5 題按「提交答案」，再按「複製成績」貼到微信給爸爸媽媽喔！</div>
+  </header>
+
+  <article class="passage" id="passage" aria-label="Reading passage"></article>
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz">
+    <h2>Comprehension Check（5 題）</h2>
+    <form id="quiz-form"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+
+  <footer>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA CCSS）</footer>
+</div>
+
+<script>
+const GLOSSARY = {
+  "stubborn": { en: "not willing to change your mind", zh: "固執的；倔強的" },
+  "crept": { en: "moved slowly and quietly", zh: "悄悄地爬／移動" },
+  "glimmer": { en: "a faint, small light", zh: "微弱的光" },
+  "flickered": { en: "shone in an unsteady, shaky way", zh: "閃爍；搖曳" },
+  "porch": { en: "a covered area at the front door of a house", zh: "門廊" },
+  "grumbled": { en: "complained in a low, unhappy voice", zh: "嘟囔；抱怨" },
+  "neighbor": { en: "a person who lives near you", zh: "鄰居" },
+  "lonely": { en: "sad because you are alone", zh: "孤單的" },
+  "rusty": { en: "covered with reddish-brown rust from age and water", zh: "生鏽的" },
+  "polished": { en: "rubbed until shiny", zh: "擦亮" },
+  "wick": { en: "the string in a lamp or candle that burns", zh: "燈芯；燭芯" },
+  "squinted": { en: "looked with eyes partly closed", zh: "瞇起眼睛看" },
+  "hesitated": { en: "paused because she was unsure", zh: "猶豫" },
+  "shuffled": { en: "walked slowly, dragging the feet", zh: "拖著腳步走" },
+  "whispered": { en: "spoke very softly", zh: "低聲說" },
+  "cradled": { en: "held gently and carefully", zh: "小心捧著" },
+  "darkness": { en: "the state of having no light", zh: "黑暗" },
+  "gravel": { en: "small loose stones", zh: "碎石" },
+  "glowed": { en: "gave off a steady, soft light", zh: "發出柔和的光" },
+  "astonished": { en: "very surprised", zh: "非常驚訝的" },
+  "gently": { en: "in a soft, careful way", zh: "輕柔地" },
+  "tradition": { en: "something people do again and again over time", zh: "傳統；慣例" },
+  "creaked": { en: "made a long squeaky sound", zh: "嘎吱作響" },
+  "murmured": { en: "said softly and quietly", zh: "喃喃地說" },
+  "enormous": { en: "very big", zh: "巨大的" },
+  "wobbly": { en: "shaky; not steady", zh: "搖搖晃晃的" },
+  "faded": { en: "lost its color or brightness", zh: "褪色的" },
+  "proudly": { en: "in a way that shows you feel good about something", zh: "驕傲地" }
+};
+
+const PASSAGE_PARAS = [
+  "Every evening, old Mr. Alvarez hung a lantern on the hook beside his porch. The light flickered over the sidewalk of Willow Street, and nobody remembered a night without it. Nobody, that is, except Mia, who was nine and had only just moved in next door.",
+  "Mia thought Mr. Alvarez was stubborn. He grumbled when kids rode bikes on his grass, and he never waved back. \"He's just lonely,\" her mom said, but Mia was not so sure.",
+  "One windy night in October, Mia looked out her window and saw nothing but darkness. The hook beside the porch was empty. She squinted. No glimmer, no glow, nothing at all.",
+  "She hesitated at the door. Then she grabbed her flashlight and crept across the gravel. Mr. Alvarez sat on his porch step, holding a rusty lantern with a broken wick. His hands were wobbly.",
+  "\"It went out,\" he murmured. \"My wife lit it every night so I could find my way home from work. After she was gone, I kept lighting it. It was a tradition. Now I can't fix it.\"",
+  "Mia felt something enormous and soft turn over in her chest. The lantern was not just a light. It was a way of remembering.",
+  "\"My grandpa taught me how to change a wick,\" she said. \"Can I try?\"",
+  "Mr. Alvarez looked astonished. Then he gently placed the lantern in her hands. Mia cradled it like a baby bird. Together they shuffled inside, found a new wick in a faded box, and polished the glass until it shone.",
+  "When they hung it back on the hook, the old porch creaked, and the lantern glowed brighter than Mia had ever seen it.",
+  "\"Same time tomorrow?\" Mr. Alvarez whispered.",
+  "Mia smiled proudly. \"Same time tomorrow,\" she said. And for the first time, he waved."
+];
+
+const QUESTIONS = [
+  {
+    "stem": "1. What is the main theme (big message) of this story?",
+    "choices": [
+      "Old lanterns are better than flashlights.",
+      "Small acts of kindness can help us understand and connect with others.",
+      "Kids should never ride bikes on grass.",
+      "Windy nights are dangerous."
+    ],
+    "answer": 1,
+    "why": "主旨題：Mia 幫忙修燈，才明白鄰居的心情，兩人變親近——善意帶來理解與連結。"
+  },
+  {
+    "stem": "2. Why did Mr. Alvarez keep lighting the lantern every night?",
+    "choices": [
+      "To keep kids off his grass",
+      "Because the city told him to",
+      "To remember his wife, who lit it so he could find his way home",
+      "Because he was afraid of the dark"
+    ],
+    "answer": 2,
+    "why": "細節題：他說妻子每晚點燈讓他回家，她走後他繼續點，是為了紀念她。"
+  },
+  {
+    "stem": "3. Which sentence best explains why Mr. Alvarez might have seemed grumpy at first?",
+    "choices": [
+      "He was lonely and missed his wife.",
+      "He did not like Mia's mom.",
+      "He wanted to move away from Willow Street.",
+      "He had too many lanterns to take care of."
+    ],
+    "answer": 0,
+    "why": "推論題：媽媽說 He's just lonely，後文也顯示他思念妻子，所以看起來脾氣不好。"
+  },
+  {
+    "stem": "4. In the sentence “Mia cradled it like a baby bird,” the word cradled most nearly means —",
+    "choices": [
+      "dropped quickly",
+      "held gently and carefully",
+      "threw away",
+      "painted brightly"
+    ],
+    "answer": 1,
+    "why": "字義題：像捧著小鳥一樣 → 小心、輕柔地捧著。"
+  },
+  {
+    "stem": "5. How does Mia's view of Mr. Alvarez change from the beginning to the end?",
+    "choices": [
+      "She first thinks he is kind, then decides he is mean.",
+      "She never changes her mind about him.",
+      "She first thinks he is stubborn, then understands him and becomes his friend.",
+      "She first thinks he is funny, then becomes afraid of him."
+    ],
+    "answer": 2,
+    "why": "角色題：開頭覺得他 stubborn，最後一起修燈、約好明天見，變成朋友。"
+  }
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function tokenize(text) {
+  // Keep words, punctuation, spaces
+  return text.match(/[A-Za-z]+(?:'[A-Za-z]+)?|[^A-Za-z]+/g) || [];
+}
+
+function renderPassage() {
+  const el = document.getElementById("passage");
+  el.innerHTML = PASSAGE_PARAS.map(p => {
+    const parts = tokenize(p).map(tok => {
+      if (/^[A-Za-z]/.test(tok)) {
+        const key = tok.toLowerCase();
+        return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+      }
+      return escapeHtml(tok);
+    }).join("");
+    return `<p>${parts}</p>`;
+  }).join("");
+}
+
+function lookup(key) {
+  if (GLOSSARY[key]) return GLOSSARY[key];
+  // multi-word tries handled separately
+  for (const phrase of Object.keys(GLOSSARY)) {
+    if (phrase.includes(" ") && phrase.split(" ")[0] === key) {
+      // only exact key match below
+    }
+  }
+  return null;
+}
+
+let activeKey = null;
+let activeEl = null;
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  if (activeEl) activeEl.classList.remove("active");
+  activeKey = null;
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  // Try two-word phrase: this word + next word
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextSibling;
+  if (next && next.nodeType === 1 && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) {
+      entry = GLOSSARY[phrase];
+      label = display + " " + next.dataset.display;
+    }
+  }
+  if (!entry) entry = GLOSSARY[key];
+
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = wordEl;
+  activeKey = key;
+  wordEl.classList.add("active");
+
+  const g = document.getElementById("gloss");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄這個字；試試看從句子猜猜它的意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）先讀完整句，猜猜看～";
+  }
+  g.classList.add("show");
+}
+
+function renderQuiz() {
+  const form = document.getElementById("quiz-form");
+  form.innerHTML = QUESTIONS.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt" data-q="${qi}" data-c="${ci}">
+        <input type="radio" name="q${qi}" value="${ci}" />
+        <span><strong>${LETTERS[ci]}.</strong> ${escapeHtml(c)}</span>
+      </label>`).join("");
+    return `<div class="q" data-q="${qi}">
+      <div class="q-stem">${escapeHtml(q.stem)}</div>
+      ${opts}
+      <div class="explain" id="ex${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const PACK_META = {
+  child: "Seren",
+  date: "2026-10-25",
+  title: "The Lantern on Willow Street",
+  level: "≈800–850L · US G4 · literary (RL.4)"
+};
+
+let lastReport = null;
+
+function grade() {
+  let correct = 0;
+  const detail = [];
+  QUESTIONS.forEach((q, qi) => {
+    const chosen = document.querySelector(`input[name="q${qi}"]:checked`);
+    const ex = document.getElementById("ex" + qi);
+    document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(lab => {
+      lab.classList.remove("mark-ok", "mark-bad");
+    });
+    const ansLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${q.answer}"]`);
+    if (ansLab) ansLab.classList.add("mark-ok");
+
+    if (!chosen) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正確答案是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: 未作答（正解 ${LETTERS[q.answer]}）`);
+      return;
+    }
+    const ci = Number(chosen.value);
+    if (ci === q.answer) {
+      correct += 1;
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[q.answer]}）<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✓ ${LETTERS[ci]}`);
+    } else {
+      const badLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${ci}"]`);
+      if (badLab) badLab.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[ci]}，正確是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✗ 選${LETTERS[ci]}／正解${LETTERS[q.answer]}`);
+    }
+  });
+  const score = document.getElementById("score");
+  score.textContent = `得分：${correct} / ${QUESTIONS.length}` + (correct === QUESTIONS.length ? " · 太棒了！" : " · 看完講解再重做一次也可以");
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = true; });
+
+  lastReport = [
+    "【Reading 成績回報 → English Tutor】",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `程度：${PACK_META.level}`,
+    `得分：${correct}/${QUESTIONS.length}`,
+    "明細：",
+    ...detail.map(d => "- " + d),
+    "（請貼到微信給家庭大管家轉 English Tutor）"
+  ].join("\n");
+
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+}
+
+async function copyResults() {
+  if (!lastReport) {
+    alert("請先提交答案。");
+    return;
+  }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+  } catch (e) {
+    // Fallback for file:// or restricted clipboard
+    const ta = document.createElement("textarea");
+    ta.value = lastReport;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch (e2) {
+      alert("無法自動複製，請手動選取以下文字：\n\n" + lastReport);
+      document.body.removeChild(ta);
+      return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！去微信貼上";
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = "複製成績";
+    btn.classList.remove("copied");
+  }, 2500);
+}
+
+function resetQuiz() {
+  document.getElementById("quiz-form").reset();
+  document.querySelectorAll(".explain").forEach(ex => {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderPassage();
+renderQuiz();
+
+let lastTapEl = null, lastTapTime = 0;
+document.getElementById("passage").addEventListener("click", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  const now = Date.now();
+  // ignore the 2nd click of a double-click so dblclick fallback just opens it
+  if (t === lastTapEl && now - lastTapTime < 350) return;
+  lastTapEl = t; lastTapTime = now;
+  showGloss(t);
+});
+document.getElementById("passage").addEventListener("dblclick", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  e.preventDefault();
+  if (activeEl !== t) showGloss(t);
+});
+
+document.getElementById("gloss").addEventListener("click", hideGloss);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+</script>
+</body>
+</html>
