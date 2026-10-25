@@ -1,1 +1,709 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reading Adventure Challenge · Seren Preview · 2026-10-25</title>
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --ink: #1e1b4b;
+    --muted: #4c4a6a;
+    --accent: #4f46e5;
+    --accent-soft: #e0e7ff;
+    --gold: #f59e0b;
+    --gold-soft: #fef3c7;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #15803d;
+    --ok-soft: #dcfce7;
+    --border: #c7d2fe;
+    --shadow: 0 10px 28px rgba(49, 46, 129, 0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #eef2ff 0%, #faf5ff 45%, #fff7ed 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.1rem 1.3rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #4f46e5, #a855f7, #f59e0b);
+  }
+  .badge {
+    display: inline-block;
+    background: var(--gold-soft);
+    color: #92400e;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.45rem;
+    letter-spacing: 0.02em;
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.4rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--accent-soft);
+    border-radius: 12px;
+    font-size: 0.88rem;
+    color: #3730a3;
+  }
+  .parent-note {
+    margin-top: 0.55rem;
+    padding: 0.65rem 0.85rem;
+    background: #fff7ed;
+    border: 1px dashed #fdba74;
+    border-radius: 12px;
+    font-size: 0.86rem;
+    color: #9a3412;
+  }
+  .passage-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #4338ca;
+    background: var(--accent-soft);
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    margin-bottom: 0.55rem;
+  }
+  .passage {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow);
+    font-size: 1.15rem;
+    line-height: 1.85;
+    position: relative;
+    margin-bottom: 1rem;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .passage h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.2rem;
+    color: #312e81;
+  }
+  .passage p { margin: 0 0 0.95rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(79,70,229,0.25);
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .passage .word:hover { background: rgba(79, 70, 229, 0.12); }
+  .passage .word.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  #gloss {
+    display: none;
+    position: sticky;
+    bottom: 0.75rem;
+    margin: 0 0 1rem;
+    background: #312e81;
+    color: #eef2ff;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 5;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  #gloss .g-en { opacity: 0.95; }
+  #gloss .g-zh { margin-top: 0.2rem; color: #c7d2fe; }
+  #gloss .g-hint { margin-top: 0.45rem; font-size: 0.78rem; opacity: 0.75; }
+  .quiz {
+    margin-top: 0.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quiz h2 { margin: 0 0 0.35rem; font-size: 1.2rem; color: #312e81; }
+  .quiz .sub { color: var(--muted); font-size: 0.88rem; margin-bottom: 0.85rem; }
+  .q {
+    border-top: 1px solid var(--border);
+    padding: 1rem 0;
+  }
+  .q:first-of-type { border-top: none; padding-top: 0.25rem; }
+  .q-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6d28d9;
+    background: #f3e8ff;
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    margin-bottom: 0.35rem;
+  }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; }
+  .opt {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0.2rem 0;
+  }
+  .opt:hover { background: #f5f3ff; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: var(--ok-soft); }
+  .opt.mark-bad { background: var(--wrong-soft); }
+  .explain {
+    display: none;
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .explain.show { display: block; }
+  .explain.ok { background: var(--ok-soft); color: #14532d; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+  button {
+    border: none;
+    border-radius: 999px;
+    padding: 0.7rem 1.3rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #e0e7ff; color: var(--ink); }
+  #copyBtn { background: #b45309; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #15803d; }
+  #score {
+    display: none;
+    margin-top: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #eef2ff, #fef3c7);
+    color: #1e1b4b;
+    font-weight: 600;
+  }
+  #score.show { display: block; }
+  footer {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">⭐ Reading Adventure Challenge · 家長預覽</div>
+    <h1>🧭 Reading Adventure Challenge</h1>
+    <div class="meta">Seren · ≈900–1000L · US G4–5 · 2026-10-25 preview<br />
+    迷你 SAT 風格（非正式考試）· 自編短文 · CA / SAT Reading skills · English Tutor</div>
+    <div class="parent-note">👨‍👧 家長預覽／約 15 分鐘／<strong>挑戰不是考試</strong>；難度對齊 Seren ≈900–1000L。Jerry 可先自測題型：主旨、找證據、推論、上下文猜字、作者目的、跨篇比較。</div>
+    <div class="tip">💡 不懂的單字<strong>點一下</strong> → 下方出現英文＋中文；再點同一字（或點說明卡）就關掉。<br/>讀完兩篇 → 做 9 題 →「提交答案」→「複製成績」貼微信。</div>
+  </header>
+
+  <article class="passage" id="passageA" aria-label="Passage A"></article>
+  <article class="passage" id="passageB" aria-label="Passage B"></article>
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz">
+    <h2>Challenge Questions（9 題）</h2>
+    <div class="sub">題型混搭：主旨 · 找證據 · 推論 · 上下文猜字 · 作者目的 · 跨篇比較 · 好玩的挑戰，不是考試 💛</div>
+    <form id="quiz-form"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+
+  <footer>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA / SAT-style Reading）</footer>
+</div>
+
+<script>
+const GLOSSARY = {
+  "scattered": { en: "moved quickly in different directions", zh: "四散；散開" },
+  "narrow": { en: "not wide; small from side to side", zh: "窄的" },
+  "lane": { en: "a narrow road or path", zh: "小巷；小路" },
+  "tapped": { en: "hit lightly and repeatedly", zh: "輕輕敲打" },
+  "hesitated": { en: "paused because she was unsure what to do", zh: "猶豫" },
+  "pretend": { en: "act as if something is true when it is not", zh: "假裝" },
+  "scooped": { en: "picked up quickly with a curved motion", zh: "迅速撿起" },
+  "fluttered": { en: "moved lightly and quickly in the air", zh: "飄動；飛舞" },
+  "whispered": { en: "spoke in a very soft voice", zh: "低聲說" },
+  "eaves": { en: "the edge of a roof that hangs over the walls", zh: "屋簷" },
+  "crooked": { en: "not straight; bent", zh: "歪歪的；彎曲的" },
+  "shrug": { en: "raise and lower the shoulders to show you don't know or don't mind", zh: "聳肩" },
+  "shrugged": { en: "raised and lowered the shoulders", zh: "聳了聳肩" },
+  "collecting": { en: "gathering things together", zh: "收集" },
+  "glowing": { en: "giving off a steady light", zh: "發光的" },
+  "trail": { en: "a long thin line or path", zh: "痕跡；小徑" },
+  "circuit": { en: "a complete path that electricity can travel along", zh: "電路；迴路" },
+  "lever": { en: "a handle you push or pull to make something work", zh: "拉桿；槓桿開關" },
+  "diagrams": { en: "simple drawings that explain how something works", zh: "圖解；示意圖" },
+  "complicated": { en: "made of many parts; not simple", zh: "複雜的" },
+  "shock": { en: "hurt someone with electricity", zh: "電擊" },
+  "elevators": { en: "machines that carry people up and down in a building", zh: "電梯" },
+  "charger": { en: "a device that puts power into a battery", zh: "充電器" },
+  "engineers": { en: "people who design and build machines or structures", zh: "工程師" },
+  "design": { en: "plan how something will look or work", zh: "設計" },
+  "practice": { en: "do something again and again to get better", zh: "練習" },
+  "practicing": { en: "doing something again and again to improve", zh: "正在練習" },
+  "quietly": { en: "with little or no sound", zh: "安靜地" },
+  "quietly path": { en: "(see quiet)", zh: "安靜的路" },
+  "power source": { en: "the place electricity comes from", zh: "電源" },
+  "redstone": { en: "a Minecraft material that acts like electric wire", zh: "紅石（Minecraft）" },
+  "voxel": { en: "a tiny 3-D cube used to build digital worlds", zh: "體素；立體像素" }
+};
+
+const PASSAGE_A = {
+  label: "Passage A · Literary Fiction",
+  title: "The Quiet Shortcut",
+  paras: [
+    "Maya usually walked to school with her friends, laughing so loudly that pigeons scattered from the rooftops. One rainy Tuesday, though, she left early and took a different path—a narrow lane behind the library where raindrops tapped the leaves like soft drums. The air smelled like wet chalk and new leaves.",
+    "Halfway down the lane, Maya noticed a boy from her class sitting on a stone bench. His name was Leo, and he almost never spoke in class. Today his backpack was open, and papers fluttered in the wind. A few sheets already stuck to the puddles. Maya hesitated. She could keep walking and pretend she hadn't seen him. Instead she scooped up a wet worksheet and held it out.",
+    "\"Thanks,\" Leo whispered. His voice was so quiet that Maya almost missed it. He wiped a raindrop from the paper with his sleeve, careful not to tear it.",
+    "They walked the rest of the way together. Leo pointed out a tiny nest tucked under the eaves of an old shed. Maya pointed out a chalk drawing on the wall—a crooked dragon with a smile. By the time they reached the school gate, Leo was talking about how he liked to draw dragons too, and Maya was surprised by how easy the conversation felt.",
+    "That afternoon, Maya's friends asked why she had taken the quiet shortcut. She shrugged. \"Sometimes the quieter path shows you things the noisy path misses,\" she said. And from that day on, whenever it rained, Maya and Leo walked the lane together, collecting stories the way other kids collected stickers."
+  ]
+};
+
+const PASSAGE_B = {
+  label: "Passage B · Science & Technology",
+  title: "How Redstone Thinks Like Real Electricity",
+  paras: [
+    "In Minecraft, redstone dust looks like a glowing trail of magic. Place it on the ground, connect it to a switch, and suddenly doors open, lights blink, and machines begin to work. What many players don't realize is that redstone behaves a lot like real electricity in your home—even though it is only a game.",
+    "Electricity needs a complete path, called a circuit, to travel from a power source back to where it started. If any part of that path is broken, the light stays dark. Redstone works the same way. A lever or button is like a light switch. Redstone dust is like a wire. A redstone lamp is like a light bulb. When you flip the lever, you close the circuit, and the lamp lights up.",
+    "Engineers who design real buildings use similar ideas. They plan where power will flow, how switches will control rooms, and how to keep wires safe. Some Minecraft players even study circuit diagrams—drawings that show how electricity moves—before they build complicated redstone machines in the game. That planning step is part of thinking like an engineer.",
+    "Of course, redstone is not exactly electricity. Real wires can be dangerous if you touch them the wrong way, and redstone will never shock you. But the big idea is shared: power travels along a path, switches control that path, and clever design can make a whole system work together.",
+    "So the next time you build a secret door with redstone, you are practicing the same kind of thinking that real engineers use when they design elevators, streetlights, and the charger for your tablet."
+  ]
+};
+
+const QUESTIONS = [
+  {
+    tag: "主旨 · Passage A",
+    stem: "1. What is the main idea of Passage A?",
+    choices: [
+      "Maya prefers rainy weather to sunny weather.",
+      "A quieter route helps Maya notice Leo and begin a friendship.",
+      "Leo is the best dragon artist in the class.",
+      "Pigeons always scatter when children laugh."
+    ],
+    answer: 1,
+    why: "主旨：整篇圍繞 Maya 走安靜小路遇見 Leo、兩人開始成為朋友。"
+  },
+  {
+    tag: "找證據 · Passage A",
+    stem: "2. Which sentence best supports the idea that Leo is shy?",
+    choices: [
+      "Leo pointed out a tiny nest tucked under the eaves.",
+      "Maya's friends asked why she had taken the quiet shortcut.",
+      "His name was Leo, and he almost never spoke in class.",
+      "Papers fluttered in the wind."
+    ],
+    answer: 2,
+    why: "找證據：almost never spoke in class 最直接說明他害羞／寡言。"
+  },
+  {
+    tag: "推論 · Passage A",
+    stem: "3. What does Maya most likely mean when she says the quieter path \"shows you things the noisy path misses\"?",
+    choices: [
+      "Quiet paths are always shorter than noisy ones.",
+      "When life is less loud and rushed, you notice people and details you might otherwise overlook.",
+      "Libraries are more interesting than school playgrounds.",
+      "Dragons can only be drawn on quiet streets."
+    ],
+    answer: 1,
+    why: "推論：她在安靜路上注意到 Leo 與小細節，對比平常吵鬧路線會錯過這些。"
+  },
+  {
+    tag: "上下文猜字 · Passage A",
+    stem: "4. In the sentence \"Maya hesitated,\" the word hesitated most nearly means —",
+    choices: [
+      "ran forward without thinking",
+      "paused because she was unsure what to do",
+      "shouted for help",
+      "forgot Leo's name"
+    ],
+    answer: 1,
+    why: "字義：下文說她可以假裝沒看到，顯示她先停住、猶豫要不要幫忙。"
+  },
+  {
+    tag: "作者目的 · Passage A",
+    stem: "5. The author's main purpose in Passage A is to —",
+    choices: [
+      "teach readers how to draw dragons",
+      "warn children never to walk alone in the rain",
+      "tell a story that shows how a small choice can lead to a new friendship",
+      "explain why pigeons live on rooftops"
+    ],
+    answer: 2,
+    why: "作者目的：用故事說明一個小小選擇（幫忙）帶來新友誼。"
+  },
+  {
+    tag: "主旨 · Passage B",
+    stem: "6. What is Passage B mainly about?",
+    choices: [
+      "Why Minecraft doors are better than real doors",
+      "How redstone in Minecraft works like real electric circuits",
+      "How to charge a tablet safely",
+      "Why engineers should stop using wires"
+    ],
+    answer: 1,
+    why: "主旨：全文比較 Minecraft 紅石與真實電路／工程思維的相似處。"
+  },
+  {
+    tag: "上下文猜字 · Passage B",
+    stem: "7. As used in Passage B, the word circuit most nearly means —",
+    choices: [
+      "a complete path that electricity can travel along",
+      "a secret Minecraft door",
+      "a drawing of a dragon",
+      "a kind of battery charger"
+    ],
+    answer: 0,
+    why: "字義：文中說 electricity needs a complete path, called a circuit。"
+  },
+  {
+    tag: "推論／細節 · Passage B",
+    stem: "8. According to the passage, how is a Minecraft lever like a real light switch?",
+    choices: [
+      "Both are made of glass.",
+      "Both can shock you if you touch them.",
+      "Both control whether power flows along a path to turn something on.",
+      "Both are found only in libraries."
+    ],
+    answer: 2,
+    why: "細節／推論：翻 lever＝關合電路讓燈亮，跟電燈開關控制電力流動一樣。"
+  },
+  {
+    tag: "跨篇比較",
+    stem: "9. Which statement is true of BOTH passages?",
+    choices: [
+      "Both argue that Minecraft is more important than school.",
+      "Both show that paying attention—to people or to how systems work—can lead to new understanding.",
+      "Both explain how to fix a broken lantern.",
+      "Both are written mainly to frighten young readers."
+    ],
+    answer: 1,
+    why: "跨篇：A 是留意人與細節帶來友誼；B 是留意系統運作帶來工程理解——都強調「注意／思考」帶來新認識。"
+  }
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function tokenize(text) {
+  return text.match(/[A-Za-z]+(?:'[A-Za-z]+)?|[^A-Za-z]+/g) || [];
+}
+
+function renderOnePassage(elId, data) {
+  const el = document.getElementById(elId);
+  const body = data.paras.map(p => {
+    const parts = tokenize(p).map(tok => {
+      if (/^[A-Za-z]/.test(tok)) {
+        const key = tok.toLowerCase();
+        return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+      }
+      return escapeHtml(tok);
+    }).join("");
+    return `<p>${parts}</p>`;
+  }).join("");
+  el.innerHTML = `<div class="passage-label">${escapeHtml(data.label)}</div><h2>${escapeHtml(data.title)}</h2>${body}`;
+}
+
+function renderPassages() {
+  renderOnePassage("passageA", PASSAGE_A);
+  renderOnePassage("passageB", PASSAGE_B);
+}
+
+let activeKey = null;
+let activeEl = null;
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  if (activeEl) activeEl.classList.remove("active");
+  activeKey = null;
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextElementSibling;
+  if (next && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) {
+      entry = GLOSSARY[phrase];
+      label = display + " " + next.dataset.display;
+    }
+  }
+  if (!entry) entry = GLOSSARY[key];
+
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = wordEl;
+  activeKey = key;
+  wordEl.classList.add("active");
+
+  const g = document.getElementById("gloss");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄這個字；試試看從句子猜猜它的意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）先讀完整句，猜猜看～";
+  }
+  g.classList.add("show");
+  recordLookup(label, entry);
+}
+
+function renderQuiz() {
+  const form = document.getElementById("quiz-form");
+  form.innerHTML = QUESTIONS.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt" data-q="${qi}" data-c="${ci}">
+        <input type="radio" name="q${qi}" value="${ci}" />
+        <span><strong>${LETTERS[ci]}.</strong> ${escapeHtml(c)}</span>
+      </label>`).join("");
+    return `<div class="q" data-q="${qi}">
+      <div class="q-tag">${escapeHtml(q.tag)}</div>
+      <div class="q-stem">${escapeHtml(q.stem)}</div>
+      ${opts}
+      <div class="explain" id="ex${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const PACK_META = {
+  child: "Seren",
+  date: "2026-10-25-preview",
+  title: "Reading Adventure Challenge · The Quiet Shortcut + How Redstone Thinks Like Real Electricity",
+  level: "≈900–1000L · US G4–5 · mini SAT-style (NOT a real SAT)"
+};
+
+let lastReport = null;
+
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : "";
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const { words, total } = lookupStats();
+  if (!words.length) return ["查詢單字：無"];
+  return [`查詢單字（共 ${total} 次，${words.length} 個字）：`,
+    ...words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function grade() {
+  let correct = 0;
+  const detail = [];
+  QUESTIONS.forEach((q, qi) => {
+    const chosen = document.querySelector(`input[name="q${qi}"]:checked`);
+    const ex = document.getElementById("ex" + qi);
+    document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(lab => {
+      lab.classList.remove("mark-ok", "mark-bad");
+    });
+    const ansLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${q.answer}"]`);
+    if (ansLab) ansLab.classList.add("mark-ok");
+
+    if (!chosen) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正確答案是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: 未作答（正解 ${LETTERS[q.answer]}）`);
+      return;
+    }
+    const ci = Number(chosen.value);
+    if (ci === q.answer) {
+      correct += 1;
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[q.answer]}）<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✓ ${LETTERS[ci]}`);
+    } else {
+      const badLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${ci}"]`);
+      if (badLab) badLab.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[ci]}，正確是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✗ 選${LETTERS[ci]}／正解${LETTERS[q.answer]}`);
+    }
+  });
+  const score = document.getElementById("score");
+  let cheerLine = "";
+  if (correct === QUESTIONS.length) cheerLine = " · 挑戰全過關！你是閱讀冒險家 🌟";
+  else if (correct >= 7) cheerLine = " · 很強！再看講解就能更穩";
+  else if (correct >= 5) cheerLine = " · 不錯的開始，挑戰本來就比日常難一點";
+  else cheerLine = " · 沒關係，看完講解再挑戰一次";
+  score.textContent = `得分：${correct} / ${QUESTIONS.length}` + cheerLine;
+  const nWords = lookupStats().words.length;
+  const cheer = document.createElement("div");
+  cheer.style.fontSize = "0.85em";
+  cheer.style.fontWeight = "normal";
+  cheer.style.marginTop = "4px";
+  cheer.textContent = nWords ? `這次查了 ${nWords} 個字 👍 認識新單字真棒！` : "這次沒有查單字，讀得很順喔 👍";
+  score.appendChild(cheer);
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = true; });
+
+  lastReport = [
+    "【迷你SAT成績回報 → English Tutor】",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `程度：${PACK_META.level}`,
+    `得分：${correct}/${QUESTIONS.length}`,
+    "明細：",
+    ...detail.map(d => "- " + d),
+    ...lookupReportLines(),
+    "（請貼到微信給家庭大管家轉 English Tutor）"
+  ].join("\n");
+
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+}
+
+async function copyResults() {
+  if (!lastReport) {
+    alert("請先提交答案。");
+    return;
+  }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = lastReport;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch (e2) {
+      alert("無法自動複製，請手動選取以下文字：\n\n" + lastReport);
+      document.body.removeChild(ta);
+      return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！去微信貼上";
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = "複製成績";
+    btn.classList.remove("copied");
+  }, 2500);
+}
+
+function resetQuiz() {
+  document.getElementById("quiz-form").reset();
+  document.querySelectorAll(".explain").forEach(ex => {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderPassages();
+renderQuiz();
+
+function bindPassageClicks(el) {
+  let lastTapEl = null, lastTapTime = 0;
+  el.addEventListener("click", (e) => {
+    const t = e.target.closest(".word");
+    if (!t) return;
+    const now = Date.now();
+    if (t === lastTapEl && now - lastTapTime < 350) return;
+    lastTapEl = t; lastTapTime = now;
+    showGloss(t);
+  });
+  el.addEventListener("dblclick", (e) => {
+    const t = e.target.closest(".word");
+    if (!t) return;
+    e.preventDefault();
+    if (activeEl !== t) showGloss(t);
+  });
+}
+bindPassageClicks(document.getElementById("passageA"));
+bindPassageClicks(document.getElementById("passageB"));
+
+document.getElementById("gloss").addEventListener("click", hideGloss);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+</script>
+</body>
+</html>
