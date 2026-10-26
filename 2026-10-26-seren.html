@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Seren Reading · Living Lights · 2026-10-26</title>
+<style>
+  :root {
+    --bg: #ecfdf5;
+    --card: #f0fdf4;
+    --ink: #052e16;
+    --muted: #166534;
+    --accent: #059669;
+    --accent-soft: #d1fae5;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #15803d;
+    --ok-soft: #dcfce7;
+    --border: #a7f3d0;
+    --shadow: 0 8px 24px rgba(5, 46, 22, 0.10);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #ecfdf5 0%, #eff6ff 45%, #fefce8 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    font-size: 0.88rem;
+    color: #065f46;
+  }
+  .passage {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow);
+    font-size: 1.2rem;
+    line-height: 1.85;
+    position: relative;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .passage p { margin: 0 0 1rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(5,150,105,0.25);
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .passage .word:hover { background: rgba(5, 150, 105, 0.12); }
+  .passage .word.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  #gloss {
+    display: none;
+    position: sticky;
+    bottom: 0.75rem;
+    margin-top: 1rem;
+    background: #064e3b;
+    color: #ecfdf5;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 5;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  #gloss .g-en { opacity: 0.95; }
+  #gloss .g-zh { margin-top: 0.2rem; color: #a7f3d0; }
+  #gloss .g-hint { margin-top: 0.45rem; font-size: 0.78rem; opacity: 0.75; }
+  .quiz {
+    margin-top: 1.25rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quiz h2 { margin: 0 0 0.75rem; font-size: 1.15rem; }
+  .q {
+    border-top: 1px solid var(--border);
+    padding: 1rem 0;
+  }
+  .q:first-of-type { border-top: none; padding-top: 0.25rem; }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; }
+  .opt {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0.2rem 0;
+  }
+  .opt:hover { background: #f0fdf4; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: var(--ok-soft); }
+  .opt.mark-bad { background: var(--wrong-soft); }
+  .explain {
+    display: none;
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .explain.show { display: block; }
+  .explain.ok { background: var(--ok-soft); color: #14532d; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+  button {
+    border: none;
+    border-radius: 999px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #e7e5e4; color: var(--ink); }
+  #copyBtn { background: #1d4ed8; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #15803d; }
+  #score {
+    display: none;
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-weight: 600;
+  }
+  #score.show { display: block; }
+  footer {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>✨ Living Lights: How Fireflies Talk</h1>
+    <div class="meta">Seren · ≈900–1000L · US Grade 4–5 · 2026-10-26<br />
+    類型：科學與科技 · CA CCSS informational (RI.4–5) · 自編對齊 CA · English Tutor</div>
+    <div class="tip">💡 看到不懂的單字，<strong>點一下</strong> → 下方出現英文解釋＋中文；<strong>再點一下同一個字</strong>（或點說明卡）就關掉。<br/>做完 5 題按「提交答案」，再按「複製成績」貼到微信給爸爸媽媽喔！</div>
+  </header>
+
+  <article class="passage" id="passage" aria-label="Reading passage"></article>
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz">
+    <h2>Comprehension Check（5 題）</h2>
+    <form id="quiz-form"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+
+  <footer>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA CCSS）</footer>
+</div>
+
+<script>
+const GLOSSARY = {
+  "bioluminescence": { en: "living light made by living things", zh: "生物發光" },
+  "abdomen": { en: "the belly or lower part of an insect's body", zh: "腹部" },
+  "luciferin": { en: "a chemical that can make light when it reacts", zh: "螢光素（會發光的化學物質）" },
+  "enzyme": { en: "a substance in living things that helps a chemical reaction happen", zh: "酵素；酶" },
+  "luciferase": { en: "the enzyme that helps luciferin make light", zh: "螢光酵素" },
+  "reaction": { en: "a chemical change that produces a new result", zh: "化學反應" },
+  "releases": { en: "lets out; sets free", zh: "釋放出" },
+  "species": { en: "a group of living things of the same kind", zh: "物種" },
+  "patterns": { en: "repeated designs or ways of doing something", zh: "模式；花樣" },
+  "pulse": { en: "to flash or beat in a regular rhythm", zh: "有節奏地閃爍／跳動" },
+  "rhythm": { en: "a regular, repeated beat or timing", zh: "節奏" },
+  "attract": { en: "to pull someone's interest or attention toward you", zh: "吸引" },
+  "signal": { en: "a message sent without words, often by light or sound", zh: "信號" },
+  "purpose": { en: "the reason something is done", zh: "目的" },
+  "copy": { en: "to make something that looks or acts the same", zh: "模仿；複製" },
+  "hopeful": { en: "feeling that something good might happen", zh: "抱著希望的" },
+  "approaches": { en: "comes nearer", zh: "靠近；接近" },
+  "captures": { en: "catches and holds", zh: "捕捉" },
+  "communication": { en: "sharing information or messages", zh: "溝通；傳達" },
+  "plankton": { en: "tiny plants and animals that drift in water", zh: "浮游生物" },
+  "predators": { en: "animals that hunt other animals for food", zh: "掠食者；天敵" },
+  "researchers": { en: "people who study carefully to learn new facts", zh: "研究人員" },
+  "detect": { en: "to notice or find something that is hard to see", zh: "偵測；發現" },
+  "meadows": { en: "grassy open fields", zh: "草地；牧場" },
+  "larvae": { en: "young forms of insects before they become adults", zh: "幼蟲" },
+  "chemicals": { en: "substances made of matter that can change other things", zh: "化學物質" },
+  "protect": { en: "to keep safe from harm", zh: "保護" },
+  "inventions": { en: "new things that people create or discover how to use", zh: "發明" },
+  "ordinary": { en: "usual; not special", zh: "普通的" },
+  "damp": { en: "a little wet", zh: "潮濕的" },
+  "dim": { en: "to make lights less bright", zh: "調暗" },
+  "outdoor": { en: "outside; not indoors", zh: "戶外的" },
+  "invent": { en: "to create something new", zh: "發明" },
+  "medical": { en: "related to health and doctors", zh: "醫學的；醫療的" },
+  "wasted": { en: "used up without a good purpose", zh: "浪費掉的" },
+  "confuse": { en: "to make someone unsure what is true", zh: "迷惑；搞混" },
+  "surprising": { en: "unexpected; making you feel amazed", zh: "令人驚訝的" },
+  "behavior": { en: "the way a living thing acts", zh: "行為" },
+  "greeting": { en: "a friendly hello or welcome", zh: "問候；打招呼" },
+  "partner": { en: "someone you join with for a purpose", zh: "伴侶；夥伴" },
+  "steady": { en: "even and regular; not changing suddenly", zh: "穩定的" },
+  "floating": { en: "staying up in the air or on water without sinking", zh: "漂浮的" },
+  "soft-bodied": { en: "having a body that is not hard like a shell", zh: "身體柔軟的" },
+  "cleverest": { en: "most smart or inventive", zh: "最巧妙的" },
+  "gentle": { en: "soft and careful; not harsh", zh: "溫和的；輕柔的" },
+  "spoken": { en: "said with the voice", zh: "說出口的" },
+  "dancing": { en: "moving lightly and with energy", zh: "舞動著" },
+  "shines": { en: "gives off light", zh: "閃耀；發光" }
+};
+
+const PASSAGE_PARAS = [
+  "On warm summer evenings, tiny lights blink above the grass like floating stars. Those lights belong to fireflies — soft-bodied beetles that make their own glow. Scientists call this living light bioluminescence, and it is one of nature's cleverest inventions. Understanding how it works helps us see everyday insects as tiny engineers.",
+  "A firefly does not carry a battery or a tiny bulb. Inside its abdomen, a chemical called luciferin mixes with oxygen from the air. An enzyme named luciferase acts like a careful switch. When the two meet, the reaction releases energy as a cool, yellow-green flash. The light feels cool because almost no heat is wasted. Unlike a hot light bulb, a firefly's lantern stays gentle enough to rest on your finger.",
+  "Different kinds of fireflies flash in different patterns, almost like secret codes written in the sky. One species may blink twice, pause for a breath, then blink again. Another may pulse in a steady rhythm, as if keeping time with a quiet song. Males usually fly through the air and flash to attract a mate. Females often wait on leaves or tall grass and answer with their own signal. If the pattern matches, the pair has found each other in the dark without a single spoken word.",
+  "Some fireflies use their light for a darker purpose. A few female fireflies can copy the flash code of another species. When a hopeful male approaches, believing he has found a partner, she captures him for a meal. Nature's glowing language can be a greeting — or a trap. This surprising behavior reminds scientists that communication in the wild is not always friendly.",
+  "Bioluminescence is not only for insects. Deep in the ocean, where sunlight never reaches, certain fish, jellyfish, and tiny plankton also create their own light. They may use it to find food, confuse predators, or signal to their own kind across the black water. Studying fireflies helps researchers invent better medical tests that glow when they detect a problem, and even safer night lights that waste less energy than ordinary bulbs.",
+  "Fireflies need damp meadows, soft soil, and nights that are not too bright. Streetlamps and glowing screens can make their codes harder to see, so fewer pairs find each other. That is why some towns dim outdoor lights in summer and why families walk carefully through grassy parks instead of spraying chemicals that harm beetle larvae.",
+  "Next time you see a spark dancing in the grass, pause and watch the pattern. Count the flashes. Notice who answers. You are reading a living code written in light — one of Earth's oldest and most beautiful inventions. And the more you understand that code, the more you may want to protect the dark places where it still shines."
+];
+
+const QUESTIONS = [
+  {
+    "stem": "1. What is the main idea of this article?",
+    "choices": [
+      "Fireflies are dangerous insects that should be avoided at night.",
+      "Fireflies make living light to communicate, and that light teaches us about nature and science.",
+      "All ocean animals use the same flash code as fireflies.",
+      "Streetlamps help fireflies find mates more easily."
+    ],
+    "answer": 1,
+    "why": "主旨題：全文講螢火蟲如何用生物發光溝通，以及這對科學與保育的意義。"
+  },
+  {
+    "stem": "2. According to the passage, why does a firefly's light feel cool?",
+    "choices": [
+      "Because the flash lasts only one second",
+      "Because fireflies live only in winter",
+      "Because almost no heat is wasted in the chemical reaction",
+      "Because the light comes from the moon"
+    ],
+    "answer": 2,
+    "why": "細節題：文中說 almost no heat is wasted，所以光是「冷光」。"
+  },
+  {
+    "stem": "3. What can you infer about towns that dim outdoor lights in summer?",
+    "choices": [
+      "They want fireflies to have a better chance to find mates.",
+      "They are trying to save money on insect spray.",
+      "They believe fireflies prefer bright streets.",
+      "They want people to stay indoors after dark."
+    ],
+    "answer": 0,
+    "why": "推論題：前文說燈光太亮會讓螢火蟲的暗號更難看見，所以調暗燈光是為了幫助牠們配對。"
+  },
+  {
+    "stem": "4. In the sentence “An enzyme named luciferase acts like a careful switch,” the word enzyme most nearly means —",
+    "choices": [
+      "a tiny battery inside the firefly",
+      "a substance that helps a chemical reaction happen",
+      "a secret flash code between insects",
+      "a soft meadow where larvae live"
+    ],
+    "answer": 1,
+    "why": "詞彙語境題：enzyme 像「開關」幫助化學物質反應發光 → 幫助化學反應發生的物質。"
+  },
+  {
+    "stem": "5. Why does the author describe some female fireflies copying another species' flash code?",
+    "choices": [
+      "To show that all firefly messages are friendly greetings",
+      "To prove that ocean plankton invented flashing first",
+      "To explain that glowing signals can also be used as a trap",
+      "To argue that fireflies should not live near towns"
+    ],
+    "answer": 2,
+    "why": "作者目的／推論：這段說明發光語言不一定友善，也可以是捕獵的陷阱。"
+  }
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function tokenize(text) {
+  return text.match(/[A-Za-z]+(?:'[A-Za-z]+)?|[^A-Za-z]+/g) || [];
+}
+
+function renderPassage() {
+  const el = document.getElementById("passage");
+  el.innerHTML = PASSAGE_PARAS.map(p => {
+    const parts = tokenize(p).map(tok => {
+      if (/^[A-Za-z]/.test(tok)) {
+        const key = tok.toLowerCase();
+        return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+      }
+      return escapeHtml(tok);
+    }).join("");
+    return `<p>${parts}</p>`;
+  }).join("");
+}
+
+let activeKey = null;
+let activeEl = null;
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  if (activeEl) activeEl.classList.remove("active");
+  activeKey = null;
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextSibling;
+  if (next && next.nodeType === 1 && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) {
+      entry = GLOSSARY[phrase];
+      label = display + " " + next.dataset.display;
+    }
+  }
+  if (!entry) entry = GLOSSARY[key];
+
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = wordEl;
+  activeKey = key;
+  wordEl.classList.add("active");
+
+  const g = document.getElementById("gloss");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄這個字；試試看從句子猜猜它的意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）先讀完整句，猜猜看～";
+  }
+  g.classList.add("show");
+  recordLookup(label, entry);
+}
+
+function renderQuiz() {
+  const form = document.getElementById("quiz-form");
+  form.innerHTML = QUESTIONS.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt" data-q="${qi}" data-c="${ci}">
+        <input type="radio" name="q${qi}" value="${ci}" />
+        <span><strong>${LETTERS[ci]}.</strong> ${escapeHtml(c)}</span>
+      </label>`).join("");
+    return `<div class="q" data-q="${qi}">
+      <div class="q-stem">${escapeHtml(q.stem)}</div>
+      ${opts}
+      <div class="explain" id="ex${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const PACK_META = {
+  child: "Seren",
+  date: "2026-10-26",
+  title: "Living Lights: How Fireflies Talk",
+  type: "科學與科技",
+  level: "≈900–1000L · US G4–5 · science/tech (RI.4–5)"
+};
+
+let lastReport = null;
+
+// ---- Lookup tracking (counts each OPEN of a gloss card) ----
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : "";
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const { words, total } = lookupStats();
+  if (!words.length) return ["查詢單字：無"];
+  return [`查詢單字（共 ${total} 次，${words.length} 個字）：`,
+    ...words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function grade() {
+  let correct = 0;
+  const detail = [];
+  QUESTIONS.forEach((q, qi) => {
+    const chosen = document.querySelector(`input[name="q${qi}"]:checked`);
+    const ex = document.getElementById("ex" + qi);
+    document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(lab => {
+      lab.classList.remove("mark-ok", "mark-bad");
+    });
+    const ansLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${q.answer}"]`);
+    if (ansLab) ansLab.classList.add("mark-ok");
+
+    if (!chosen) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正確答案是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: 未作答（正解 ${LETTERS[q.answer]}）`);
+      return;
+    }
+    const ci = Number(chosen.value);
+    if (ci === q.answer) {
+      correct += 1;
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[q.answer]}）<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✓ ${LETTERS[ci]}`);
+    } else {
+      const badLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${ci}"]`);
+      if (badLab) badLab.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[ci]}，正確是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✗ 選${LETTERS[ci]}／正解${LETTERS[q.answer]}`);
+    }
+  });
+  const score = document.getElementById("score");
+  score.textContent = `得分：${correct} / ${QUESTIONS.length}` + (correct === QUESTIONS.length ? " · 太棒了！" : " · 看完講解再重做一次也可以");
+  const nWords = lookupStats().words.length;
+  const cheer = document.createElement("div");
+  cheer.style.fontSize = "0.85em";
+  cheer.style.fontWeight = "normal";
+  cheer.style.marginTop = "4px";
+  cheer.textContent = nWords ? `今天查了 ${nWords} 個字 👍 認識新單字真棒！` : "今天沒有查單字，讀得很順喔 👍";
+  score.appendChild(cheer);
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = true; });
+
+  lastReport = [
+    "【Reading 成績回報 → English Tutor】",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `類型：${PACK_META.type}`,
+    `程度：${PACK_META.level}`,
+    `得分：${correct}/${QUESTIONS.length}`,
+    "明細：",
+    ...detail.map(d => "- " + d),
+    ...lookupReportLines(),
+    "（請貼到微信給家庭大管家轉 English Tutor）"
+  ].join("\n");
+
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+}
+
+async function copyResults() {
+  if (!lastReport) {
+    alert("請先提交答案。");
+    return;
+  }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = lastReport;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch (e2) {
+      alert("無法自動複製，請手動選取以下文字：\n\n" + lastReport);
+      document.body.removeChild(ta);
+      return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！去微信貼上";
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = "複製成績";
+    btn.classList.remove("copied");
+  }, 2500);
+}
+
+function resetQuiz() {
+  document.getElementById("quiz-form").reset();
+  document.querySelectorAll(".explain").forEach(ex => {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderPassage();
+renderQuiz();
+
+let lastTapEl = null, lastTapTime = 0;
+document.getElementById("passage").addEventListener("click", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  const now = Date.now();
+  if (t === lastTapEl && now - lastTapTime < 350) return;
+  lastTapEl = t; lastTapTime = now;
+  showGloss(t);
+});
+document.getElementById("passage").addEventListener("dblclick", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  e.preventDefault();
+  if (activeEl !== t) showGloss(t);
+});
+
+document.getElementById("gloss").addEventListener("click", hideGloss);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+</script>
+</body>
+</html>
