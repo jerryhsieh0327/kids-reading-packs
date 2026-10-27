@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Seren Writing DEMO · Ocean Animal · Parent Preview</title>
+<style>
+  :root {
+    --bg: #e3f2fd;
+    --card: #f0f7ff;
+    --ink: #0d2744;
+    --muted: #3d5a73;
+    --accent: #0277bd;
+    --accent-soft: #b3e5fc;
+    --border: #81d4fa;
+    --shadow: 0 8px 24px rgba(13, 39, 68, 0.12);
+    --deep: #01579b;
+    --foam: #e1f5fe;
+    --ok: #2e7d32;
+    --ok-soft: #c8e6c9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #e3f2fd 0%, #e0f7fa 45%, #e8eaf6 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3.5rem; }
+  .demo-banner {
+    background: #fff3e0;
+    border: 2px solid #ff9800;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    color: #e65100;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .demo-banner .sub { font-weight: 400; font-size: 0.88rem; margin-top: 0.35rem; color: #bf360c; }
+  header {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    border-left: 6px solid var(--accent);
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #01579b;
+    border: 1px dashed var(--accent);
+  }
+  .card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+  }
+  .card h2 {
+    margin: 0 0 0.55rem;
+    font-size: 1.12rem;
+    color: var(--deep);
+  }
+  .prompt-en {
+    font-size: 1.15rem;
+    line-height: 1.75;
+    margin: 0.5rem 0 0.85rem;
+    font-weight: 500;
+  }
+  .prompt-zh {
+    font-size: 0.92rem;
+    color: var(--muted);
+    margin: 0 0 0.85rem;
+  }
+  .starters {
+    background: var(--foam);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+  }
+  .starters .label {
+    font-weight: 600;
+    color: var(--deep);
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
+  .starters ul { margin: 0; padding-left: 1.2rem; }
+  .starters li { margin: 0.25rem 0; }
+  .starter-btn {
+    display: inline-block;
+    margin: 0.2rem 0.25rem 0.2rem 0;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    background: #fff;
+    color: var(--deep);
+    font-size: 0.82rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .starter-btn:active { background: var(--accent-soft); }
+  label.write-label {
+    display: block;
+    font-weight: 600;
+    color: var(--deep);
+    margin-bottom: 0.45rem;
+    font-size: 0.95rem;
+  }
+  #draft {
+    width: 100%;
+    min-height: 280px;
+    padding: 0.9rem 1rem;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    resize: vertical;
+    -webkit-appearance: none;
+  }
+  #draft:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(2, 119, 189, 0.2);
+  }
+  .count-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.45rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .count-row .target { color: var(--deep); }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+  button.btn {
+    flex: 1 1 160px;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 48px;
+  }
+  button.btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--deep);
+  }
+  button.btn-primary:active { background: var(--deep); }
+  button.btn-secondary {
+    background: #fff;
+    color: var(--deep);
+    border-color: var(--accent);
+  }
+  button.btn-secondary:active { background: var(--accent-soft); }
+  #status {
+    display: none;
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    background: var(--ok-soft);
+    color: var(--ok);
+    border: 1px solid #81c784;
+  }
+  #status.show { display: block; }
+  .parent-note {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 0.75rem;
+  }
+  footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="demo-banner">
+    家長示範預覽 Parent Demo Preview（非正式）
+    <div class="sub">這頁給 Jerry 預覽寫作 UI 與「複製作文」流程。不會轉給 Seren；正式寫作題之後另出。</div>
+  </div>
+
+  <header>
+    <h1>✍️ Writing Practice · Seren</h1>
+    <div class="meta">US G4–5 · 目標約 80–120 字 · 海洋主題示範</div>
+    <div class="tip">
+      寫完按「複製作文」，貼到微信給家庭大管家轉 English Tutor。<br />
+      After you finish, tap <strong>Copy writing</strong>, then paste in WeChat for English Tutor feedback.
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>📝 Today's prompt</h2>
+    <p class="prompt-en" id="promptText">Write about an ocean animal you would like to meet. Tell what it looks like, one cool fact, and how you would feel.</p>
+    <p class="prompt-zh">寫一種你想見到的海洋動物：它長什麼樣、一個酷事實、以及你的感覺。（約 80–120 個英文單字）</p>
+    <div class="starters">
+      <div class="label">Sentence starters（可選 · 點一下可貼進作文框）</div>
+      <button type="button" class="starter-btn" data-starter="I would love to meet a ">I would love to meet a …</button>
+      <button type="button" class="starter-btn" data-starter="It looks like ">It looks like …</button>
+      <button type="button" class="starter-btn" data-starter="One cool fact is that ">One cool fact is that …</button>
+      <button type="button" class="starter-btn" data-starter="If I met it, I would feel ">If I met it, I would feel …</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <label class="write-label" for="draft">Your writing · 在這裡打字</label>
+    <textarea id="draft" placeholder="Start typing here… You can use a sentence starter above." spellcheck="true" autocomplete="off" autocapitalize="sentences"></textarea>
+    <div class="count-row">
+      <span id="counts">0 words · 0 characters</span>
+      <span class="target">目標約 80–120 words</span>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" id="btnSample">填入範例草稿</button>
+      <button type="button" class="btn btn-primary" id="btnCopy">複製作文</button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <p class="parent-note">家長提示：此頁<strong>不做</strong>自動文法批改。按「填入範例草稿」可試複製流程；範例刻意留 2～3 個可教學錯誤，方便預覽之後家教回饋長什麼樣。</p>
+  </section>
+
+  <footer>Kids Reading Packs · Writing demo · 2026-10-28</footer>
+</div>
+
+<script>
+(function () {
+  var PROMPT = "Write about an ocean animal you would like to meet. Tell what it looks like, one cool fact, and how you would feel.";
+  var SAMPLE = "I would love to meet a octopus in the deep ocean. It have eight long arms and soft skin that can change colors. One cool fact is that octopuses are very smart and they can open jars with them arms. If I met it, I feel excited and a little scared because it look mysterious. I want to ask the octopus how it hide from sharks.";
+
+  var draft = document.getElementById("draft");
+  var counts = document.getElementById("counts");
+  var statusEl = document.getElementById("status");
+  var btnCopy = document.getElementById("btnCopy");
+  var btnSample = document.getElementById("btnSample");
+
+  function wordCount(text) {
+    var t = (text || "").trim();
+    if (!t) return 0;
+    return t.split(/\s+/).filter(Boolean).length;
+  }
+
+  function updateCounts() {
+    var text = draft.value;
+    var w = wordCount(text);
+    var c = text.length;
+    counts.textContent = w + " words · " + c + " characters";
+  }
+
+  function showStatus(msg, ok) {
+    statusEl.textContent = msg;
+    statusEl.className = "show";
+    statusEl.style.background = ok ? "" : "#ffe0b2";
+    statusEl.style.color = ok ? "" : "#e65100";
+    statusEl.style.borderColor = ok ? "" : "#ff9800";
+  }
+
+  function todayISO() {
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function buildReport() {
+    var text = draft.value.trim();
+    var n = wordCount(text);
+    return [
+      "【Writing 草稿 → English Tutor】",
+      "孩子：Seren",
+      "日期：" + todayISO(),
+      "題目：" + PROMPT,
+      "字數：" + n,
+      "---",
+      text || "(empty)"
+    ].join("\n");
+  }
+
+  function copyText(str) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(str);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement("textarea");
+      ta.value = str;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) resolve();
+        else reject(new Error("copy failed"));
+      } catch (e) {
+        document.body.removeChild(ta);
+        reject(e);
+      }
+    });
+  }
+
+  draft.addEventListener("input", updateCounts);
+  updateCounts();
+
+  document.querySelectorAll(".starter-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var s = btn.getAttribute("data-starter") || "";
+      var cur = draft.value;
+      if (cur && !/\s$/.test(cur)) cur += " ";
+      if (cur && !/\n$/.test(cur) && cur.trim()) {
+        /* append with space or new paragraph feel */
+      }
+      draft.value = cur + s;
+      draft.focus();
+      updateCounts();
+    });
+  });
+
+  btnSample.addEventListener("click", function () {
+    draft.value = SAMPLE;
+    updateCounts();
+    showStatus("已填入範例草稿（刻意含可教學文法點）。可再按「複製作文」試流程。", true);
+  });
+
+  btnCopy.addEventListener("click", function () {
+    var report = buildReport();
+    copyText(report).then(function () {
+      showStatus("已複製！請貼到微信，交給家庭大管家轉 English Tutor。", true);
+    }).catch(function () {
+      showStatus("複製失敗。請長按作文框手動全選複製，或再試一次。", false);
+    });
+  });
+})();
+</script>
+</body>
+</html>
