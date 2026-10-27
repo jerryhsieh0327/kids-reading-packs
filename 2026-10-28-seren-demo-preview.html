@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Seren Reading DEMO · Whistle Talk · Parent Preview</title>
+<style>
+  :root {
+    --bg: #e3f2fd;
+    --card: #f0f7ff;
+    --ink: #0d2744;
+    --muted: #3d5a73;
+    --accent: #0277bd;
+    --accent-soft: #b3e5fc;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #0277bd;
+    --ok-soft: #b3e5fc;
+    --border: #81d4fa;
+    --shadow: 0 8px 24px rgba(13, 39, 68, 0.12);
+    --deep: #01579b;
+    --foam: #e1f5fe;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #e3f2fd 0%, #e0f7fa 45%, #e8eaf6 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  .demo-banner {
+    background: #fff3e0;
+    border: 2px solid #ff9800;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    color: #e65100;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .demo-banner .sub { font-weight: 400; font-size: 0.88rem; margin-top: 0.35rem; color: #bf360c; }
+  header {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    border-left: 6px solid var(--accent);
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #01579b;
+    border: 1px dashed var(--accent);
+  }
+  .passage {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow);
+    font-size: 1.2rem;
+    line-height: 1.85;
+    position: relative;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .passage p { margin: 0 0 1rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(2,119,189,0.25);
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .passage .word:hover { background: rgba(2, 119, 189, 0.14); }
+  .passage .word.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  #gloss {
+    display: none;
+    position: sticky;
+    bottom: 0.75rem;
+    margin-top: 1rem;
+    background: #0d47a1;
+    color: #e3f2fd;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 5;
+    border: 2px solid #4fc3f7;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  #gloss .g-en { opacity: 0.95; }
+  #gloss .g-zh { margin-top: 0.2rem; color: #81d4fa; }
+  #gloss .g-hint { margin-top: 0.45rem; font-size: 0.78rem; opacity: 0.75; }
+  .quiz {
+    margin-top: 1.25rem;
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quiz h2 { margin: 0 0 0.75rem; font-size: 1.15rem; color: var(--deep); }
+  .quiz .section-note {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: -0.35rem 0 0.85rem;
+  }
+  .q {
+    border-top: 1px solid var(--border);
+    padding: 1rem 0;
+  }
+  .q:first-of-type { border-top: none; padding-top: 0.25rem; }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; }
+  .q-stem u { text-decoration-thickness: 2px; }
+  .opt {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0.2rem 0;
+  }
+  .opt:hover { background: #e1f5fe; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: #c8e6c9; }
+  .opt.mark-bad { background: var(--wrong-soft); }
+  .explain {
+    display: none;
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .explain.show { display: block; }
+  .explain.ok { background: #c8e6c9; color: #1b5e20; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+  button {
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #b0bec5; color: var(--ink); }
+  #copyBtn { background: #01579b; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #2e7d32; }
+  #score {
+    display: none;
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    background: var(--foam);
+    color: var(--ink);
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  #score.show { display: block; }
+  footer {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="demo-banner">
+    👨‍👩‍👧 家長示範預覽 · Parent Demo Preview
+    <div class="sub">這頁是給 Jerry 先看格式用的，<strong>非正式每日題</strong>。正式 2026-10-28 晚上包不會覆寫這份檔名。請試做 Reading 5 題＋Vocabulary in Context 10 題，再告訴我要改什麼。</div>
+  </div>
+
+  <header>
+    <h1>🐬🌊 Whistle Talk: How Dolphins Share Ideas Underwater</h1>
+    <div class="meta">Seren · ≈900–1000L · US Grade 4–5 · 2026-10-28-demo<br />
+    類型：科學與自然 · 海洋動物 · CA CCSS informational (RI.4–5) · 自編對齊 CA · English Tutor<br />
+    預估：約 20–25 分鐘閱讀＋測驗（含 10 題 Vocab）</div>
+    <div class="tip">💡 看到不懂的單字，<strong>點一下</strong> → 下方出現英文解釋＋中文；<strong>再點一下同一個字</strong>（或點說明卡）就關掉。<br/>先做 Reading 5 題，再做 Vocabulary in Context 10 題（跟短文無關）。全部做完按「提交答案」，再按「複製成績」看回報格式。</div>
+  </header>
+
+  <article class="passage" id="passage" aria-label="Reading passage"></article>
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz-reading">
+    <h2>Comprehension Check（5 題）</h2>
+    <p class="section-note">根據上方短文作答。可上下捲動回去再讀。</p>
+    <form id="quiz-form-reading"></form>
+  </section>
+
+  <section class="quiz" id="quiz-vocab">
+    <h2>Vocabulary in Context（10）</h2>
+    <p class="section-note">這 10 題<strong>不跟短文綁定</strong>。粗體＋底線的字，請選在句子裡最接近的意思。</p>
+    <form id="quiz-form-vocab"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交全部答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+
+  <footer>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA CCSS RI.4–5）· Parent Demo Preview · 非正式每日題</footer>
+</div>
+
+<script>
+const GLOSSARY = {
+  "along": { en: "from one end to the other of something", zh: "沿著" },
+  "warm": { en: "having a pleasantly high temperature", zh: "溫暖的" },
+  "coast": { en: "land next to the sea", zh: "海岸" },
+  "shallow": { en: "not deep", zh: "淺的" },
+  "bay": { en: "a wide curve of coastline where the sea comes in", zh: "海灣" },
+  "young": { en: "not old; early in life", zh: "年輕的；幼小的" },
+  "dolphin": { en: "a smart sea mammal that lives in groups", zh: "海豚" },
+  "dolphins": { en: "more than one dolphin", zh: "海豚（複數）" },
+  "named": { en: "given the name of", zh: "名叫" },
+  "echo": { en: "a sound that comes back after hitting something; also the dolphin's name here", zh: "回音；本篇海豚名" },
+  "flicked": { en: "moved quickly with a light snap", zh: "輕彈；甩動" },
+  "tail": { en: "the rear part of an animal's body", zh: "尾巴" },
+  "rose": { en: "moved upward (past of rise)", zh: "升起；往上" },
+  "toward": { en: "in the direction of", zh: "朝向" },
+  "morning": { en: "the early part of the day", zh: "早晨" },
+  "light": { en: "brightness from the sun or a lamp", zh: "光；光線" },
+  "looking": { en: "searching with the eyes", zh: "尋找；看" },
+  "fish": { en: "animals that live in water and breathe with gills", zh: "魚" },
+  "listening": { en: "paying attention to sounds", zh: "聆聽" },
+  "world": { en: "the earth and all life on it; a place", zh: "世界" },
+  "beneath": { en: "under; below", zh: "在……之下" },
+  "waves": { en: "moving ridges of water on the sea", zh: "波浪" },
+  "sound": { en: "something you hear", zh: "聲音" },
+  "travels": { en: "moves from one place to another", zh: "傳播；行進" },
+  "farther": { en: "a greater distance", zh: "更遠" },
+  "faster": { en: "at a higher speed", zh: "更快" },
+  "people": { en: "human beings", zh: "人們" },
+  "words": { en: "units of language", zh: "詞語" },
+  "maps": { en: "drawings that show places", zh: "地圖" },
+  "even": { en: "used to emphasize something surprising", zh: "甚至" },
+  "names": { en: "words used to call someone or something", zh: "名字" },
+  "belonged": { en: "was a member of a group", zh: "屬於" },
+  "small": { en: "little in size or number", zh: "小的" },
+  "pod": { en: "a group of dolphins or whales that live together", zh: "（海豚／鯨的）群體；群" },
+  "bottlenose": { en: "a common dolphin with a short, rounded snout", zh: "寬吻海豚" },
+  "family": { en: "a group of related living things", zh: "家庭；家族" },
+  "group": { en: "a set of living things together", zh: "團體；一群" },
+  "travels": { en: "goes from place to place", zh: "旅行；移動" },
+  "hunts": { en: "searches for and catches food", zh: "狩獵" },
+  "rests": { en: "stops activity to relax", zh: "休息" },
+  "together": { en: "with each other", zh: "一起" },
+  "each": { en: "every one separately", zh: "每一個" },
+  "special": { en: "different from others in an important way", zh: "特別的" },
+  "whistle": { en: "a high clear sound made by blowing air", zh: "哨音；口哨聲" },
+  "whistles": { en: "more than one whistle", zh: "哨音（複數）" },
+  "others": { en: "the remaining ones", zh: "其他的" },
+  "recognize": { en: "to know someone or something again", zh: "認出；辨認" },
+  "almost": { en: "nearly; not quite", zh: "幾乎" },
+  "nickname": { en: "an informal name used instead of a real name", zh: "暱稱" },
+  "scientists": { en: "people who study nature using careful methods", zh: "科學家" },
+  "call": { en: "to give a name to; also a sound made to contact someone", zh: "稱作；呼叫" },
+  "signature": { en: "a special mark that belongs to one individual", zh: "簽名式的；專屬標記" },
+  "signature whistles": { en: "unique whistle sounds that identify each dolphin", zh: "簽名哨音（每個海豚專屬）" },
+  "calf": { en: "a baby dolphin or whale", zh: "幼海豚；幼鯨" },
+  "mother": { en: "a female parent", zh: "母親" },
+  "repeated": { en: "said or did again", zh: "重複" },
+  "rising": { en: "going up", zh: "上升的" },
+  "falling": { en: "going down", zh: "下降的" },
+  "again": { en: "one more time", zh: "再次" },
+  "learned": { en: "gained knowledge or skill", zh: "學會了" },
+  "copy": { en: "to make something the same as another", zh: "模仿；複製" },
+  "became": { en: "came to be", zh: "變成" },
+  "separated": { en: "kept apart; not together", zh: "分開的；走散的" },
+  "cloudy": { en: "not clear; hard to see through", zh: "混濁的；不清澈的" },
+  "water": { en: "the liquid that fills oceans and rivers", zh: "水" },
+  "familiar": { en: "well known from being heard or seen often", zh: "熟悉的" },
+  "reply": { en: "an answer", zh: "回答；回覆" },
+  "beginning": { en: "the start", zh: "開始" },
+  "click": { en: "a short sharp sound", zh: "咔嗒聲；短促聲" },
+  "clicks": { en: "short sharp sounds", zh: "咔嗒聲（複數）" },
+  "short": { en: "not long", zh: "短的" },
+  "bursts": { en: "sudden groups of sounds or actions", zh: "一陣陣；爆發" },
+  "bounce": { en: "to hit something and come back", zh: "彈回；反彈" },
+  "rocks": { en: "hard pieces of stone", zh: "岩石" },
+  "sandy": { en: "covered with sand", zh: "多沙的" },
+  "floor": { en: "the bottom surface (here: the seafloor)", zh: "底部；海底" },
+  "return": { en: "to come back", zh: "返回" },
+  "returning": { en: "coming back", zh: "返回的" },
+  "echoes": { en: "sounds that bounce back", zh: "回音" },
+  "system": { en: "a set of parts that work together", zh: "系統" },
+  "echolocation": { en: "finding objects by sending sounds and listening to echoes", zh: "回聲定位" },
+  "listening": { en: "paying attention with the ears", zh: "聆聽" },
+  "judge": { en: "to decide or estimate", zh: "判斷；估計" },
+  "distance": { en: "how far apart things are", zh: "距離" },
+  "size": { en: "how big something is", zh: "大小" },
+  "shape": { en: "the outline or form of something", zh: "形狀" },
+  "object": { en: "a thing you can see or touch", zh: "物體" },
+  "cannot": { en: "is not able to", zh: "不能" },
+  "practiced": { en: "did something again to improve", zh: "練習" },
+  "sunken": { en: "lying under the water after sinking", zh: "沉沒的" },
+  "log": { en: "a thick piece of a tree trunk", zh: "木頭；原木" },
+  "soft": { en: "gentle; not hard or loud", zh: "柔和的；軟的" },
+  "hollow": { en: "empty inside", zh: "中空的" },
+  "harder": { en: "more firm or more intense", zh: "更硬；更強烈" },
+  "school": { en: "a large group of fish swimming together", zh: "魚群" },
+  "silver": { en: "shiny gray-white color", zh: "銀色的" },
+  "darting": { en: "moving suddenly and quickly", zh: "急衝；飛快穿過" },
+  "afternoon": { en: "the time after noon before evening", zh: "下午" },
+  "swam": { en: "moved through water (past of swim)", zh: "游（過去式）" },
+  "coral": { en: "tiny sea animals that build hard rocky reefs", zh: "珊瑚" },
+  "reef": { en: "a rocky ridge in the sea built by corals", zh: "礁；珊瑚礁" },
+  "colorful": { en: "full of many colors", zh: "色彩豐富的" },
+  "city": { en: "a large town (here: used as a comparison)", zh: "城市（比喻）" },
+  "seafloor": { en: "the bottom of the ocean", zh: "海底" },
+  "corals": { en: "more than one coral", zh: "珊瑚（複數）" },
+  "waved": { en: "moved back and forth", zh: "搖擺" },
+  "current": { en: "a flow of water in the ocean", zh: "洋流；水流" },
+  "hard": { en: "firm; solid", zh: "硬的" },
+  "built": { en: "made by putting parts together", zh: "建造" },
+  "rocky": { en: "full of rocks", zh: "多岩的" },
+  "shelves": { en: "flat ledges", zh: "棚架；岩架" },
+  "tiny": { en: "very small", zh: "極小的" },
+  "crabs": { en: "shellfish with claws that walk sideways", zh: "螃蟹" },
+  "hid": { en: "stayed out of sight (past of hide)", zh: "躲藏" },
+  "bright": { en: "full of light or strong color", zh: "明亮的；鮮豔的" },
+  "parrotfish": { en: "colorful reef fish with beak-like mouths", zh: "鸚哥魚" },
+  "scraped": { en: "rubbed hard to remove something", zh: "刮除" },
+  "algae": { en: "simple plant-like living things in water", zh: "藻類" },
+  "strong": { en: "having great power", zh: "強壯的；有力的" },
+  "beaks": { en: "hard pointed mouths of birds or some fish", zh: "喙" },
+  "shy": { en: "nervous around others; easily scared", zh: "害羞的；膽怯的" },
+  "octopus": { en: "a sea animal with eight arms", zh: "章魚" },
+  "slid": { en: "moved smoothly", zh: "滑進；溜走" },
+  "crack": { en: "a narrow opening", zh: "裂縫" },
+  "changed": { en: "became different", zh: "改變" },
+  "color": { en: "hue such as red, blue, or green", zh: "顏色" },
+  "until": { en: "up to the time that", zh: "直到" },
+  "matched": { en: "was the same as", zh: "相配；相符" },
+  "stone": { en: "hard rock", zh: "石頭" },
+  "crowded": { en: "full of many living things or objects", zh: "擁擠的" },
+  "busy": { en: "full of activity", zh: "忙碌的" },
+  "signals": { en: "sounds or signs that carry a message", zh: "訊號" },
+  "scraping": { en: "the sound of rubbing hard surfaces", zh: "刮擦聲" },
+  "shells": { en: "hard outer coverings of sea animals", zh: "貝殼" },
+  "snap": { en: "a sharp cracking sound", zh: "啪的一聲" },
+  "shrimp": { en: "small sea animals with shells and long feelers", zh: "蝦" },
+  "distant": { en: "far away", zh: "遙遠的" },
+  "rumble": { en: "a low continuous sound", zh: "隆隆聲" },
+  "boat": { en: "a small ship", zh: "船" },
+  "aunt": { en: "a sister of a parent (here: an older female in the pod)", zh: "阿姨（此處指群體中年長雌海豚）" },
+  "larger": { en: "bigger", zh: "較大的" },
+  "pale": { en: "light in color", zh: "淡色的；蒼白的" },
+  "scar": { en: "a mark left on skin after a wound heals", zh: "疤痕" },
+  "dorsal": { en: "on the back of an animal", zh: "背部的" },
+  "dorsal fin": { en: "the fin on a dolphin's back", zh: "背鰭" },
+  "fin": { en: "a flat body part that helps fish and dolphins swim", zh: "鰭" },
+  "suddenly": { en: "happening quickly without warning", zh: "突然" },
+  "stopped": { en: "ended movement", zh: "停下" },
+  "slapped": { en: "hit with a flat surface, making a sharp sound", zh: "拍打" },
+  "surface": { en: "the top of the water", zh: "水面；表面" },
+  "sharp": { en: "sudden and clear; also pointed", zh: "尖銳的；突然的" },
+  "warning": { en: "a sign that danger may be near", zh: "警告" },
+  "froze": { en: "stopped moving suddenly (past of freeze)", zh: "僵住；停住不動" },
+  "through": { en: "from one side to the other of", zh: "穿過" },
+  "blue": { en: "the color of a clear sky or deep sea", zh: "藍色的" },
+  "came": { en: "moved toward (past of come)", zh: "來到" },
+  "low": { en: "not high; deep in pitch", zh: "低的" },
+  "heavy": { en: "weighing a lot", zh: "沉重的" },
+  "bull": { en: "an adult male (here: a type of shark)", zh: "公牛；（此處）公牛鯊的" },
+  "shark": { en: "a large fish with sharp teeth", zh: "鯊魚" },
+  "cruising": { en: "swimming steadily without rushing", zh: "巡游" },
+  "edge": { en: "the outer border", zh: "邊緣" },
+  "clever": { en: "smart; able to solve problems", zh: "聰明的" },
+  "hunters": { en: "animals that catch other animals for food", zh: "獵手" },
+  "careful": { en: "paying close attention to avoid danger", zh: "小心的" },
+  "around": { en: "near; surrounding", zh: "在……附近" },
+  "led": { en: "guided (past of lead)", zh: "帶領" },
+  "narrow": { en: "not wide", zh: "窄的" },
+  "channel": { en: "a narrow path of water", zh: "水道；通道" },
+  "between": { en: "in the space separating two things", zh: "在……之間" },
+  "heads": { en: "top parts (here: coral heads = mounds)", zh: "頭部；（此處）珊瑚丘" },
+  "coral heads": { en: "mounds of coral on a reef", zh: "珊瑚丘" },
+  "turn": { en: "to change direction", zh: "轉彎" },
+  "easily": { en: "without difficulty", zh: "容易地" },
+  "waited": { en: "stayed until something happened", zh: "等待" },
+  "silence": { en: "a time with little or no sound", zh: "沉默；寂靜" },
+  "moved": { en: "changed place", zh: "移動" },
+  "passed": { en: "went from one to another", zh: "傳遞；經過" },
+  "next": { en: "the one after this", zh: "下一個" },
+  "safe": { en: "not in danger", zh: "安全的" },
+  "stay": { en: "to remain", zh: "留下；保持" },
+  "close": { en: "near", zh: "靠近" },
+  "cooperation": { en: "working together for a shared goal", zh: "合作" },
+  "important": { en: "having great meaning or value", zh: "重要的" },
+  "parts": { en: "pieces or aspects of a whole", zh: "部分" },
+  "life": { en: "the way a living thing exists", zh: "生活；生命" },
+  "hunted": { en: "searched for and caught food", zh: "狩獵" },
+  "mullet": { en: "a common coastal fish", zh: "鯔魚" },
+  "near": { en: "close to", zh: "靠近" },
+  "shore": { en: "land at the edge of a sea or lake", zh: "岸邊" },
+  "several": { en: "more than two but not many", zh: "幾個；數個" },
+  "wide": { en: "measuring a large distance from side to side", zh: "寬的" },
+  "curve": { en: "a smooth bent line or path", zh: "弧線；彎曲" },
+  "drove": { en: "forced to move in a direction (past of drive)", zh: "驅趕" },
+  "ahead": { en: "in front", zh: "在前方" },
+  "charged": { en: "rushed forward quickly", zh: "衝過去" },
+  "cloud": { en: "a thick group (here: of fish)", zh: "雲；（此處）密集的一群" },
+  "meals": { en: "amounts of food eaten", zh: "餐食" },
+  "snapping": { en: "biting suddenly", zh: "猛咬" },
+  "watched": { en: "looked carefully", zh: "觀看" },
+  "first": { en: "before anything else", zh: "首先" },
+  "joined": { en: "became part of", zh: "加入" },
+  "circle": { en: "a round shape or group", zh: "圓圈" },
+  "study": { en: "to learn about carefully", zh: "研究" },
+  "animal": { en: "a living creature that is not a plant", zh: "動物" },
+  "behavior": { en: "the way a living thing acts", zh: "行為" },
+  "teamwork": { en: "working well together as a group", zh: "團隊合作" },
+  "shows": { en: "makes clear; displays", zh: "顯示" },
+  "planning": { en: "thinking ahead about what to do", zh: "計畫" },
+  "patience": { en: "the ability to wait calmly", zh: "耐心" },
+  "shared": { en: "used or owned by more than one", zh: "共同的；分享的" },
+  "goals": { en: "things you want to achieve", zh: "目標" },
+  "strength": { en: "physical power", zh: "力量" },
+  "helps": { en: "makes something easier or possible", zh: "幫助" },
+  "survive": { en: "to stay alive", zh: "存活；生存" },
+  "communication": { en: "sharing information through signals or words", zh: "溝通；交流" },
+  "sometimes": { en: "at times; not always", zh: "有時" },
+  "think": { en: "to believe or consider", zh: "認為；想" },
+  "smile": { en: "a happy look on the face", zh: "微笑" },
+  "because": { en: "for the reason that", zh: "因為" },
+  "curve": { en: "a bent line", zh: "曲線" },
+  "mouths": { en: "openings used for eating and sound", zh: "嘴巴" },
+  "part": { en: "a piece of a whole", zh: "部分" },
+  "skull": { en: "the bony case that protects the brain", zh: "頭骨" },
+  "real": { en: "true; actual", zh: "真正的" },
+  "feelings": { en: "emotions such as joy or fear", zh: "情緒；感受" },
+  "motion": { en: "movement", zh: "動作；運動" },
+  "playful": { en: "full of fun and play", zh: "愛玩的；嬉戲的" },
+  "leap": { en: "to jump high or far", zh: "跳躍" },
+  "spin": { en: "to turn around quickly", zh: "旋轉" },
+  "toss": { en: "to throw lightly", zh: "拋；丟" },
+  "seaweed": { en: "plants that grow in the sea", zh: "海藻" },
+  "calm": { en: "quiet and peaceful", zh: "平靜的" },
+  "glide": { en: "to move smoothly and easily", zh: "滑行" },
+  "side": { en: "one of the edges of something", zh: "旁邊；一側" },
+  "upset": { en: "worried, angry, or unhappy", zh: "不安的；生氣的" },
+  "clap": { en: "to hit together with a sharp sound", zh: "拍打" },
+  "jaws": { en: "the bones that hold the teeth", zh: "顎；嘴巴" },
+  "thrash": { en: "to move violently back and forth", zh: "猛烈甩動" },
+  "tails": { en: "more than one tail", zh: "尾巴（複數）" },
+  "loved": { en: "liked very much", zh: "喜愛" },
+  "chase": { en: "to run after", zh: "追逐" },
+  "bubbles": { en: "balls of air in water", zh: "氣泡" },
+  "rising": { en: "moving upward", zh: "上升" },
+  "bottom": { en: "the lowest part", zh: "底部" },
+  "liked": { en: "enjoyed", zh: "喜歡" },
+  "swim": { en: "to move through water", zh: "游泳" },
+  "beside": { en: "next to", zh: "在……旁邊" },
+  "touching": { en: "coming into contact with", zh: "碰觸" },
+  "flipper": { en: "a flat limb used for swimming", zh: "鰭肢" },
+  "gentle": { en: "soft and kind; not rough", zh: "溫柔的" },
+  "staying": { en: "remaining", zh: "保持" },
+  "connected": { en: "joined in a relationship", zh: "連結的" },
+  "without": { en: "not having; lacking", zh: "沒有；不靠" },
+  "single": { en: "only one", zh: "單一的；一個" },
+  "ocean": { en: "a very large body of salt water", zh: "海洋" },
+  "changing": { en: "becoming different", zh: "正在改變" },
+  "matters": { en: "is important", zh: "事關重要" },
+  "animals": { en: "living creatures", zh: "動物" },
+  "depend": { en: "to need something to succeed or survive", zh: "依賴" },
+  "clear": { en: "easy to hear or see through", zh: "清晰的；清澈的" },
+  "underwater": { en: "beneath the surface of the water", zh: "水下的" },
+  "noise": { en: "unwanted or loud sound", zh: "噪音" },
+  "ships": { en: "large boats", zh: "船隻" },
+  "construction": { en: "the work of building things", zh: "建設；施工" },
+  "harbors": { en: "safe places for ships near land", zh: "港口" },
+  "hide": { en: "to keep from being heard or seen", zh: "掩蓋；隱藏" },
+  "quiet": { en: "making little sound", zh: "安靜的" },
+  "need": { en: "require", zh: "需要" },
+  "dirty": { en: "not clean", zh: "髒的" },
+  "damaged": { en: "harmed; broken", zh: "受損的" },
+  "reefs": { en: "more than one reef", zh: "珊瑚礁（複數）" },
+  "reduce": { en: "to make smaller in amount", zh: "減少" },
+  "places": { en: "locations", zh: "地方" },
+  "gather": { en: "to come together in a group", zh: "聚集" },
+  "farther": { en: "a greater distance", zh: "更遠" },
+  "find": { en: "to locate", zh: "找到" },
+  "food": { en: "what living things eat", zh: "食物" },
+  "conservation": { en: "protecting nature and wildlife", zh: "保育；保護" },
+  "groups": { en: "organizations or sets of people", zh: "團體" },
+  "protect": { en: "to keep safe from harm", zh: "保護" },
+  "zones": { en: "areas with a special purpose", zh: "區域" },
+  "limit": { en: "to keep within a set amount", zh: "限制" },
+  "harmful": { en: "causing damage", zh: "有害的" },
+  "fishing": { en: "catching fish", zh: "捕魚" },
+  "gear": { en: "equipment used for a job", zh: "裝備；漁具" },
+  "restore": { en: "to bring back to a healthy state", zh: "恢復；修復" },
+  "recover": { en: "to get better after damage", zh: "復原" },
+  "return": { en: "to come back", zh: "回來" },
+  "closer": { en: "nearer", zh: "更近" },
+  "home": { en: "the place where one lives", zh: "家；棲地" },
+  "lesson": { en: "something learned from experience", zh: "教訓；課程" },
+  "tangled": { en: "twisted together in a mess", zh: "纏結的" },
+  "fishing line": { en: "thin strong string used to catch fish", zh: "魚線" },
+  "line": { en: "a long thin string or mark", zh: "線" },
+  "drifted": { en: "floated along slowly with the current", zh: "漂流" },
+  "ghost": { en: "a pale floating shape (here: a comparison)", zh: "幽靈（比喻）" },
+  "arch": { en: "a curved opening", zh: "拱門；拱形" },
+  "sea": { en: "the ocean", zh: "海" },
+  "turtle": { en: "a reptile with a hard shell", zh: "海龜" },
+  "struggled": { en: "tried hard against difficulty", zh: "掙扎" },
+  "inside": { en: "within", zh: "在……裡面" },
+  "loop": { en: "a circle made by a rope or line", zh: "圈套；環" },
+  "flipping": { en: "turning over again and again", zh: "翻轉" },
+  "slowly": { en: "at a low speed", zh: "慢慢地" },
+  "circled": { en: "moved in a circle around", zh: "繞圈" },
+  "once": { en: "one time", zh: "一次" },
+  "twice": { en: "two times", zh: "兩次" },
+  "untie": { en: "to open a knot", zh: "解開" },
+  "flippers": { en: "flat swimming limbs", zh: "鰭肢（複數）" },
+  "brought": { en: "caused to come (past of bring)", zh: "帶來" },
+  "older": { en: "having lived longer", zh: "較年長的" },
+  "nudged": { en: "pushed gently", zh: "輕推" },
+  "patch": { en: "a small area", zh: "一小塊區域" },
+  "open": { en: "not blocked or closed", zh: "開闊的" },
+  "research": { en: "careful study to learn facts", zh: "研究" },
+  "anchored": { en: "held in place with an anchor", zh: "拋錨停泊的" },
+  "board": { en: "on a ship or boat", zh: "船上" },
+  "often": { en: "many times", zh: "常常" },
+  "seeing": { en: "noticing with the eyes", zh: "看見" },
+  "distress": { en: "great trouble or suffering", zh: "危難；痛苦" },
+  "slipped": { en: "moved quietly and smoothly", zh: "悄悄滑入" },
+  "carefully": { en: "with care and attention", zh: "小心地" },
+  "cut": { en: "to divide with a sharp tool", zh: "剪斷；切開" },
+  "free": { en: "not trapped", zh: "自由的；解開的" },
+  "kicked": { en: "pushed with a foot or flipper", zh: "踢；蹬" },
+  "away": { en: "to a different place", zh: "離開" },
+  "into": { en: "to the inside of", zh: "進入" },
+  "high": { en: "tall in pitch or position", zh: "高的" },
+  "answered": { en: "replied", zh: "回應" },
+  "later": { en: "after some time", zh: "後來" },
+  "sun": { en: "the star that lights Earth", zh: "太陽" },
+  "slid": { en: "moved smoothly", zh: "滑落" },
+  "horizon": { en: "the line where sky and sea seem to meet", zh: "地平線" },
+  "turned": { en: "changed to", zh: "變成" },
+  "gold": { en: "a yellow color like precious metal", zh: "金色" },
+  "green": { en: "the color of grass", zh: "綠色" },
+  "floated": { en: "stayed on top of water without sinking", zh: "漂浮" },
+  "whole": { en: "complete; entire", zh: "整個的" },
+  "mixed": { en: "combined from different parts", zh: "混雜的" },
+  "choir": { en: "a group of singers (here: many ocean sounds)", zh: "合唱團（比喻海中眾聲）" },
+  "snaps": { en: "sharp cracking sounds", zh: "啪啪聲" },
+  "flutters": { en: "light quick movements", zh: "輕快擺動" },
+  "whale": { en: "a very large ocean mammal", zh: "鯨魚" },
+  "moans": { en: "long low sounds", zh: "低沉長音" },
+  "rolling": { en: "moving with a deep wave-like sound", zh: "滾滾傳來" },
+  "deeper": { en: "farther down", zh: "更深的" },
+  "familiar": { en: "well known", zh: "熟悉的" },
+  "understood": { en: "knew the meaning of", zh: "理解" },
+  "empty": { en: "containing nothing", zh: "空的" },
+  "network": { en: "a system of connected parts", zh: "網絡" },
+  "messages": { en: "pieces of information sent to others", zh: "訊息" },
+  "warn": { en: "to tell about possible danger", zh: "警告" },
+  "danger": { en: "the chance of harm", zh: "危險" },
+  "gather": { en: "to bring together", zh: "召集；聚集" },
+  "team": { en: "a group working together", zh: "團隊" },
+  "hunt": { en: "to search for food", zh: "狩獵" },
+  "simply": { en: "only; just", zh: "只是；單純地" },
+  "researchers": { en: "people who study carefully to find facts", zh: "研究人員" },
+  "continue": { en: "to keep doing something", zh: "繼續" },
+  "language": { en: "a system of communication", zh: "語言" },
+  "microphones": { en: "devices that pick up sound", zh: "麥克風" },
+  "hydrophones": { en: "microphones made for listening underwater", zh: "水下麥克風；水聽器" },
+  "record": { en: "to save sounds or information", zh: "錄製" },
+  "hunting": { en: "searching for food", zh: "狩獵的" },
+  "chatter": { en: "quick light talk or sounds", zh: "嘰嘰喳喳；交談聲" },
+  "happens": { en: "takes place", zh: "發生" },
+  "during": { en: "throughout the time of", zh: "在……期間" },
+  "play": { en: "fun activity", zh: "玩耍" },
+  "still": { en: "even now; continuing", zh: "仍然" },
+  "every": { en: "each one", zh: "每一個" },
+  "meaning": { en: "what something stands for", zh: "意思；含義" },
+  "never": { en: "not ever", zh: "從不；永不" },
+  "translate": { en: "to change from one language into another", zh: "翻譯" },
+  "human": { en: "of people", zh: "人類的" },
+  "languages": { en: "systems of spoken or written words", zh: "語言（複數）" },
+  "know": { en: "to understand as a fact", zh: "知道" },
+  "built": { en: "made", zh: "建構而成" },
+  "memory": { en: "the ability to remember", zh: "記憶" },
+  "partnership": { en: "working closely with others", zh: "夥伴關係" },
+  "belonging": { en: "the feeling of being part of a group", zh: "歸屬感" },
+  "warnings": { en: "messages about danger", zh: "警告" },
+  "plans": { en: "ideas about what to do", zh: "計畫" },
+  "longer": { en: "for more time", zh: "更久" },
+  "stays": { en: "remains", zh: "保持" },
+  "healthy": { en: "in good condition", zh: "健康的" },
+  "keeps": { en: "continues; maintains", zh: "維持" },
+  "conversation": { en: "an exchange of messages or talk", zh: "對話；交談" },
+  "going": { en: "continuing", zh: "持續" },
+  "generation": { en: "all the living things born around the same time", zh: "世代；一代" },
+  "night": { en: "the dark time after sunset", zh: "夜晚" },
+  "settled": { en: "came to rest; became calm", zh: "降臨；安頓" },
+  "stayed": { en: "remained", zh: "待在" },
+  "bioluminescent": { en: "able to make its own light", zh: "生物發光的" },
+  "plankton": { en: "tiny living things that drift in water", zh: "浮游生物" },
+  "sparkled": { en: "shone with small bright flashes", zh: "閃爍" },
+  "bodies": { en: "physical forms of living things", zh: "身體" },
+  "stars": { en: "bright points of light in the night sky", zh: "星星" },
+  "whenever": { en: "every time that", zh: "每當" },
+  "clicked": { en: "made short sharp sounds", zh: "發出咔嗒聲" },
+  "softly": { en: "gently; quietly", zh: "輕輕地" },
+  "mapping": { en: "making a mental picture of a place", zh: "描繪地圖；定位" },
+  "dark": { en: "without light", zh: "黑暗" },
+  "another": { en: "one more; a different one", zh: "另一個" },
+  "fell": { en: "went down (past of fall)", zh: "落下" },
+  "recognized": { en: "knew again from past experience", zh: "認出" },
+  "aunt's": { en: "belonging to the aunt", zh: "阿姨的" },
+  "reply": { en: "an answer", zh: "回覆" },
+  "made": { en: "caused to be", zh: "使得" },
+  "feel": { en: "to experience a sensation", zh: "感覺" },
+  "less": { en: "not as much", zh: "較少" },
+  "wide": { en: "broad", zh: "寬闊" },
+  "ideas": { en: "thoughts or messages", zh: "想法；訊息" },
+  "traveling": { en: "moving from place to place", zh: "傳遞中；旅行中" },
+  "rest": { en: "to stop and relax", zh: "休息" },
+  "tomorrow": { en: "the day after today", zh: "明天" },
+  "watery": { en: "full of water; like water", zh: "水中的；水汪汪的" },
+  "classroom": { en: "a place for learning (here: a comparison)", zh: "教室（比喻）" },
+  "oldest": { en: "having existed the longest", zh: "最古老的" },
+  "survival": { en: "staying alive", zh: "生存" },
+  "only": { en: "just; nothing more than", zh: "僅僅" },
+  "about": { en: "concerning", zh: "關於" },
+  "swimming": { en: "moving through water", zh: "游泳" },
+  "fast": { en: "at high speed", zh: "快" },
+  "well": { en: "in a good way", zh: "很好地" },
+  "speaking": { en: "sending messages with sound", zh: "表達；說話" },
+  "clearly": { en: "in a way that is easy to understand", zh: "清楚地" },
+  "forgetting": { en: "failing to remember", zh: "忘記" },
+  "voices": { en: "sounds made by living things to communicate", zh: "聲音；呼聲" },
+  "call": { en: "to summon or speak to", zh: "呼喚" },
+"way": { en: "a method or path", zh: "方式；路" },
+  "like": { en: "similar to; also to enjoy", zh: "像；喜歡" },
+  "use": { en: "to employ for a purpose", zh: "使用" },
+  "one": { en: "a single person or thing", zh: "一個" },
+  "say": { en: "to speak words", zh: "說" },
+  "talk": { en: "to communicate with words or signals", zh: "談話；溝通" },
+  "called": { en: "named; given the name", zh: "被稱作" },
+  "now": { en: "at this time", zh: "現在" },
+  "pods": { en: "more than one pod (dolphin group)", zh: "海豚群（複數）" },
+  "learns": { en: "gains knowledge (present tense)", zh: "學習；學會" },
+  "yet": { en: "up to now; still", zh: "尚未；還" },
+  "answer": { en: "a reply", zh: "回答" },
+  "see": { en: "to notice with the eyes", zh: "看見" },
+  "told": { en: "said information to someone (past of tell)", zh: "告訴了" },
+  "showed": { en: "made visible; revealed (past of show)", zh: "顯示了" },
+  "past": { en: "by and beyond; also earlier time", zh: "經過；過去" },
+  "full": { en: "containing as much as possible", zh: "充滿的" },
+  "large": { en: "big in size", zh: "大的" },
+  "sharks": { en: "more than one shark", zh: "鯊魚（複數）" },
+  "kind": { en: "a type or sort", zh: "種類" },
+  "show": { en: "to make clear or visible", zh: "顯示；表現" },
+  "must": { en: "have to; need to", zh: "必須" },
+  "travel": { en: "to go from place to place", zh: "旅行；移動" },
+  "work": { en: "to do a job or task", zh: "工作；運作" },
+  "day": { en: "a period of 24 hours; daytime", zh: "天；白天" },
+  "two": { en: "the number 2", zh: "二" },
+  "whistled": { en: "made a whistle sound (past tense)", zh: "吹出哨音" },
+  "listened": { en: "paid attention to sound (past tense)", zh: "聽了" },
+  "understand": { en: "to know the meaning of", zh: "理解" },
+  "am": { en: "form of be used with I", zh: "是（I am）" },
+  "live": { en: "to be alive; to reside", zh: "生活；居住" },
+  "shares": { en: "gives a part to others; has in common", zh: "分享；共同擁有" },
+  "lives": { en: "is alive; residences (context: stays alive longer)", zh: "生活；存活" },
+  "far": { en: "a long distance away", zh: "遠" },
+  "deep": { en: "going far down", zh: "深的" },
+  "learning": { en: "gaining knowledge", zh: "學習中" },
+  "echo's": { en: "belonging to Echo", zh: "Echo 的" },
+};
+
+const PASSAGE_PARAS = [
+  "Along the warm coast of a shallow bay, a young dolphin named Echo flicked her tail and rose toward the morning light. She was not looking for fish yet. She was listening. In the world beneath the waves, sound travels farther and faster than light, and dolphins use sound the way people use words, maps, and even names.",
+  "Echo belonged to a small pod of bottlenose dolphins. A pod is a family group that travels, hunts, and rests together. Each dolphin in Echo's pod had a special whistle that the others could recognize, almost like a nickname. Scientists call these signature whistles. When Echo was a calf, her mother repeated the same rising-and-falling sound again and again. Echo learned to copy it, then to use it as her own call. If she became separated in cloudy water, she could whistle her signature, and her mother would answer with a familiar reply.",
+  "Sound is only the beginning of dolphin talk. Dolphins also click in short bursts. Those clicks bounce off rocks, fish, and the sandy floor, then return as echoes. This system is called echolocation. By listening to the returning echoes, a dolphin can judge distance, size, and even the shape of an object she cannot see. Echo practiced echolocation near a sunken log. Soft clicks told her the log was hollow. Harder, faster clicks showed a school of silver fish darting past its side.",
+  "One afternoon, the pod swam toward a coral reef that rose like a colorful city from the seafloor. Soft corals waved in the current. Hard corals built rocky shelves where tiny crabs hid. Bright parrotfish scraped algae from the reef with strong beaks. A shy octopus slid into a crack and changed color until it matched the stone. The reef was crowded, busy, and full of signals — not only dolphin whistles, but the scraping of shells, the snap of shrimp, and the distant rumble of a boat.",
+  "Echo's aunt, a larger dolphin with a pale scar on her dorsal fin, suddenly stopped. She slapped the surface with her tail — a sharp warning. The pod froze. Through the blue water came a low, heavy shape: a bull shark cruising along the reef edge. Dolphins are clever hunters, but they are careful around large sharks. Echo's aunt led the pod into a narrow channel between coral heads where the shark could not turn easily. They waited in silence until the shark moved on. Then soft whistles passed from one dolphin to the next, as if to say, \"Safe now. Stay close.\"",
+  "Cooperation is one of the most important parts of dolphin life. When the pod hunted mullet near the shore, several dolphins swam in a wide curve and drove the fish toward shallow water. Others waited ahead and charged through the silver cloud of fish, snapping up meals. Young dolphins like Echo watched first, then joined the circle. Scientists who study animal behavior say this kind of teamwork shows planning, patience, and shared goals. It is not only strength that helps a pod survive. It is communication.",
+  "People sometimes think dolphins smile because of the curve of their mouths, but that shape is part of their skull. Real dolphin feelings show in motion and sound. Playful dolphins leap, spin, and toss seaweed. Calm dolphins glide side by side. Upset dolphins may clap their jaws or thrash their tails. Echo loved to chase bubbles rising from the sandy bottom. She also liked to swim beside her mother, touching flipper to flipper, a gentle way of staying connected without a single whistle.",
+  "The ocean is changing, and that matters for animals who depend on clear sound. Underwater noise from ships, construction, and busy harbors can hide the quiet clicks and whistles dolphins need. Dirty water and damaged reefs reduce the places where fish gather, so pods must travel farther to find food. Conservation groups work to protect quiet zones, limit harmful fishing gear, and restore coral. When reefs recover, fish return — and dolphin pods can hunt closer to home again.",
+  "Echo learned another lesson that day near the reef. A tangled fishing line drifted like a ghost through a coral arch. A young sea turtle struggled inside the loop, flipping slowly. Echo circled once, then twice. She could not untie the line with her flippers, but she could call. Her sharp whistle brought two older dolphins. Together they nudged the turtle toward a patch of open water where a research boat was anchored. The scientists on board often watched this pod. Seeing the distress, they slipped into the water carefully and cut the line free. The turtle kicked away into the blue. Echo whistled once — high, bright, and short — and the pod answered.",
+  "Later, as the sun slid toward the horizon, the bay turned gold and green. Echo floated near the surface and listened to the whole mixed choir of the sea: shrimp snaps, fish flutters, distant whale moans rolling from deeper water, and the familiar whistles of her own family. She understood, in the way animals understand, that the ocean is not empty silence. It is a busy network of messages. Some messages warn of danger. Some gather a team for a hunt. Some simply say, \"I am here. Where are you?\"",
+  "Researchers continue to study dolphin language with underwater microphones called hydrophones. They record signature whistles, hunting clicks, and the chatter that happens during play. They still do not know every meaning, and they may never translate dolphin talk the way people translate human languages. But they do know this: dolphins live in a world built from sound, memory, and partnership. A calf who learns her whistle learns belonging. A pod that shares warnings and plans lives longer. And a reef that stays healthy keeps the conversation going for the next generation.",
+  "When night settled over the bay, Echo stayed close to her mother. Bioluminescent plankton sparkled around their bodies like tiny blue stars whenever they moved. Echo clicked softly, mapping the dark. Far away, another dolphin answered with a whistle that rose and fell — a signature she recognized as her aunt's. The reply made the water feel less wide. Under the quiet surface, ideas were still traveling: Stay near. Rest now. Tomorrow we hunt again. In that deep, watery classroom, Echo was learning the oldest ocean lesson of all — that survival is not only about swimming fast. It is about listening well, speaking clearly in your own way, and never forgetting the voices that call you home."
+];
+
+const QUESTIONS = [
+  {
+    stem: "1. What is the main idea of this passage?",
+    choices: [
+      "Echo races a bull shark across a coral reef to win a prize.",
+      "Dolphins use sound, teamwork, and careful listening to live and share ideas in the ocean.",
+      "Scientists have fully translated every dolphin whistle into English words.",
+      "Parrotfish and octopuses are the true leaders of every dolphin pod."
+    ],
+    answer: 1,
+    why: "主旨題：全文圍繞海豚用聲音溝通、合作狩獵與互助求生，不是單一事件或已完全翻譯語言。"
+  },
+  {
+    stem: "2. According to the passage, what are signature whistles?",
+    choices: [
+      "Boat horns that warn dolphins to leave a harbor",
+      "Special whistle sounds that help each dolphin recognize another, almost like nicknames",
+      "Echoes that bounce only off sunken logs",
+      "Loud claps made when dolphins thrash their tails"
+    ],
+    answer: 1,
+    why: "細節題：文中明寫每個海豚有可辨認的專屬哨音，科學家稱為 signature whistles，像暱稱。"
+  },
+  {
+    stem: "3. Why did Echo's aunt slap the surface with her tail near the reef?",
+    choices: [
+      "To invite the bull shark to join the hunt for mullet",
+      "To practice echolocation on a school of silver fish",
+      "To give a sharp warning so the pod would freeze and move to safer water",
+      "To signal the research boat to cut a fishing line"
+    ],
+    answer: 2,
+    why: "細節／因果題：拍水面是 sharp warning，pod 立刻停住，再被領進窄水道躲避鯊魚。"
+  },
+  {
+    stem: "4. What can you infer about Echo from the fishing-line episode?",
+    choices: [
+      "She prefers to solve every problem alone without calling others.",
+      "She understands when help is needed and uses her whistle to bring the pod — and later people — into the rescue.",
+      "She is afraid of sea turtles and always swims away from them.",
+      "She believes tangled fishing lines are toys for tossing seaweed."
+    ],
+    answer: 1,
+    why: "推論題：她無法自己解線，但會呼叫年長海豚，並把海龜推向研究船，顯示懂得求助與合作。"
+  },
+  {
+    stem: "5. Which detail best supports the idea that ocean noise can harm dolphins?",
+    choices: [
+      "Playful dolphins leap, spin, and toss seaweed.",
+      "Echo liked to swim beside her mother, flipper to flipper.",
+      "Underwater noise from ships, construction, and harbors can hide the quiet clicks and whistles dolphins need.",
+      "Bioluminescent plankton sparkled like tiny blue stars at night."
+    ],
+    answer: 2,
+    why: "證據題：文中直接指出船隻、施工與港口噪音會掩蓋海豚需要的咔嗒聲與哨音。"
+  }
+];
+
+const VOCAB_QUESTIONS = [
+  {
+    stemHtml: true,
+    stem: "1. After missing two free throws, Maya decided to <strong><u>persist</u></strong> and keep practicing until the ball went in. In this sentence, persist most nearly means —",
+    choices: ["quit right away", "continue trying", "celebrate loudly", "borrow a new ball"],
+    answer: 1,
+    why: "語境：miss 後 still keep practicing → persist＝繼續努力。"
+  },
+  {
+    stemHtml: true,
+    stem: "2. The trail was steep, so the hikers moved at a <strong><u>gradual</u></strong> pace and stopped often to rest. Gradual most nearly means —",
+    choices: ["sudden and rushed", "happening slowly, step by step", "completely silent", "covered in ice"],
+    answer: 1,
+    why: "語境：steep＋stopped often → gradual＝逐漸、一步步。"
+  },
+  {
+    stemHtml: true,
+    stem: "3. Because the library was closing, Jordan had to <strong><u>abbreviate</u></strong> his book report and finish the rest at home. Abbreviate most nearly means —",
+    choices: ["make shorter", "copy carefully", "read aloud", "draw pictures"],
+    answer: 0,
+    why: "語境：時間不夠只好縮短報告 → abbreviate＝縮短。"
+  },
+  {
+    stemHtml: true,
+    stem: "4. The coach's voice was <strong><u>stern</u></strong> when she reminded the team to follow the safety rules. Stern most nearly means —",
+    choices: ["silly and joking", "soft and sleepy", "serious and firm", "quiet and shy"],
+    answer: 2,
+    why: "語境：提醒安全規則 → stern＝嚴肅、堅定。"
+  },
+  {
+    stemHtml: true,
+    stem: "5. Rain flooded the field, so the referee had to <strong><u>postpone</u></strong> the soccer game until Saturday. Postpone most nearly means —",
+    choices: ["start earlier", "cancel forever", "put off until later", "move indoors only"],
+    answer: 2,
+    why: "語境：until Saturday → postpone＝延期。"
+  },
+  {
+    stemHtml: true,
+    stem: "6. Mia felt a spark of <strong><u>curiosity</u></strong> when she found a strange seed and wanted to learn what plant it would become. Curiosity most nearly means —",
+    choices: ["a wish to know more", "a fear of new things", "a need to sleep", "a loud argument"],
+    answer: 0,
+    why: "語境：wanted to learn → curiosity＝好奇心。"
+  },
+  {
+    stemHtml: true,
+    stem: "7. The two clubs decided to <strong><u>collaborate</u></strong> on a science fair project instead of working in separate rooms. Collaborate most nearly means —",
+    choices: ["compete against each other", "work together", "hide the results", "skip the fair"],
+    answer: 1,
+    why: "語境：instead of separate rooms → collaborate＝合作。"
+  },
+  {
+    stemHtml: true,
+    stem: "8. After the long hike, Alex drank water slowly so he would not <strong><u>devour</u></strong> his whole lunch in one minute. Devour most nearly means —",
+    choices: ["save for later", "eat quickly and hungrily", "share equally", "throw away"],
+    answer: 1,
+    why: "語境：in one minute、對比 slowly → devour＝狼吞虎嚥。"
+  },
+  {
+    stemHtml: true,
+    stem: "9. The museum guide spoke in a <strong><u>vivid</u></strong> way, painting clear pictures in the visitors' minds with her words. Vivid most nearly means —",
+    choices: ["dull and confusing", "bright and lifelike", "whispered and secret", "short and incomplete"],
+    answer: 1,
+    why: "語境：painting clear pictures in minds → vivid＝生動鮮明。"
+  },
+  {
+    stemHtml: true,
+    stem: "10. Before the storm, workers placed sandbags to <strong><u>reinforce</u></strong> the weak wall beside the river. Reinforce most nearly means —",
+    choices: ["make stronger", "paint brightly", "measure carefully", "remove completely"],
+    answer: 0,
+    why: "語境：weak wall＋sandbags before storm → reinforce＝加固、加強。"
+  }
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function tokenize(text) {
+  return text.match(/[A-Za-z]+(?:'[A-Za-z]+)?|[^A-Za-z]+/g) || [];
+}
+
+function renderPassage() {
+  const el = document.getElementById("passage");
+  el.innerHTML = PASSAGE_PARAS.map(p => {
+    const parts = tokenize(p).map(tok => {
+      if (/^[A-Za-z]/.test(tok)) {
+        const key = tok.toLowerCase();
+        return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+      }
+      return escapeHtml(tok);
+    }).join("");
+    return `<p>${parts}</p>`;
+  }).join("");
+}
+
+let activeKey = null;
+let activeEl = null;
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  if (activeEl) activeEl.classList.remove("active");
+  activeKey = null;
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextSibling;
+  if (next && next.nodeType === 1 && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) {
+      entry = GLOSSARY[phrase];
+      label = display + " " + next.dataset.display;
+    }
+  }
+  if (!entry) entry = GLOSSARY[key];
+
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = wordEl;
+  activeKey = key;
+  wordEl.classList.add("active");
+
+  const g = document.getElementById("gloss");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄這個字；試試看從句子猜猜它的意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）先讀完整句，猜猜看～";
+  }
+  g.classList.add("show");
+  recordLookup(label, entry);
+}
+
+function renderQuizForm(formId, questions, namePrefix) {
+  const form = document.getElementById(formId);
+  form.innerHTML = questions.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt" data-set="${namePrefix}" data-q="${qi}" data-c="${ci}">
+        <input type="radio" name="${namePrefix}${qi}" value="${ci}" />
+        <span><strong>${LETTERS[ci]}.</strong> ${escapeHtml(c)}</span>
+      </label>`).join("");
+    const stem = q.stemHtml ? q.stem : escapeHtml(q.stem);
+    return `<div class="q" data-set="${namePrefix}" data-q="${qi}">
+      <div class="q-stem">${stem}</div>
+      ${opts}
+      <div class="explain" id="ex-${namePrefix}${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const PACK_META = {
+  child: "Seren",
+  date: "2026-10-28-demo",
+  title: "Whistle Talk: How Dolphins Share Ideas Underwater",
+  type: "科學與自然／海洋動物（家長示範預覽）",
+  level: "≈900–1000L · US G4–5 · science/nature (RI.4–5) · DEMO"
+};
+
+let lastReport = null;
+
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : "";
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const { words, total } = lookupStats();
+  if (!words.length) return ["查詢單字：無"];
+  return [`查詢單字（共 ${total} 次，${words.length} 個字）：`,
+    ...words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function gradeSet(questions, namePrefix) {
+  let correct = 0;
+  const detail = [];
+  questions.forEach((q, qi) => {
+    const chosen = document.querySelector(`input[name="${namePrefix}${qi}"]:checked`);
+    const ex = document.getElementById("ex-" + namePrefix + qi);
+    document.querySelectorAll(`.opt[data-set="${namePrefix}"][data-q="${qi}"]`).forEach(lab => {
+      lab.classList.remove("mark-ok", "mark-bad");
+    });
+    const ansLab = document.querySelector(`.opt[data-set="${namePrefix}"][data-q="${qi}"][data-c="${q.answer}"]`);
+    if (ansLab) ansLab.classList.add("mark-ok");
+
+    if (!chosen) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正確答案是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: 未作答（正解 ${LETTERS[q.answer]}）`);
+      return;
+    }
+    const ci = Number(chosen.value);
+    if (ci === q.answer) {
+      correct += 1;
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[q.answer]}）<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✓ ${LETTERS[ci]}`);
+    } else {
+      const badLab = document.querySelector(`.opt[data-set="${namePrefix}"][data-q="${qi}"][data-c="${ci}"]`);
+      if (badLab) badLab.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[ci]}，正確是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✗ 選${LETTERS[ci]}／正解${LETTERS[q.answer]}`);
+    }
+  });
+  return { correct, detail };
+}
+
+function grade() {
+  const reading = gradeSet(QUESTIONS, "r");
+  const vocab = gradeSet(VOCAB_QUESTIONS, "v");
+
+  const score = document.getElementById("score");
+  const rFull = reading.correct === QUESTIONS.length;
+  const vFull = vocab.correct === VOCAB_QUESTIONS.length;
+  score.innerHTML = `Reading：${reading.correct} / ${QUESTIONS.length}` + (rFull ? " · 太棒了！" : "") +
+    `<br/>Vocabulary in Context：${vocab.correct} / ${VOCAB_QUESTIONS.length}` + (vFull ? " · 太棒了！" : "") +
+    ((rFull && vFull) ? "<br/>兩大題全對！🎉" : "<br/>看完講解再重做一次也可以");
+  const nWords = lookupStats().words.length;
+  const cheer = document.createElement("div");
+  cheer.style.fontSize = "0.85em";
+  cheer.style.fontWeight = "normal";
+  cheer.style.marginTop = "4px";
+  cheer.textContent = nWords ? `今天查了 ${nWords} 個字 👍 認識新單字真棒！` : "今天沒有查單字，讀得很順喔 👍";
+  score.appendChild(cheer);
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  document.querySelectorAll('#quiz-form-reading input[type="radio"], #quiz-form-vocab input[type="radio"]').forEach(i => { i.disabled = true; });
+
+  lastReport = [
+    "【Reading 成績回報 → English Tutor】（DEMO 預覽）",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `類型：${PACK_META.type}`,
+    `程度：${PACK_META.level}`,
+    `Reading：${reading.correct}/${QUESTIONS.length}`,
+    "Reading 明細：",
+    ...reading.detail.map(d => "- " + d),
+    `Vocabulary in Context：${vocab.correct}/${VOCAB_QUESTIONS.length}`,
+    "Vocab 明細：",
+    ...vocab.detail.map(d => "- " + d),
+    ...lookupReportLines(),
+    "（此為家長示範預覽；正式每日題另發）"
+  ].join("\n");
+
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+}
+
+async function copyResults() {
+  if (!lastReport) {
+    alert("請先提交答案。");
+    return;
+  }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = lastReport;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch (e2) {
+      alert("無法自動複製，請手動選取以下文字：\n\n" + lastReport);
+      document.body.removeChild(ta);
+      return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！";
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = "複製成績";
+    btn.classList.remove("copied");
+  }, 2500);
+}
+
+function resetQuiz() {
+  document.getElementById("quiz-form-reading").reset();
+  document.getElementById("quiz-form-vocab").reset();
+  document.querySelectorAll(".explain").forEach(ex => {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form-reading input[type="radio"], #quiz-form-vocab input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderPassage();
+renderQuizForm("quiz-form-reading", QUESTIONS, "r");
+renderQuizForm("quiz-form-vocab", VOCAB_QUESTIONS, "v");
+
+let lastTapEl = null, lastTapTime = 0;
+document.getElementById("passage").addEventListener("click", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  const now = Date.now();
+  if (t === lastTapEl && now - lastTapTime < 350) return;
+  lastTapEl = t; lastTapTime = now;
+  showGloss(t);
+});
+document.getElementById("passage").addEventListener("dblclick", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  e.preventDefault();
+  if (activeEl !== t) showGloss(t);
+});
+
+document.getElementById("gloss").addEventListener("click", hideGloss);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+</script>
+</body>
+</html>
