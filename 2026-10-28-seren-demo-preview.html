@@ -20,6 +20,7 @@
     --shadow: 0 8px 24px rgba(13, 39, 68, 0.12);
     --deep: #01579b;
     --foam: #e1f5fe;
+    --zh-bar-h: 72px;
   }
   * { box-sizing: border-box; }
   body {
@@ -30,7 +31,7 @@
     line-height: 1.65;
     min-height: 100vh;
   }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem calc(var(--zh-bar-h, 72px) + 2.5rem); }
   .demo-banner {
     background: #fff3e0;
     border: 2px solid #ff9800;
@@ -91,7 +92,7 @@
   #gloss {
     display: none;
     position: sticky;
-    bottom: 0.75rem;
+    bottom: calc(var(--zh-bar-h, 72px) + 0.5rem);
     margin-top: 1rem;
     background: #0d47a1;
     color: #e3f2fd;
@@ -187,6 +188,54 @@
     color: var(--muted);
     font-size: 0.8rem;
   }
+  #zh-search-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: #01579b;
+    color: #e3f2fd;
+    border-top: 2px solid #4fc3f7;
+    box-shadow: 0 -6px 20px rgba(13, 39, 68, 0.18);
+    padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+  }
+  #zh-search-bar .zh-row {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+  }
+  #zh-search-bar input {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px; /* iOS: avoid auto-zoom */
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+    background: #e1f5fe;
+    color: #0d2744;
+  }
+  #zh-search-bar button#zh-search-btn {
+    flex-shrink: 0;
+    background: #4fc3f7;
+    color: #01579b;
+    padding: 0.55rem 0.95rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    touch-action: manipulation;
+  }
+  #zh-search-result {
+    max-width: 720px;
+    margin: 0.35rem auto 0;
+    font-size: 0.88rem;
+    min-height: 1.2em;
+    color: #b3e5fc;
+  }
+  #zh-search-result.hit { color: #e3f2fd; }
+  #zh-search-result.miss { color: #ffe082; }
 </style>
 </head>
 <body>
@@ -201,7 +250,7 @@
     <div class="meta">Seren · ≈900–1000L · US Grade 4–5 · 2026-10-28-demo<br />
     類型：科學與自然 · 海洋動物 · CA CCSS informational (RI.4–5) · 自編對齊 CA · English Tutor<br />
     預估：約 20–25 分鐘閱讀＋測驗（含 10 題 Vocab）</div>
-    <div class="tip">💡 看到不懂的單字，<strong>點一下</strong> → 下方出現英文解釋＋中文；<strong>再點一下同一個字</strong>（或點說明卡）就關掉。<br/>先做 Reading 5 題，再做 Vocabulary in Context 10 題（跟短文無關）。全部做完按「提交答案」，再按「複製成績」看回報格式。</div>
+    <div class="tip">💡 看到不懂的單字，<strong>點一下</strong> → 出現英文解釋＋中文；<strong>再點一下同一個字</strong>（或點說明卡）就關掉。<br/>頁面<strong>最下方固定列</strong>可打<strong>中文查英文</strong>（離線詞庫）。查過的點讀＋中文查詢都會進「複製成績」。<br/>先做 Reading 5 題，再做 Vocabulary in Context 10 題（跟短文無關）。全部做完按「提交答案」，再按「複製成績」。</div>
   </header>
 
   <article class="passage" id="passage" aria-label="Reading passage"></article>
@@ -230,7 +279,15 @@
     <div id="score"></div>
   </section>
 
-  <footer>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA CCSS RI.4–5）· Parent Demo Preview · 非正式每日題</footer>
+  <footer>無需登入 · 點字查詞／中文查英文與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA CCSS RI.4–5）· Parent Demo Preview · 非正式每日題</footer>
+</div>
+
+<div id="zh-search-bar" role="search" aria-label="中文查英文">
+  <div class="zh-row">
+    <input id="zh-search-input" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="打中文查英文…" />
+    <button type="button" id="zh-search-btn">查</button>
+  </div>
+  <div id="zh-search-result" aria-live="polite"></div>
 </div>
 
 <script>
@@ -949,28 +1006,274 @@ const PACK_META = {
 let lastReport = null;
 
 const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+const ZH_LOOKUP_KEY = `readingZhLookups:${PACK_META.child}:${PACK_META.date}`;
 let lookups = {};
+let zhLookups = {};
 try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+try { zhLookups = JSON.parse(localStorage.getItem(ZH_LOOKUP_KEY) || "{}") || {}; } catch (e) { zhLookups = {}; }
+
 function recordLookup(label, entry) {
   const w = String(label).toLowerCase().trim();
   if (!w) return;
-  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "" };
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "", source: "tap" };
   rec.count += 1;
   rec.inGlossary = !!entry;
   rec.zh = entry ? entry.zh : "";
+  rec.source = "tap";
   lookups[w] = rec;
   try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function recordZhLookup(query, result) {
+  const q = String(query).trim();
+  if (!q) return;
+  const rec = zhLookups[q] || { count: 0, en: "", gloss: "", found: false, source: "zh-en" };
+  rec.count += 1;
+  rec.source = "zh-en";
+  if (result && result.found) {
+    rec.en = result.en || "";
+    rec.gloss = result.gloss || "";
+    rec.found = true;
+  }
+  zhLookups[q] = rec;
+  try { localStorage.setItem(ZH_LOOKUP_KEY, JSON.stringify(zhLookups)); } catch (e) {}
 }
 function lookupStats() {
   const words = Object.keys(lookups);
   const total = words.reduce((n, w) => n + lookups[w].count, 0);
   return { words, total };
 }
+function zhLookupStats() {
+  const words = Object.keys(zhLookups);
+  const total = words.reduce((n, w) => n + zhLookups[w].count, 0);
+  return { words, total };
+}
 function lookupReportLines() {
-  const { words, total } = lookupStats();
-  if (!words.length) return ["查詢單字：無"];
-  return [`查詢單字（共 ${total} 次，${words.length} 個字）：`,
-    ...words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+  const tap = lookupStats();
+  const zh = zhLookupStats();
+  const lines = [];
+  if (!tap.words.length) {
+    lines.push("查詢單字（點讀）：無");
+  } else {
+    lines.push(`查詢單字（點讀，共 ${tap.total} 次，${tap.words.length} 個字）：`);
+    lines.push(...tap.words.map(w =>
+      `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`));
+  }
+  if (!zh.words.length) {
+    lines.push("中文查英文：無");
+  } else {
+    lines.push(`中文查英文（共 ${zh.total} 次，${zh.words.length} 個字）：`);
+    lines.push(...zh.words.map(q => {
+      const r = zhLookups[q];
+      const en = r.found && r.en ? r.en : "（未收錄）";
+      return `- ${q} → ${en} ×${r.count}`;
+    }));
+  }
+  return lines;
+}
+
+/* Offline mini ZH→EN map (~100 kid / school / ocean words) for demo */
+const ZH_EN_MAP = {
+  "海豚": { en: "dolphin", gloss: "a smart sea mammal" },
+  "鯨魚": { en: "whale", gloss: "a very large sea mammal" },
+  "鯊魚": { en: "shark", gloss: "a fish with sharp teeth" },
+  "章魚": { en: "octopus", gloss: "a sea animal with eight arms" },
+  "海龜": { en: "sea turtle", gloss: "a turtle that lives in the ocean" },
+  "海豹": { en: "seal", gloss: "a sea mammal that swims well" },
+  "企鵝": { en: "penguin", gloss: "a bird that swims but cannot fly" },
+  "珊瑚": { en: "coral", gloss: "hard colorful structures in the sea" },
+  "海洋": { en: "ocean", gloss: "a very large body of salt water" },
+  "大海": { en: "sea", gloss: "a large body of salt water" },
+  "海浪": { en: "wave", gloss: "moving water on the sea" },
+  "波浪": { en: "wave", gloss: "a moving ridge of water" },
+  "海岸": { en: "coast", gloss: "land next to the sea" },
+  "沙灘": { en: "beach", gloss: "sandy land by the water" },
+  "島嶼": { en: "island", gloss: "land with water all around" },
+  "潛水": { en: "dive", gloss: "to go underwater" },
+  "游泳": { en: "swim", gloss: "to move through water" },
+  "魚": { en: "fish", gloss: "an animal that lives in water" },
+  "水母": { en: "jellyfish", gloss: "a soft sea animal that stings" },
+  "貝殼": { en: "seashell", gloss: "the hard cover of a sea animal" },
+  "潮汐": { en: "tide", gloss: "the rise and fall of the sea" },
+  "鹽": { en: "salt", gloss: "a white mineral in seawater" },
+  "船": { en: "boat", gloss: "a small ship" },
+  "潛水艇": { en: "submarine", gloss: "a ship that travels underwater" },
+  "燈塔": { en: "lighthouse", gloss: "a tall tower with a light for ships" },
+  "學校": { en: "school", gloss: "a place where students learn" },
+  "老師": { en: "teacher", gloss: "a person who teaches" },
+  "學生": { en: "student", gloss: "a person who learns at school" },
+  "作業": { en: "homework", gloss: "school work done at home" },
+  "考試": { en: "test", gloss: "a set of questions to check learning" },
+  "書": { en: "book", gloss: "pages with words or pictures" },
+  "鉛筆": { en: "pencil", gloss: "a tool for writing" },
+  "橡皮": { en: "eraser", gloss: "a tool that rubs out pencil marks" },
+  "書包": { en: "backpack", gloss: "a bag worn on the back" },
+  "教室": { en: "classroom", gloss: "a room where a class meets" },
+  "圖書館": { en: "library", gloss: "a place with many books" },
+  "科學": { en: "science", gloss: "the study of nature and how things work" },
+  "數學": { en: "math", gloss: "the study of numbers" },
+  "英文": { en: "English", gloss: "the English language" },
+  "中文": { en: "Chinese", gloss: "the Chinese language" },
+  "閱讀": { en: "reading", gloss: "looking at words and understanding them" },
+  "寫作": { en: "writing", gloss: "putting words on paper or a screen" },
+  "單字": { en: "vocabulary word", gloss: "a word you learn" },
+  "句子": { en: "sentence", gloss: "a group of words that make a complete thought" },
+  "故事": { en: "story", gloss: "a telling of events" },
+  "朋友": { en: "friend", gloss: "a person you like and trust" },
+  "家人": { en: "family", gloss: "parents and children living together" },
+  "爸爸": { en: "dad / father", gloss: "a male parent" },
+  "媽媽": { en: "mom / mother", gloss: "a female parent" },
+  "哥哥": { en: "older brother", gloss: "a brother who is older" },
+  "弟弟": { en: "younger brother", gloss: "a brother who is younger" },
+  "姐姐": { en: "older sister", gloss: "a sister who is older" },
+  "妹妹": { en: "younger sister", gloss: "a sister who is younger" },
+  "快樂": { en: "happy", gloss: "feeling joy" },
+  "難過": { en: "sad", gloss: "feeling unhappy" },
+  "害怕": { en: "afraid / scared", gloss: "feeling fear" },
+  "興奮": { en: "excited", gloss: "very happy and eager" },
+  "勇敢": { en: "brave", gloss: "ready to face danger or hard things" },
+  "聰明": { en: "smart / clever", gloss: "good at thinking and learning" },
+  "好奇": { en: "curious", gloss: "wanting to learn or know more" },
+  "重要": { en: "important", gloss: "mattering a lot" },
+  "特別": { en: "special", gloss: "different in a good way" },
+  "安全": { en: "safe", gloss: "not in danger" },
+  "危險": { en: "dangerous", gloss: "able to hurt someone" },
+  "幫助": { en: "help", gloss: "to make something easier for someone" },
+  "分享": { en: "share", gloss: "to let others use or have some" },
+  "學習": { en: "learn", gloss: "to gain knowledge or skill" },
+  "練習": { en: "practice", gloss: "to do something again to get better" },
+  "發現": { en: "discover", gloss: "to find something new" },
+  "觀察": { en: "observe", gloss: "to watch carefully" },
+  "實驗": { en: "experiment", gloss: "a test to learn something" },
+  "動物": { en: "animal", gloss: "a living creature that is not a plant" },
+  "植物": { en: "plant", gloss: "a living thing that grows in soil" },
+  "地球": { en: "Earth", gloss: "the planet we live on" },
+  "太陽": { en: "sun", gloss: "the star that lights our day" },
+  "月亮": { en: "moon", gloss: "the bright object that circles Earth" },
+  "星星": { en: "star", gloss: "a bright point of light in the night sky" },
+  "天氣": { en: "weather", gloss: "rain, sun, wind, and temperature outside" },
+  "下雨": { en: "rain", gloss: "water falling from clouds" },
+  "風": { en: "wind", gloss: "moving air" },
+  "食物": { en: "food", gloss: "what people and animals eat" },
+  "水": { en: "water", gloss: "the liquid we drink" },
+  "空氣": { en: "air", gloss: "the gas we breathe" },
+  "聲音": { en: "sound", gloss: "something you hear" },
+  "光線": { en: "light", gloss: "brightness that helps you see" },
+  "顏色": { en: "color", gloss: "red, blue, green, and so on" },
+  "大": { en: "big / large", gloss: "great in size" },
+  "小": { en: "small / little", gloss: "not large" },
+  "快": { en: "fast / quick", gloss: "moving at high speed" },
+  "慢": { en: "slow", gloss: "not fast" },
+  "高": { en: "tall / high", gloss: "far from bottom to top" },
+  "深": { en: "deep", gloss: "far down from the surface" },
+  "淺": { en: "shallow", gloss: "not deep" },
+  "溫暖": { en: "warm", gloss: "pleasantly hot" },
+  "寒冷": { en: "cold", gloss: "having a low temperature" },
+  "安靜": { en: "quiet", gloss: "with little or no sound" },
+  "吵鬧": { en: "noisy", gloss: "making a lot of sound" },
+  "美麗": { en: "beautiful", gloss: "very nice to look at" },
+  "有趣": { en: "interesting / fun", gloss: "holding your attention" },
+  "困難": { en: "difficult / hard", gloss: "not easy" },
+  "簡單": { en: "easy / simple", gloss: "not hard to do" },
+  "問題": { en: "question / problem", gloss: "something you ask or need to solve" },
+  "答案": { en: "answer", gloss: "a reply to a question" },
+  "想法": { en: "idea", gloss: "a thought in your mind" },
+  "感覺": { en: "feeling", gloss: "an emotion inside you" },
+  "因為": { en: "because", gloss: "for the reason that" },
+  "雖然": { en: "although", gloss: "even though" },
+  "但是": { en: "but / however", gloss: "shows a contrast" },
+  "然後": { en: "then / next", gloss: "after that" },
+  "終於": { en: "finally", gloss: "at the end; after a long time" },
+  "突然": { en: "suddenly", gloss: "happening quickly and without warning" },
+  "立刻": { en: "immediately / right away", gloss: "without waiting" },
+  "仔細": { en: "carefully", gloss: "with care and attention" },
+  "一起": { en: "together", gloss: "with each other" },
+  "自己": { en: "oneself / myself", gloss: "referring to the same person" },
+  "世界": { en: "world", gloss: "the earth and all life on it" },
+  "冒險": { en: "adventure", gloss: "an exciting or risky experience" },
+  "挑戰": { en: "challenge", gloss: "something hard that tests you" },
+  "成功": { en: "success / succeed", gloss: "doing well; reaching a goal" },
+  "失敗": { en: "fail / failure", gloss: "not succeeding" },
+  "夢想": { en: "dream", gloss: "a hope for the future; also images while sleeping" },
+  "勇氣": { en: "courage", gloss: "bravery when you are afraid" },
+  "耐心": { en: "patience", gloss: "staying calm while waiting" },
+  "禮貌": { en: "polite / manners", gloss: "kind and respectful behavior" },
+  "感謝": { en: "thank / grateful", gloss: "feeling thankful" },
+  "道歉": { en: "apologize", gloss: "to say you are sorry" },
+  "請": { en: "please", gloss: "a polite word when asking" },
+  "對不起": { en: "sorry", gloss: "what you say when you did wrong" },
+  "謝謝": { en: "thank you", gloss: "words that show gratitude" },
+  "你好": { en: "hello", gloss: "a greeting" },
+  "再見": { en: "goodbye", gloss: "said when leaving" }
+};
+
+function reverseSearchGlossary(q) {
+  const query = String(q).trim();
+  if (!query) return null;
+  let best = null;
+  for (const [enKey, entry] of Object.entries(GLOSSARY)) {
+    const zh = (entry && entry.zh) ? String(entry.zh) : "";
+    if (!zh) continue;
+    // prefer exact match on a segment before ； or 、 or （
+    const primary = zh.split(/[；;、／\/（(]/)[0].trim();
+    const exact = (primary === query) || (zh === query);
+    const contains = !exact && zh.includes(query);
+    if (!exact && !contains) continue;
+    const score = exact ? 0 : (10 + zh.length);
+    const cand = { en: enKey, gloss: entry.en || "", found: true, score, via: "glossary" };
+    if (!best || cand.score < best.score) best = cand;
+  }
+  if (!best) return null;
+  return { en: best.en, gloss: best.gloss, found: true, via: "glossary" };
+}
+
+function resolveZhQuery(q) {
+  const query = String(q).trim();
+  if (!query) return null;
+  const fromGloss = reverseSearchGlossary(query);
+  if (fromGloss) return fromGloss;
+  if (ZH_EN_MAP[query]) {
+    const m = ZH_EN_MAP[query];
+    return { en: m.en, gloss: m.gloss || "", found: true, via: "map" };
+  }
+  // soft contains on map keys (short queries only)
+  if (query.length >= 2) {
+    for (const [zh, m] of Object.entries(ZH_EN_MAP)) {
+      if (zh.includes(query) || query.includes(zh)) {
+        return { en: m.en, gloss: m.gloss || "", found: true, via: "map" };
+      }
+    }
+  }
+  return { en: "", gloss: "", found: false, via: "miss" };
+}
+
+function runZhSearch() {
+  const input = document.getElementById("zh-search-input");
+  const out = document.getElementById("zh-search-result");
+  const q = (input.value || "").trim();
+  if (!q) {
+    out.className = "";
+    out.textContent = "先打一個中文詞再按「查」。";
+    return;
+  }
+  const result = resolveZhQuery(q);
+  recordZhLookup(q, result);
+  if (result && result.found) {
+    out.className = "hit";
+    out.textContent = result.gloss
+      ? `${q} → ${result.en} ｜ ${result.gloss}`
+      : `${q} → ${result.en}`;
+  } else {
+    out.className = "miss";
+    out.textContent = "還沒收錄這個詞，可以問爸爸媽媽或老師";
+  }
+}
+
+function syncZhBarToViewport() {
+  const bar = document.getElementById("zh-search-bar");
+  if (!bar || !window.visualViewport) return;
+  const vv = window.visualViewport;
+  const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  bar.style.bottom = offset + "px";
 }
 
 function gradeSet(questions, namePrefix) {
@@ -1018,12 +1321,20 @@ function grade() {
   score.innerHTML = `Reading：${reading.correct} / ${QUESTIONS.length}` + (rFull ? " · 太棒了！" : "") +
     `<br/>Vocabulary in Context：${vocab.correct} / ${VOCAB_QUESTIONS.length}` + (vFull ? " · 太棒了！" : "") +
     ((rFull && vFull) ? "<br/>兩大題全對！🎉" : "<br/>看完講解再重做一次也可以");
-  const nWords = lookupStats().words.length;
+  const tapN = lookupStats().words.length;
+  const zhN = zhLookupStats().words.length;
   const cheer = document.createElement("div");
   cheer.style.fontSize = "0.85em";
   cheer.style.fontWeight = "normal";
   cheer.style.marginTop = "4px";
-  cheer.textContent = nWords ? `今天查了 ${nWords} 個字 👍 認識新單字真棒！` : "今天沒有查單字，讀得很順喔 👍";
+  if (tapN || zhN) {
+    const parts = [];
+    if (tapN) parts.push(`點讀 ${tapN} 個`);
+    if (zhN) parts.push(`中文查英文 ${zhN} 個`);
+    cheer.textContent = `今天查了${parts.join("、")}字 👍 認識新單字真棒！`;
+  } else {
+    cheer.textContent = "今天沒有查單字，讀得很順喔 👍";
+  }
   score.appendChild(cheer);
   score.classList.add("show");
   document.getElementById("submit").disabled = true;
@@ -1125,6 +1436,16 @@ document.getElementById("gloss").addEventListener("click", hideGloss);
 document.getElementById("submit").addEventListener("click", grade);
 document.getElementById("copyBtn").addEventListener("click", copyResults);
 document.getElementById("reset").addEventListener("click", resetQuiz);
+
+document.getElementById("zh-search-btn").addEventListener("click", runZhSearch);
+document.getElementById("zh-search-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); runZhSearch(); }
+});
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", syncZhBarToViewport);
+  window.visualViewport.addEventListener("scroll", syncZhBarToViewport);
+  syncZhBarToViewport();
+}
 </script>
 </body>
 </html>
