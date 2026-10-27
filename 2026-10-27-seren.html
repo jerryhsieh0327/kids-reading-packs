@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Seren Reading · Redstone Bridge · 2026-10-27</title>
+<style>
+  :root {
+    --bg: #e8f5e9;
+    --card: #f1f8e9;
+    --ink: #1b2e1b;
+    --muted: #3e5c3e;
+    --accent: #558b2f;
+    --accent-soft: #dcedc8;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #2e7d32;
+    --ok-soft: #c8e6c9;
+    --border: #a5d6a7;
+    --shadow: 0 8px 24px rgba(27, 46, 27, 0.12);
+    --stone: #8d6e63;
+    --dirt: #6d4c41;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #e8f5e9 0%, #efebe9 40%, #fff8e1 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    border-left: 6px solid var(--accent);
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #33691e;
+    border: 1px dashed var(--accent);
+  }
+  .passage {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow);
+    font-size: 1.2rem;
+    line-height: 1.85;
+    position: relative;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .passage p { margin: 0 0 1rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(85,139,47,0.25);
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .passage .word:hover { background: rgba(85, 139, 47, 0.14); }
+  .passage .word.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  #gloss {
+    display: none;
+    position: sticky;
+    bottom: 0.75rem;
+    margin-top: 1rem;
+    background: #2e4a22;
+    color: #f1f8e9;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 5;
+    border: 2px solid #7cb342;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  #gloss .g-en { opacity: 0.95; }
+  #gloss .g-zh { margin-top: 0.2rem; color: #c5e1a5; }
+  #gloss .g-hint { margin-top: 0.45rem; font-size: 0.78rem; opacity: 0.75; }
+  .quiz {
+    margin-top: 1.25rem;
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quiz h2 { margin: 0 0 0.75rem; font-size: 1.15rem; color: var(--dirt); }
+  .q {
+    border-top: 1px solid var(--border);
+    padding: 1rem 0;
+  }
+  .q:first-of-type { border-top: none; padding-top: 0.25rem; }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; }
+  .opt {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0.2rem 0;
+  }
+  .opt:hover { background: #f1f8e9; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: var(--ok-soft); }
+  .opt.mark-bad { background: var(--wrong-soft); }
+  .explain {
+    display: none;
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .explain.show { display: block; }
+  .explain.ok { background: var(--ok-soft); color: #1b5e20; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+  button {
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #d7ccc8; color: var(--ink); }
+  #copyBtn { background: #5d4037; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #2e7d32; }
+  #score {
+    display: none;
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    background: #efebe9;
+    color: #3e2723;
+    font-weight: 600;
+    border: 1px solid var(--stone);
+  }
+  #score.show { display: block; }
+  footer {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🟩⛏ Redstone Bridge Over the Ravine</h1>
+    <div class="meta">Seren · ≈900–1000L · US Grade 4–5 · 2026-10-27<br />
+    類型：遊戲 · Minecraft · CA CCSS literary (RL.4–5) · 自編對齊 CA · English Tutor</div>
+    <div class="tip">💡 看到不懂的單字，<strong>點一下</strong> → 下方出現英文解釋＋中文；<strong>再點一下同一個字</strong>（或點說明卡）就關掉。<br/>做完 5 題按「提交答案」，再按「複製成績」貼到微信給爸爸媽媽喔！今晚約 15 分鐘，慢慢讀～</div>
+  </header>
+
+  <article class="passage" id="passage" aria-label="Reading passage"></article>
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz">
+    <h2>Comprehension Check（5 題）</h2>
+    <form id="quiz-form"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+
+  <footer>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA CCSS）· 非 Mojang 官方內容</footer>
+</div>
+
+<script>
+const GLOSSARY = {
+  "tightened": { en: "pulled or fastened more firmly", zh: "拉緊；束緊" },
+  "straps": { en: "narrow bands used to hold something in place", zh: "帶子；肩帶" },
+  "leather": { en: "strong material made from animal skin", zh: "皮革" },
+  "peered": { en: "looked carefully or with effort", zh: "凝視；仔細看" },
+  "ravine": { en: "a deep, narrow valley with steep sides", zh: "峽谷；深谷" },
+  "glittered": { en: "shone with small bright flashes", zh: "閃閃發光" },
+  "jagged": { en: "having sharp, uneven points", zh: "鋸齒狀的；崎嶇的" },
+  "crumbled": { en: "broke into small pieces", zh: "碎裂；崩塌" },
+  "overhang": { en: "a part that sticks out above something", zh: "懸崖突出部；遮簷" },
+  "hiss": { en: "a long soft \"sss\" sound", zh: "嘶嘶聲" },
+  "creeper": { en: "a silent green Minecraft mob that can explode", zh: "苦力怕（會爆炸的綠色怪物）" },
+  "charged": { en: "rushed forward to attack", zh: "衝上來攻擊" },
+  "patient": { en: "able to wait calmly without getting upset", zh: "有耐心的" },
+  "cobblestone": { en: "a common rough stone block used for building", zh: "鵝卵石（方塊）" },
+  "coil": { en: "something wound into loops", zh: "一捲" },
+  "redstone": { en: "a Minecraft dust that carries power like electricity", zh: "紅石" },
+  "dust": { en: "fine powder", zh: "粉末；粉塵" },
+  "sticky pistons": { en: "blocks that can push and pull other blocks", zh: "黏性活塞" },
+  "piston": { en: "a machine part that pushes something forward", zh: "活塞" },
+  "lever": { en: "a handle you pull or push to turn something on or off", zh: "拉桿；開關" },
+  "torches": { en: "sticks that give light when lit", zh: "火把" },
+  "invent": { en: "to create something new by thinking and building", zh: "發明；想出" },
+  "landing": { en: "a flat place to stand at the start or end of a path", zh: "平台；落腳處" },
+  "tugged": { en: "pulled lightly but firmly", zh: "拉扯" },
+  "trench": { en: "a long narrow hole dug in the ground", zh: "溝槽；壕溝" },
+  "connecting": { en: "joining so that things work together", zh: "連接" },
+  "shove": { en: "to push roughly or firmly", zh: "用力推" },
+  "flooded": { en: "filled completely (here: with light)", zh: "充滿；淹沒" },
+  "shuffled": { en: "moved with short, sliding steps", zh: "拖著腳走；挪動" },
+  "sprinted": { en: "ran as fast as possible for a short distance", zh: "衝刺快跑" },
+  "leaped": { en: "jumped a long way", zh: "躍過；跳過" },
+  "grunt": { en: "a short low sound of effort", zh: "悶哼聲" },
+  "scrambled": { en: "moved quickly using hands and feet", zh: "攀爬；慌忙爬上" },
+  "jammed": { en: "pushed something firmly into a tight space", zh: "塞進；卡住" },
+  "dove": { en: "jumped or dropped down quickly (past of dive)", zh: "俯衝；猛然躲下" },
+  "boulder": { en: "a large rock", zh: "大石頭" },
+  "pounded": { en: "beat hard and fast (like a heart)", zh: "怦怦跳；猛擊" },
+  "wired": { en: "connected with a power line or redstone trail", zh: "接上線路" },
+  "pressure plate": { en: "a flat switch that turns on when something stands on it", zh: "壓力板" },
+  "yank": { en: "to pull suddenly and hard", zh: "猛拉" },
+  "support": { en: "something that holds weight from below", zh: "支撐（物）" },
+  "resort": { en: "something you use when nothing else works", zh: "最後手段" },
+  "advanced": { en: "moved forward", zh: "前進；逼近" },
+  "snapped": { en: "moved or closed with a sudden sharp motion", zh: "啪地彈動" },
+  "vanished": { en: "disappeared suddenly", zh: "消失" },
+  "clatter": { en: "a loud rattling noise of hard things hitting", zh: "嘩啦聲；碰撞聲" },
+  "tumbled": { en: "fell rolling or bouncing", zh: "跌落；翻滾落下" },
+  "misty": { en: "full of light fog or mist", zh: "有薄霧的" },
+  "exhaled": { en: "breathed out slowly", zh: "呼出一口氣" },
+  "curled": { en: "moved in a soft twisting shape", zh: "繚繞；捲曲" },
+  "lanterns": { en: "lights inside protective cases", zh: "燈籠" },
+  "pouch": { en: "a small bag for carrying things", zh: "小袋子；腰包" },
+  "crumbling": { en: "breaking apart slowly into pieces", zh: "逐漸崩壞的" },
+  "puzzle": { en: "a problem that needs careful thinking to solve", zh: "謎題；難題" }
+};
+
+const PASSAGE_PARAS = [
+  "Mia tightened the straps on her worn leather backpack and peered over the edge of the ravine. Far below, a thin river glittered between jagged stone walls. On the other side, smoke rose from a tiny village she needed to reach before nightfall. Her map showed a bridge, but the wooden planks had crumbled long ago. Only a few broken posts stuck out of the rock like broken teeth.",
+  "She was not alone. Somewhere in the shadows under a cliff overhang, something waited. Mia had heard the soft hiss earlier — the quiet warning every explorer learns to fear. A creeper. It had not charged yet. It simply waited, patient as stone, as if it knew the only path forward led past its hiding place.",
+  "Mia sat on a flat block of stone and opened her pack. Inside she kept spare cobblestone, a coil of redstone dust, two sticky pistons, a lever, and a handful of torches. She was not the strongest builder in her world, but she loved solving problems the way other kids loved racing. If she could not walk across the old bridge, she would invent a new one.",
+  "First she placed cobblestone carefully along the near edge, building a short landing. Then she stretched a narrow path of blocks out over the empty air, one careful step at a time. The ravine wind tugged at her sleeves. Halfway across, the path ended because she had run out of stone. She would have to finish the bridge from the far side — but she still had to get there.",
+  "That was when the redstone idea clicked. Mia returned to solid ground and dug a shallow trench. She lined it with redstone dust, connecting a lever on her side to a sticky piston hidden under the unfinished bridge. When she pulled the lever, the piston would shove a final block into place and complete the path. It was a clever trick, but it needed one more piece: she had to cross first, plant the missing block, then use the lever from safety.",
+  "She lit three torches and tossed them into the shadows near the overhang. Bright light flooded the creeper's hiding spot. For a moment the green shape froze, then shuffled deeper into darkness. Mia did not wait. She sprinted onto her half-finished bridge, leaped the last gap with a soft grunt, and landed hard on the far ledge. Cobblestone spilled from her pack as she scrambled up.",
+  "Behind her, the soft hiss grew louder. The creeper had left its shelter. Mia jammed the final block into the gap, then dove behind a boulder. She could not reach her lever from here — it was still on the starting side. Her heart pounded. If the creeper stepped onto the bridge now, it might explode and destroy everything she had built.",
+  "Then she remembered the second sticky piston in her pack. Quickly she set it under a loose block near the far end and wired a short trail of redstone to a pressure plate at her feet. If anything heavy stepped on that plate, the piston would yank a support block away and open a hole in the bridge. It was a last resort — a trap meant for monsters, not for friends.",
+  "The creeper advanced, silent except for that rising hiss. Its dark eyes fixed on Mia. She held her breath and waited until its foot touched the first bridge block. Then she stomped the pressure plate. The piston snapped. A support block vanished. The middle of the bridge dropped into the ravine with a clatter of stone. The creeper tumbled into the misty dark below, and the hiss faded into the wind.",
+  "Mia exhaled. Her clever bridge was broken, but she was alive, and the village smoke still curled against the evening sky. She rebuilt a simple, solid path with the last of her cobblestone — no traps this time, only steady blocks under her boots. When she finally walked into the village square, lanterns were already glowing. An old builder waved and asked how she had crossed the ravine.",
+  "Mia grinned and patted the empty redstone pouch at her belt. \"I let the night wait for me,\" she said, \"and then I made the ground decide.\" The builder laughed, not quite understanding, but Mia understood perfectly. In a world of creepers and crumbling bridges, the best adventure was not the loudest fight. It was the quiet plan that turned danger into a puzzle — and a puzzle into a way home."
+];
+
+const QUESTIONS = [
+  {
+    "stem": "1. What is the main idea of this story?",
+    "choices": [
+      "Mia races other kids across a finished village bridge.",
+      "Mia uses careful planning and redstone to cross a dangerous ravine despite a creeper.",
+      "A creeper helps Mia build a bridge before nightfall.",
+      "Mia gives up and waits in the village until morning."
+    ],
+    "answer": 1,
+    "why": "主旨題：全文寫 Mia 用紅石與計策克服峽谷與苦力怕，安全抵達村莊。"
+  },
+  {
+    "stem": "2. According to the passage, why did Mia toss torches near the overhang?",
+    "choices": [
+      "To light a path for the old builder in the village",
+      "To warm her hands before she started digging",
+      "To flood the creeper's hiding spot with light and push it deeper into darkness",
+      "To signal the village that she needed more cobblestone"
+    ],
+    "answer": 2,
+    "why": "細節題：文中寫火把讓光充滿苦力怕藏身處，它才往更暗處挪走，她趁機衝過。"
+  },
+  {
+    "stem": "3. What can you infer about Mia from the way she builds the pressure-plate trap?",
+    "choices": [
+      "She prefers loud fights over quiet problem-solving.",
+      "She thinks carefully and prepares a backup plan when her first idea may fail.",
+      "She wants the creeper to become her friend on the bridge.",
+      "She forgot how redstone and pistons work."
+    ],
+    "answer": 1,
+    "why": "推論題：她發現拉不到原拉桿後，立刻改用壓力板陷阱當「最後手段」，顯示會預留備案。"
+  },
+  {
+    "stem": "4. In the sentence “It was a last resort — a trap meant for monsters, not for friends,” the phrase last resort most nearly means —",
+    "choices": [
+      "the first idea she always tries",
+      "a fun game she plays with village builders",
+      "something used only when nothing else will work",
+      "a soft landing at the bottom of the ravine"
+    ],
+    "answer": 2,
+    "why": "詞彙語境題：last resort 指別的辦法都行不通時才用的最後手段。"
+  },
+  {
+    "stem": "5. Why does the author end with Mia saying she “made the ground decide”?",
+    "choices": [
+      "To show that Mia won by planning a trap in the bridge, not by fighting with a sword",
+      "To prove that the village builder invented redstone first",
+      "To explain that the creeper chose to jump into the ravine on purpose",
+      "To argue that maps are more useful than pistons"
+    ],
+    "answer": 0,
+    "why": "作者目的：這句呼應她用壓力板讓橋面塌陷，強調「動腦的計策」勝過硬打。"
+  }
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function tokenize(text) {
+  return text.match(/[A-Za-z]+(?:'[A-Za-z]+)?|[^A-Za-z]+/g) || [];
+}
+
+function renderPassage() {
+  const el = document.getElementById("passage");
+  el.innerHTML = PASSAGE_PARAS.map(p => {
+    const parts = tokenize(p).map(tok => {
+      if (/^[A-Za-z]/.test(tok)) {
+        const key = tok.toLowerCase();
+        return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+      }
+      return escapeHtml(tok);
+    }).join("");
+    return `<p>${parts}</p>`;
+  }).join("");
+}
+
+let activeKey = null;
+let activeEl = null;
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  if (activeEl) activeEl.classList.remove("active");
+  activeKey = null;
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextSibling;
+  if (next && next.nodeType === 1 && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) {
+      entry = GLOSSARY[phrase];
+      label = display + " " + next.dataset.display;
+    }
+  }
+  if (!entry) entry = GLOSSARY[key];
+
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = wordEl;
+  activeKey = key;
+  wordEl.classList.add("active");
+
+  const g = document.getElementById("gloss");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄這個字；試試看從句子猜猜它的意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）先讀完整句，猜猜看～";
+  }
+  g.classList.add("show");
+  recordLookup(label, entry);
+}
+
+function renderQuiz() {
+  const form = document.getElementById("quiz-form");
+  form.innerHTML = QUESTIONS.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt" data-q="${qi}" data-c="${ci}">
+        <input type="radio" name="q${qi}" value="${ci}" />
+        <span><strong>${LETTERS[ci]}.</strong> ${escapeHtml(c)}</span>
+      </label>`).join("");
+    return `<div class="q" data-q="${qi}">
+      <div class="q-stem">${escapeHtml(q.stem)}</div>
+      ${opts}
+      <div class="explain" id="ex${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const PACK_META = {
+  child: "Seren",
+  date: "2026-10-27",
+  title: "Redstone Bridge Over the Ravine",
+  type: "遊戲",
+  level: "≈900–1000L · US G4–5 · games/Minecraft (RL.4–5)"
+};
+
+let lastReport = null;
+
+// ---- Lookup tracking (counts each OPEN of a gloss card) ----
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : "";
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const { words, total } = lookupStats();
+  if (!words.length) return ["查詢單字：無"];
+  return [`查詢單字（共 ${total} 次，${words.length} 個字）：`,
+    ...words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function grade() {
+  let correct = 0;
+  const detail = [];
+  QUESTIONS.forEach((q, qi) => {
+    const chosen = document.querySelector(`input[name="q${qi}"]:checked`);
+    const ex = document.getElementById("ex" + qi);
+    document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(lab => {
+      lab.classList.remove("mark-ok", "mark-bad");
+    });
+    const ansLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${q.answer}"]`);
+    if (ansLab) ansLab.classList.add("mark-ok");
+
+    if (!chosen) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正確答案是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: 未作答（正解 ${LETTERS[q.answer]}）`);
+      return;
+    }
+    const ci = Number(chosen.value);
+    if (ci === q.answer) {
+      correct += 1;
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[q.answer]}）<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✓ ${LETTERS[ci]}`);
+    } else {
+      const badLab = document.querySelector(`.opt[data-q="${qi}"][data-c="${ci}"]`);
+      if (badLab) badLab.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[ci]}，正確是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✗ 選${LETTERS[ci]}／正解${LETTERS[q.answer]}`);
+    }
+  });
+  const score = document.getElementById("score");
+  score.textContent = `得分：${correct} / ${QUESTIONS.length}` + (correct === QUESTIONS.length ? " · 太棒了！" : " · 看完講解再重做一次也可以");
+  const nWords = lookupStats().words.length;
+  const cheer = document.createElement("div");
+  cheer.style.fontSize = "0.85em";
+  cheer.style.fontWeight = "normal";
+  cheer.style.marginTop = "4px";
+  cheer.textContent = nWords ? `今天查了 ${nWords} 個字 👍 認識新單字真棒！` : "今天沒有查單字，讀得很順喔 👍";
+  score.appendChild(cheer);
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = true; });
+
+  lastReport = [
+    "【Reading 成績回報 → English Tutor】",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `類型：${PACK_META.type}`,
+    `程度：${PACK_META.level}`,
+    `得分：${correct}/${QUESTIONS.length}`,
+    "明細：",
+    ...detail.map(d => "- " + d),
+    ...lookupReportLines(),
+    "（請貼到微信給家庭大管家轉 English Tutor）"
+  ].join("\n");
+
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+}
+
+async function copyResults() {
+  if (!lastReport) {
+    alert("請先提交答案。");
+    return;
+  }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = lastReport;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch (e2) {
+      alert("無法自動複製，請手動選取以下文字：\n\n" + lastReport);
+      document.body.removeChild(ta);
+      return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！去微信貼上";
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = "複製成績";
+    btn.classList.remove("copied");
+  }, 2500);
+}
+
+function resetQuiz() {
+  document.getElementById("quiz-form").reset();
+  document.querySelectorAll(".explain").forEach(ex => {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderPassage();
+renderQuiz();
+
+let lastTapEl = null, lastTapTime = 0;
+document.getElementById("passage").addEventListener("click", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  const now = Date.now();
+  if (t === lastTapEl && now - lastTapTime < 350) return;
+  lastTapEl = t; lastTapTime = now;
+  showGloss(t);
+});
+document.getElementById("passage").addEventListener("dblclick", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  e.preventDefault();
+  if (activeEl !== t) showGloss(t);
+});
+
+document.getElementById("gloss").addEventListener("click", hideGloss);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+</script>
+</body>
+</html>
