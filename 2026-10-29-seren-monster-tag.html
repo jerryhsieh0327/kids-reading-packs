@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<title>跟怪兽玩抓人</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;touch-action:none;user-select:none}
+#wrap{position:relative;width:100%;height:100%;display:flex;flex-direction:column}
+#hud{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:max(10px,env(safe-area-inset-top)) 16px 8px;color:#fff;font-size:18px;font-weight:700;text-shadow:0 1px 3px #0008;pointer-events:none}
+#hud button{pointer-events:auto;font-size:16px;padding:10px 16px;border:none;border-radius:12px;background:#ffd166;color:#333;font-weight:700;min-height:48px}
+canvas{display:block;width:100%;height:100%;background:linear-gradient(#2d6a4f 0%,#40916c 40%,#52b788 100%)}
+#overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a1a2ecc;color:#fff;text-align:center;padding:24px;gap:16px}
+#overlay h1{font-size:28px}
+#overlay p{font-size:18px;line-height:1.5;max-width:360px}
+#overlay button{font-size:20px;padding:14px 28px;border:none;border-radius:16px;background:#ffd166;color:#333;font-weight:800;min-height:52px;min-width:160px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud">
+    <span id="score">分数 0</span>
+    <span id="lives">❤️❤️❤️</span>
+    <button type="button" id="btnRestart" aria-label="再来一次">再来</button>
+  </div>
+  <canvas id="c"></canvas>
+  <div id="overlay">
+    <h1>👾 跟怪兽玩抓人</h1>
+    <p>你是勇敢的小朋友 👧<br/>用手指滑动逃跑！<br/>被怪兽碰到会掉一颗心。<br/>躲开越久分数越高～</p>
+    <button type="button" id="btnStart">开始玩</button>
+  </div>
+</div>
+<script>
+(function(){
+  const canvas=document.getElementById('c');
+  const ctx=canvas.getContext('2d');
+  const overlay=document.getElementById('overlay');
+  const scoreEl=document.getElementById('score');
+  const livesEl=document.getElementById('lives');
+  const btnStart=document.getElementById('btnStart');
+  const btnRestart=document.getElementById('btnRestart');
+
+  let W=0,H=0,dpr=1;
+  let running=false, gameOver=false;
+  let score=0, lives=3, t0=0, last=0, invuln=0;
+  let player={x:0,y:0,r:28,emoji:'👧'};
+  let monsters=[];
+  let touch={active:false,x:0,y:0};
+  let trees=[];
+
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,2);
+    W=window.innerWidth; H=window.innerHeight;
+    canvas.width=Math.floor(W*dpr); canvas.height=Math.floor(H*dpr);
+    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize',resize); resize();
+
+  function spawnMonsters(n){
+    monsters=[];
+    const emojis=['👾','👹','👻','🦖','🐸'];
+    for(let i=0;i<n;i++){
+      let x,y,ok=false,tries=0;
+      while(!ok && tries++<40){
+        x=40+Math.random()*(W-80); y=80+Math.random()*(H-160);
+        ok=Math.hypot(x-player.x,y-player.y)>140;
+      }
+      monsters.push({
+        x,y,r:26,
+        emoji:emojis[i%emojis.length],
+        vx:(Math.random()<.5?-1:1)*(1.2+Math.random()*1.4),
+        vy:(Math.random()<.5?-1:1)*(1.2+Math.random()*1.4)
+      });
+    }
+  }
+
+  function makeTrees(){
+    trees=[];
+    for(let i=0;i<8;i++){
+      trees.push({x:Math.random()*W,y:100+Math.random()*(H-140),s:28+Math.random()*16});
+    }
+  }
+
+  function reset(){
+    score=0; lives=3; invuln=0; gameOver=false;
+    player.x=W/2; player.y=H/2;
+    spawnMonsters(3);
+    makeTrees();
+    scoreEl.textContent='分数 0';
+    livesEl.textContent='❤️❤️❤️';
+    t0=performance.now(); last=t0;
+  }
+
+  function start(){
+    overlay.classList.add('hidden');
+    reset();
+    running=true;
+    requestAnimationFrame(loop);
+  }
+
+  function endGame(){
+    running=false; gameOver=true;
+    overlay.classList.remove('hidden');
+    overlay.querySelector('h1').textContent='再试一次？';
+    overlay.querySelector('p').innerHTML='你坚持了 <b>'+score+'</b> 分！<br/>怪兽还想再抓你～';
+    btnStart.textContent='再玩一次';
+  }
+
+  function setPointer(clientX,clientY,active){
+    const rect=canvas.getBoundingClientRect();
+    touch.active=active;
+    touch.x=clientX-rect.left;
+    touch.y=clientY-rect.top;
+  }
+  canvas.addEventListener('pointerdown',e=>{e.preventDefault();canvas.setPointerCapture(e.pointerId);setPointer(e.clientX,e.clientY,true);});
+  canvas.addEventListener('pointermove',e=>{e.preventDefault();if(touch.active)setPointer(e.clientX,e.clientY,true);});
+  canvas.addEventListener('pointerup',e=>{e.preventDefault();touch.active=false;});
+  canvas.addEventListener('pointercancel',()=>{touch.active=false;});
+
+  window.addEventListener('keydown',e=>{
+    const step=18;
+    if(e.key==='ArrowLeft'||e.key==='a')player.x-=step;
+    if(e.key==='ArrowRight'||e.key==='d')player.x+=step;
+    if(e.key==='ArrowUp'||e.key==='w')player.y-=step;
+    if(e.key==='ArrowDown'||e.key==='s')player.y+=step;
+  });
+
+  btnStart.addEventListener('click',start);
+  btnRestart.addEventListener('click',()=>{if(!overlay.classList.contains('hidden'))return;reset();running=true;requestAnimationFrame(loop);});
+
+  function loop(now){
+    if(!running)return;
+    const dt=Math.min(32,now-last)/16.67; last=now;
+    const elapsed=(now-t0)/1000;
+    score=Math.floor(elapsed*10);
+    scoreEl.textContent='分数 '+score;
+
+    // difficulty: add monster every 12s, max 6
+    const want=Math.min(6,3+Math.floor(elapsed/12));
+    while(monsters.length<want){
+      const emojis=['👾','👹','👻','🦖','🐸'];
+      monsters.push({
+        x:Math.random()*W,y:40,r:26,
+        emoji:emojis[monsters.length%emojis.length],
+        vx:(Math.random()<.5?-1:1)*(1.4+Math.random()),
+        vy:1.2+Math.random()
+      });
+    }
+
+    // player follows finger
+    if(touch.active){
+      const spd=10*dt;
+      const dx=touch.x-player.x, dy=touch.y-player.y;
+      const dist=Math.hypot(dx,dy)||1;
+      player.x+=dx/dist*Math.min(spd,dist);
+      player.y+=dy/dist*Math.min(spd,dist);
+    }
+    player.x=Math.max(player.r,Math.min(W-player.r,player.x));
+    player.y=Math.max(player.r+40,Math.min(H-player.r,player.y));
+
+    // monsters chase + wander
+    const chase=0.55+Math.min(0.9,elapsed*0.02);
+    for(const m of monsters){
+      const dx=player.x-m.x, dy=player.y-m.y;
+      const dist=Math.hypot(dx,dy)||1;
+      m.vx+=dx/dist*chase*0.08*dt;
+      m.vy+=dy/dist*chase*0.08*dt;
+      const sp=Math.hypot(m.vx,m.vy);
+      const maxSp=2.2+elapsed*0.05;
+      if(sp>maxSp){m.vx*=maxSp/sp;m.vy*=maxSp/sp;}
+      m.x+=m.vx*dt; m.y+=m.vy*dt;
+      if(m.x<m.r||m.x>W-m.r)m.vx*=-1;
+      if(m.y<m.r+50||m.y>H-m.r)m.vy*=-1;
+      m.x=Math.max(m.r,Math.min(W-m.r,m.x));
+      m.y=Math.max(m.r+50,Math.min(H-m.r,m.y));
+    }
+
+    if(invuln>0)invuln-=dt;
+    else{
+      for(const m of monsters){
+        if(Math.hypot(m.x-player.x,m.y-player.y)<m.r+player.r-8){
+          lives--; invuln=90;
+          livesEl.textContent='❤️'.repeat(Math.max(0,lives))+(lives<=0?'':'');
+          if(lives<=0){livesEl.textContent='💔'; endGame(); return;}
+          break;
+        }
+      }
+    }
+
+    // draw
+    ctx.clearRect(0,0,W,H);
+    // grass blobs
+    ctx.fillStyle='#95d5b2';
+    for(let i=0;i<12;i++){
+      const gx=(i*97+40)%W, gy=(i*131+120)%H;
+      ctx.beginPath(); ctx.ellipse(gx,gy,30,12,0,0,Math.PI*2); ctx.fill();
+    }
+    for(const t of trees){
+      ctx.font=t.s+'px serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('🌳',t.x,t.y);
+    }
+    for(const m of monsters){
+      ctx.font='44px serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(m.emoji,m.x,m.y);
+    }
+    ctx.globalAlpha=invuln>0 && Math.floor(invuln/6)%2===0 ? 0.35 : 1;
+    ctx.font='48px serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(player.emoji,player.x,player.y);
+    ctx.globalAlpha=1;
+
+    requestAnimationFrame(loop);
+  }
+})();
+</script>
+</body>
+</html>
