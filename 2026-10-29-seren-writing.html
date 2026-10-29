@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Seren Writing · Secret Door · 2026-10-29</title>
+<style>
+  :root {
+    --bg: #e3f2fd;
+    --card: #f0f7ff;
+    --ink: #0d2744;
+    --muted: #3d5a73;
+    --accent: #0277bd;
+    --accent-soft: #b3e5fc;
+    --border: #81d4fa;
+    --shadow: 0 8px 24px rgba(13, 39, 68, 0.12);
+    --deep: #01579b;
+    --foam: #e1f5fe;
+    --ok: #2e7d32;
+    --ok-soft: #c8e6c9;
+    --zh-bar-h: 96px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #e3f2fd 0%, #e0f7fa 45%, #e8eaf6 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1.25rem 1rem calc(var(--zh-bar-h) + 1.25rem);
+  }
+  header {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    border-left: 6px solid var(--accent);
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #01579b;
+    border: 1px dashed var(--accent);
+  }
+  .card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+  }
+  .card h2 {
+    margin: 0 0 0.55rem;
+    font-size: 1.12rem;
+    color: var(--deep);
+  }
+  .prompt-en {
+    font-size: 1.15rem;
+    line-height: 1.75;
+    margin: 0.5rem 0 0.85rem;
+    font-weight: 500;
+  }
+  .prompt-zh {
+    font-size: 0.92rem;
+    color: var(--muted);
+    margin: 0 0 0.85rem;
+  }
+  .starters {
+    background: var(--foam);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+  }
+  .starters .label {
+    font-weight: 600;
+    color: var(--deep);
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
+  .starter-btn {
+    display: inline-block;
+    margin: 0.2rem 0.25rem 0.2rem 0;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    background: #fff;
+    color: var(--deep);
+    font-size: 0.85rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 44px;
+  }
+  .starter-btn:active { background: var(--accent-soft); }
+  label.write-label {
+    display: block;
+    font-weight: 600;
+    color: var(--deep);
+    margin-bottom: 0.45rem;
+    font-size: 0.95rem;
+  }
+  #draft {
+    width: 100%;
+    min-height: 280px;
+    padding: 0.9rem 1rem;
+    font-size: 16px; /* iPad Safari: avoid auto-zoom */
+    line-height: 1.7;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    resize: vertical;
+    -webkit-appearance: none;
+  }
+  #draft:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(2, 119, 189, 0.2);
+  }
+  .count-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.45rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .count-row .target { color: var(--deep); }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+  button.btn {
+    flex: 1 1 160px;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 48px;
+  }
+  button.btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--deep);
+  }
+  button.btn-primary:active { background: var(--deep); }
+  #status {
+    display: none;
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    background: var(--ok-soft);
+    color: var(--ok);
+    border: 1px solid #81c784;
+  }
+  #status.show { display: block; }
+  .parent-note {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 0.75rem;
+  }
+  footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+  }
+  #zh-search-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: #01579b;
+    color: #e3f2fd;
+    border-top: 2px solid #4fc3f7;
+    box-shadow: 0 -6px 20px rgba(13, 39, 68, 0.18);
+    padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+  }
+  #zh-search-bar .zh-row {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+  }
+  #zh-search-bar input {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px; /* iOS: avoid auto-zoom */
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    border: 2px solid #4fc3f7;
+    background: #e1f5fe;
+    color: #0d2744;
+  }
+  #zh-search-bar button#zh-search-btn {
+    flex-shrink: 0;
+    background: #4fc3f7;
+    color: #01579b;
+    padding: 0.55rem 0.95rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    min-height: 44px;
+  }
+  #zh-search-result {
+    max-width: 720px;
+    margin: 0.35rem auto 0;
+    font-size: 0.88rem;
+    min-height: 1.2em;
+    color: #b3e5fc;
+  }
+  #zh-search-result.hit { color: #e3f2fd; }
+  #zh-search-result.miss { color: #ffe082; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>✍️ Writing Practice · Seren</h1>
+    <div class="meta">US G4–5 · 目標約 80–120 字 · 2026-10-29</div>
+    <div class="tip">
+      寫完按「複製作文」，貼到微信給家庭大管家轉 English Tutor。<br />
+      頁面<strong>最下方</strong>可打<strong>中文查英文</strong>（離線詞庫）；查過的詞會一起進「複製作文」。<br />
+      After you finish, tap <strong>複製作文</strong>, then paste in WeChat for English Tutor. Use the bottom bar to look up Chinese → English.
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>📝 Today's prompt · 想像敘事</h2>
+    <p class="prompt-en" id="promptText">Imagine you find a door in your school that leads to a secret world. Describe what you see when you open it, what happens next, and how you feel.</p>
+    <p class="prompt-zh">想像你在學校發現一扇通往秘密世界的門。寫出打開後你看到什麼、接著發生什麼、以及你的感覺。（約 80–120 個英文單字）</p>
+    <div class="starters">
+      <div class="label">Sentence starters（可選 · 點一下可貼進作文框）</div>
+      <button type="button" class="starter-btn" data-starter="When I opened the door, I saw ">When I opened the door, I saw …</button>
+      <button type="button" class="starter-btn" data-starter="Suddenly, ">Suddenly, …</button>
+      <button type="button" class="starter-btn" data-starter="I felt ">I felt …</button>
+      <button type="button" class="starter-btn" data-starter="Before I left, I ">Before I left, I …</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <label class="write-label" for="draft">Your writing · 在這裡打字</label>
+    <textarea id="draft" placeholder="Start typing here… You can use a sentence starter above." spellcheck="true" autocomplete="off" autocapitalize="sentences"></textarea>
+    <div class="count-row">
+      <span id="counts">0 words · 0 characters</span>
+      <span class="target">目標約 80–120 words</span>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="btnCopy">複製作文</button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <p class="parent-note">家長提示：頁面<strong>不做</strong>自動文法批改；寫完複製作文貼回即可。</p>
+  </section>
+
+  <footer>Kids Reading Packs · Writing · Seren · 2026-10-29</footer>
+</div>
+
+<div id="zh-search-bar" role="search" aria-label="中文查英文">
+  <div class="zh-row">
+    <input id="zh-search-input" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="打中文查英文…" />
+    <button type="button" id="zh-search-btn">查</button>
+  </div>
+  <div id="zh-search-result" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  var PACK_DATE = "2026-10-29";
+  var PROMPT = "Imagine you find a door in your school that leads to a secret world. Describe what you see when you open it, what happens next, and how you feel.";
+  var ZH_LOOKUP_KEY = "writingZhLookups:Seren:2026-10-29";
+
+  var draft = document.getElementById("draft");
+  var counts = document.getElementById("counts");
+  var statusEl = document.getElementById("status");
+  var btnCopy = document.getElementById("btnCopy");
+
+  var zhLookups = {};
+  try {
+    zhLookups = JSON.parse(localStorage.getItem(ZH_LOOKUP_KEY) || "{}") || {};
+  } catch (e) {
+    zhLookups = {};
+  }
+
+  /* Offline ZH→EN map (~140 kid / school / feeling / adventure / secret-world words) */
+  var ZH_EN_MAP = {
+    "門": { en: "door", gloss: "a movable opening in a wall or room" },
+    "秘密": { en: "secret", gloss: "something hidden or not told to others" },
+    "世界": { en: "world", gloss: "the earth and all life on it" },
+    "冒險": { en: "adventure", gloss: "an exciting or risky experience" },
+    "發現": { en: "discover / find", gloss: "to find something new" },
+    "想像": { en: "imagine", gloss: "to picture something in your mind" },
+    "感覺": { en: "feel / feeling", gloss: "an emotion inside you" },
+    "突然": { en: "suddenly", gloss: "happening quickly and without warning" },
+    "勇敢": { en: "brave", gloss: "ready to face danger or hard things" },
+    "好奇": { en: "curious", gloss: "wanting to learn or know more" },
+    "學校": { en: "school", gloss: "a place where students learn" },
+    "走廊": { en: "hallway / corridor", gloss: "a long passage in a building" },
+    "教室": { en: "classroom", gloss: "a room where a class meets" },
+    "樓梯": { en: "stairs / staircase", gloss: "steps that go up or down" },
+    "光": { en: "light", gloss: "brightness that helps you see" },
+    "光線": { en: "light", gloss: "brightness that helps you see" },
+    "黑暗": { en: "darkness / dark", gloss: "with little or no light" },
+    "朋友": { en: "friend", gloss: "a person you like and trust" },
+    "動物": { en: "animal", gloss: "a living creature that is not a plant" },
+    "飛": { en: "fly", gloss: "to move through the air" },
+    "跑": { en: "run", gloss: "to move quickly on foot" },
+    "害怕": { en: "afraid / scared", gloss: "feeling fear" },
+    "興奮": { en: "excited", gloss: "very happy and eager" },
+    "快樂": { en: "happy", gloss: "feeling joy" },
+    "奇怪": { en: "strange / weird", gloss: "unusual or surprising" },
+    "神奇": { en: "magical / amazing", gloss: "like magic; wonderful" },
+    "打開": { en: "open", gloss: "to make something not closed" },
+    "關上": { en: "close / shut", gloss: "to make something not open" },
+    "離開": { en: "leave", gloss: "to go away from a place" },
+    "回來": { en: "come back / return", gloss: "to go back to a place" },
+    "故事": { en: "story", gloss: "a telling of events" },
+    "等等": { en: "and so on / etc.", gloss: "and more things like that" },
+    "鑰匙": { en: "key", gloss: "a metal tool that opens a lock" },
+    "鎖": { en: "lock", gloss: "a device that keeps a door shut" },
+    "通往": { en: "lead to", gloss: "to go toward a place" },
+    "另一邊": { en: "the other side", gloss: "the opposite side" },
+    "魔法": { en: "magic", gloss: "powers that seem impossible" },
+    "城堡": { en: "castle", gloss: "a large strong building from long ago" },
+    "森林": { en: "forest", gloss: "a large area with many trees" },
+    "山洞": { en: "cave", gloss: "a hollow space in rock or ground" },
+    "橋": { en: "bridge", gloss: "a structure that crosses water or a gap" },
+    "雲": { en: "cloud", gloss: "white or gray fluff in the sky" },
+    "彩虹": { en: "rainbow", gloss: "colored arc in the sky after rain" },
+    "龍": { en: "dragon", gloss: "a large imaginary creature" },
+    "精靈": { en: "elf / fairy", gloss: "a small magical being" },
+    "寶藏": { en: "treasure", gloss: "valuable things that are hidden" },
+    "地圖": { en: "map", gloss: "a drawing that shows places" },
+    "探險": { en: "explore", gloss: "to travel to learn about a place" },
+    "消失": { en: "disappear", gloss: "to go out of sight" },
+    "出現": { en: "appear", gloss: "to come into sight" },
+    "低語": { en: "whisper", gloss: "to speak very softly" },
+    "腳步聲": { en: "footsteps", gloss: "the sound of walking" },
+    "影子": { en: "shadow", gloss: "a dark shape made by blocking light" },
+    "閃亮": { en: "shiny / glittering", gloss: "bright and reflecting light" },
+    "柔軟": { en: "soft", gloss: "not hard; gentle to touch" },
+    "冰冷": { en: "icy / freezing", gloss: "very cold" },
+    "溫暖": { en: "warm", gloss: "pleasantly hot" },
+    "安靜": { en: "quiet", gloss: "with little or no sound" },
+    "吵鬧": { en: "noisy", gloss: "making a lot of sound" },
+    "美麗": { en: "beautiful", gloss: "very nice to look at" },
+    "有趣": { en: "interesting / fun", gloss: "holding your attention" },
+    "緊張": { en: "nervous", gloss: "worried or uneasy" },
+    "驚訝": { en: "surprised", gloss: "feeling sudden wonder" },
+    "放心": { en: "relieved", gloss: "feeling calm after worry" },
+    "決定": { en: "decide", gloss: "to choose what to do" },
+    "偷偷": { en: "secretly / sneakily", gloss: "without others noticing" },
+    "小心": { en: "carefully / careful", gloss: "with care and attention" },
+    "跟著": { en: "follow", gloss: "to go after someone or something" },
+    "躲": { en: "hide", gloss: "to stay out of sight" },
+    "尋找": { en: "search / look for", gloss: "to try to find" },
+    "遇見": { en: "meet", gloss: "to see and talk to someone" },
+    "說話": { en: "talk / speak", gloss: "to say words" },
+    "聽": { en: "listen / hear", gloss: "to use your ears" },
+    "看": { en: "look / see / watch", gloss: "to use your eyes" },
+    "走": { en: "walk", gloss: "to move on foot" },
+    "跳": { en: "jump", gloss: "to push off the ground into the air" },
+    "爬": { en: "climb", gloss: "to go up using hands and feet" },
+    "推": { en: "push", gloss: "to move something away from you" },
+    "拉": { en: "pull", gloss: "to move something toward you" },
+    "老師": { en: "teacher", gloss: "a person who teaches" },
+    "學生": { en: "student", gloss: "a person who learns at school" },
+    "同學": { en: "classmate", gloss: "a student in the same class" },
+    "作業": { en: "homework", gloss: "school work done at home" },
+    "考試": { en: "test", gloss: "a set of questions to check learning" },
+    "書": { en: "book", gloss: "pages with words or pictures" },
+    "鉛筆": { en: "pencil", gloss: "a tool for writing" },
+    "書包": { en: "backpack", gloss: "a bag worn on the back" },
+    "圖書館": { en: "library", gloss: "a place with many books" },
+    "操場": { en: "playground", gloss: "an outdoor place for play at school" },
+    "下課": { en: "recess / after class", gloss: "break time between classes" },
+    "上課": { en: "have class / in class", gloss: "when a lesson is happening" },
+    "寫作": { en: "writing", gloss: "putting words on paper or a screen" },
+    "閱讀": { en: "reading", gloss: "looking at words and understanding them" },
+    "單字": { en: "vocabulary word", gloss: "a word you learn" },
+    "句子": { en: "sentence", gloss: "a group of words that make a complete thought" },
+    "段落": { en: "paragraph", gloss: "a group of sentences about one idea" },
+    "開頭": { en: "beginning", gloss: "the start of something" },
+    "結尾": { en: "ending", gloss: "the last part of something" },
+    "家人": { en: "family", gloss: "parents and children living together" },
+    "爸爸": { en: "dad / father", gloss: "a male parent" },
+    "媽媽": { en: "mom / mother", gloss: "a female parent" },
+    "哥哥": { en: "older brother", gloss: "a brother who is older" },
+    "弟弟": { en: "younger brother", gloss: "a brother who is younger" },
+    "姐姐": { en: "older sister", gloss: "a sister who is older" },
+    "妹妹": { en: "younger sister", gloss: "a sister who is younger" },
+    "難過": { en: "sad", gloss: "feeling unhappy" },
+    "生氣": { en: "angry", gloss: "feeling mad" },
+    "聰明": { en: "smart / clever", gloss: "good at thinking and learning" },
+    "重要": { en: "important", gloss: "mattering a lot" },
+    "特別": { en: "special", gloss: "different in a good way" },
+    "安全": { en: "safe", gloss: "not in danger" },
+    "危險": { en: "dangerous", gloss: "able to hurt someone" },
+    "幫助": { en: "help", gloss: "to make something easier for someone" },
+    "分享": { en: "share", gloss: "to let others use or have some" },
+    "學習": { en: "learn", gloss: "to gain knowledge or skill" },
+    "練習": { en: "practice", gloss: "to do something again to get better" },
+    "觀察": { en: "observe", gloss: "to watch carefully" },
+    "太陽": { en: "sun", gloss: "the star that lights our day" },
+    "月亮": { en: "moon", gloss: "the bright object that circles Earth" },
+    "星星": { en: "star", gloss: "a bright point of light in the night sky" },
+    "地球": { en: "Earth", gloss: "the planet we live on" },
+    "天氣": { en: "weather", gloss: "rain, sun, wind, and temperature outside" },
+    "下雨": { en: "rain", gloss: "water falling from clouds" },
+    "風": { en: "wind", gloss: "moving air" },
+    "水": { en: "water", gloss: "the liquid we drink" },
+    "空氣": { en: "air", gloss: "the gas we breathe" },
+    "聲音": { en: "sound", gloss: "something you hear" },
+    "顏色": { en: "color", gloss: "red, blue, green, and so on" },
+    "大": { en: "big / large", gloss: "great in size" },
+    "小": { en: "small / little", gloss: "not large" },
+    "快": { en: "fast / quick", gloss: "moving at high speed" },
+    "慢": { en: "slow", gloss: "not fast" },
+    "高": { en: "tall / high", gloss: "far from bottom to top" },
+    "深": { en: "deep", gloss: "far down from the surface" },
+    "困難": { en: "difficult / hard", gloss: "not easy" },
+    "簡單": { en: "easy / simple", gloss: "not hard to do" },
+    "問題": { en: "question / problem", gloss: "something you ask or need to solve" },
+    "答案": { en: "answer", gloss: "a reply to a question" },
+    "想法": { en: "idea", gloss: "a thought in your mind" },
+    "因為": { en: "because", gloss: "for the reason that" },
+    "雖然": { en: "although", gloss: "even though" },
+    "但是": { en: "but / however", gloss: "shows a contrast" },
+    "然後": { en: "then / next", gloss: "after that" },
+    "終於": { en: "finally", gloss: "at the end; after a long time" },
+    "立刻": { en: "immediately / right away", gloss: "without waiting" },
+    "仔細": { en: "carefully", gloss: "with care and attention" },
+    "一起": { en: "together", gloss: "with each other" },
+    "自己": { en: "oneself / myself", gloss: "referring to the same person" },
+    "挑戰": { en: "challenge", gloss: "something hard that tests you" },
+    "成功": { en: "success / succeed", gloss: "doing well; reaching a goal" },
+    "失敗": { en: "fail / failure", gloss: "not succeeding" },
+    "夢想": { en: "dream", gloss: "a hope for the future; also images while sleeping" },
+    "勇氣": { en: "courage", gloss: "bravery when you are afraid" },
+    "耐心": { en: "patience", gloss: "staying calm while waiting" },
+    "感謝": { en: "thank / grateful", gloss: "feeling thankful" },
+    "謝謝": { en: "thank you", gloss: "words that show gratitude" },
+    "你好": { en: "hello", gloss: "a greeting" },
+    "再見": { en: "goodbye", gloss: "said when leaving" },
+    "請": { en: "please", gloss: "a polite word when asking" },
+    "對不起": { en: "sorry", gloss: "what you say when you did wrong" }
+  };
+
+  function wordCount(text) {
+    var t = (text || "").trim();
+    if (!t) return 0;
+    return t.split(/\s+/).filter(Boolean).length;
+  }
+
+  function updateCounts() {
+    var text = draft.value;
+    var w = wordCount(text);
+    var c = text.length;
+    counts.textContent = w + " words · " + c + " characters";
+  }
+
+  function showStatus(msg, ok) {
+    statusEl.textContent = msg;
+    statusEl.className = "show";
+    statusEl.style.background = ok ? "" : "#ffe0b2";
+    statusEl.style.color = ok ? "" : "#e65100";
+    statusEl.style.borderColor = ok ? "" : "#ff9800";
+  }
+
+  function recordZhLookup(query, result) {
+    var q = String(query).trim();
+    if (!q) return;
+    var rec = zhLookups[q] || { count: 0, en: "", gloss: "", found: false, source: "zh-en" };
+    rec.count += 1;
+    rec.source = "zh-en";
+    if (result && result.found) {
+      rec.en = result.en || "";
+      rec.gloss = result.gloss || "";
+      rec.found = true;
+    }
+    zhLookups[q] = rec;
+    try { localStorage.setItem(ZH_LOOKUP_KEY, JSON.stringify(zhLookups)); } catch (e) {}
+  }
+
+  function resolveZhQuery(q) {
+    var query = String(q).trim();
+    if (!query) return null;
+    if (ZH_EN_MAP[query]) {
+      var m = ZH_EN_MAP[query];
+      return { en: m.en, gloss: m.gloss || "", found: true, via: "map" };
+    }
+    if (query.length >= 2) {
+      var keys = Object.keys(ZH_EN_MAP);
+      for (var i = 0; i < keys.length; i++) {
+        var zh = keys[i];
+        if (zh.indexOf(query) !== -1 || query.indexOf(zh) !== -1) {
+          var mm = ZH_EN_MAP[zh];
+          return { en: mm.en, gloss: mm.gloss || "", found: true, via: "map" };
+        }
+      }
+    }
+    return { en: "", gloss: "", found: false, via: "miss" };
+  }
+
+  function runZhSearch() {
+    var input = document.getElementById("zh-search-input");
+    var out = document.getElementById("zh-search-result");
+    var q = (input.value || "").trim();
+    if (!q) {
+      out.className = "";
+      out.textContent = "先打一個中文詞再按「查」。";
+      return;
+    }
+    var result = resolveZhQuery(q);
+    recordZhLookup(q, result);
+    if (result && result.found) {
+      out.className = "hit";
+      out.textContent = result.gloss
+        ? (q + " → " + result.en + " ｜ " + result.gloss)
+        : (q + " → " + result.en);
+    } else {
+      out.className = "miss";
+      out.textContent = "還沒收錄這個詞，可以問爸爸媽媽或老師";
+    }
+  }
+
+  function zhLookupReportLines() {
+    var words = Object.keys(zhLookups);
+    if (!words.length) {
+      return ["中文查英文：無"];
+    }
+    var lines = ["中文查英文："];
+    for (var i = 0; i < words.length; i++) {
+      var q = words[i];
+      var r = zhLookups[q];
+      if (r.found && r.en) {
+        lines.push("- " + q + " → " + r.en + " (×" + r.count + ")");
+      } else {
+        lines.push("- " + q + " → 未收錄 (×" + r.count + ")");
+      }
+    }
+    return lines;
+  }
+
+  function buildReport() {
+    var text = draft.value.trim();
+    var n = wordCount(text);
+    var lines = [
+      "【Writing 草稿 → English Tutor】",
+      "孩子：Seren",
+      "日期：" + PACK_DATE,
+      "題目：" + PROMPT,
+      "字數：" + n
+    ];
+    lines = lines.concat(zhLookupReportLines());
+    lines.push("---");
+    lines.push(text || "(empty)");
+    return lines.join("\n");
+  }
+
+  function copyText(str) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(str);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement("textarea");
+      ta.value = str;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) resolve();
+        else reject(new Error("copy failed"));
+      } catch (e) {
+        document.body.removeChild(ta);
+        reject(e);
+      }
+    });
+  }
+
+  function syncZhBarToViewport() {
+    var bar = document.getElementById("zh-search-bar");
+    if (!bar || !window.visualViewport) return;
+    var vv = window.visualViewport;
+    var offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    bar.style.bottom = offset + "px";
+  }
+
+  draft.addEventListener("input", updateCounts);
+  updateCounts();
+
+  document.querySelectorAll(".starter-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var s = btn.getAttribute("data-starter") || "";
+      var cur = draft.value;
+      if (cur && !/\s$/.test(cur)) cur += " ";
+      draft.value = cur + s;
+      draft.focus();
+      updateCounts();
+    });
+  });
+
+  btnCopy.addEventListener("click", function () {
+    var report = buildReport();
+    copyText(report).then(function () {
+      showStatus("已複製！請貼到微信，交給家庭大管家轉 English Tutor。", true);
+    }).catch(function () {
+      showStatus("複製失敗。請長按作文框手動全選複製，或再試一次。", false);
+    });
+  });
+
+  document.getElementById("zh-search-btn").addEventListener("click", runZhSearch);
+  document.getElementById("zh-search-input").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      runZhSearch();
+    }
+  });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", syncZhBarToViewport);
+    window.visualViewport.addEventListener("scroll", syncZhBarToViewport);
+    syncZhBarToViewport();
+  }
+})();
+</script>
+</body>
+</html>
