@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reading Adventure Challenge · Mini SAT · Seren · 2026-10-31</title>
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --ink: #1e1b4b;
+    --muted: #4c4a6a;
+    --accent: #4f46e5;
+    --accent-soft: #e0e7ff;
+    --gold: #f59e0b;
+    --gold-soft: #fef3c7;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #15803d;
+    --ok-soft: #dcfce7;
+    --border: #c7d2fe;
+    --shadow: 0 10px 28px rgba(49, 46, 129, 0.12);
+    --nav: #312e81;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #eef2ff 0%, #faf5ff 45%, #fff7ed 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 1rem 1rem 3.5rem; }
+  header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 0.85rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, #4f46e5, #a855f7, #f59e0b);
+  }
+  .badge {
+    display: inline-block;
+    background: var(--gold-soft);
+    color: #92400e;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.4rem;
+  }
+  header h1 { margin: 0 0 0.3rem; font-size: 1.28rem; }
+  .meta { color: var(--muted); font-size: 0.88rem; }
+  .tip {
+    margin-top: 0.65rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 12px;
+    font-size: 0.88rem;
+    color: #3730a3;
+  }
+  .module-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.85rem;
+    box-shadow: var(--shadow);
+  }
+  .module-bar .label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--nav);
+    margin-right: 0.25rem;
+  }
+  .qbtn {
+    width: 2rem; height: 2rem;
+    border-radius: 999px;
+    border: 2px solid var(--border);
+    background: #fff;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+  }
+  .qbtn.current { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .qbtn.answered { border-color: #818cf8; background: #eef2ff; }
+  .qbtn.mark-ok { border-color: var(--ok); background: var(--ok-soft); }
+  .qbtn.mark-bad { border-color: var(--wrong); background: var(--wrong-soft); }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  @media (min-width: 760px) {
+    .layout.single-pass { grid-template-columns: 1.05fr 0.95fr; align-items: start; }
+  }
+  .passage {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem;
+    box-shadow: var(--shadow);
+    font-size: 1.08rem;
+    line-height: 1.8;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .passage + .passage { margin-top: 0.65rem; }
+  .passage-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #4338ca;
+    background: var(--accent-soft);
+    padding: 0.18rem 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 0.45rem;
+  }
+  .passage h2 { margin: 0 0 0.65rem; font-size: 1.12rem; color: #312e81; }
+  .passage p { margin: 0 0 0.8rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(79,70,229,0.25);
+    border-radius: 3px;
+  }
+  .passage .word:hover { background: rgba(79, 70, 229, 0.12); }
+  .passage .word.active { background: var(--accent); color: #fff; }
+  #gloss {
+    display: none;
+    position: sticky;
+    bottom: 0.6rem;
+    margin: 0.5rem 0 0;
+    background: #312e81;
+    color: #eef2ff;
+    border-radius: 14px;
+    padding: 0.8rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 5;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-weight: 700; font-size: 1.02rem; }
+  #gloss .g-zh { margin-top: 0.2rem; color: #c7d2fe; }
+  #gloss .g-hint { margin-top: 0.4rem; font-size: 0.76rem; opacity: 0.75; }
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem;
+    box-shadow: var(--shadow);
+  }
+  .q-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6d28d9;
+    background: #f3e8ff;
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    margin-bottom: 0.35rem;
+  }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; font-size: 1.02rem; }
+  .opt {
+    display: flex; gap: 0.5rem; align-items: flex-start;
+    padding: 0.5rem 0.6rem; border-radius: 8px; cursor: pointer; margin: 0.25rem 0;
+    border: 1px solid transparent;
+  }
+  .opt:hover { background: #f5f3ff; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: var(--ok-soft); border-color: #86efac; }
+  .opt.mark-bad { background: var(--wrong-soft); border-color: #fca5a5; }
+  .explain { display: none; margin-top: 0.55rem; padding: 0.55rem 0.7rem; border-radius: 8px; font-size: 0.9rem; }
+  .explain.show { display: block; }
+  .explain.ok { background: var(--ok-soft); color: #14532d; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .nav-row {
+    display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.9rem; align-items: center;
+  }
+  button {
+    border: none; border-radius: 999px;
+    padding: 0.65rem 1.15rem;
+    font-size: 0.92rem; font-weight: 600; cursor: pointer;
+  }
+  #prevBtn, #nextBtn { background: #e0e7ff; color: var(--ink); }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #fce7f3; color: #9d174d; }
+  #copyBtn { background: #b45309; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #15803d; }
+  #score {
+    display: none; margin-top: 0.85rem; padding: 0.85rem 1rem;
+    border-radius: 12px; background: linear-gradient(135deg, #eef2ff, #fef3c7);
+    font-weight: 600;
+  }
+  #score.show { display: block; }
+  footer { margin-top: 1rem; text-align: center; color: var(--muted); font-size: 0.78rem; }
+  .progress { margin-left: auto; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">⭐ Reading Adventure Challenge · 正式週六場</div>
+    <h1>🧭 迷你 SAT 風格挑戰</h1>
+    <div class="meta">Seren · ≈900–1000L（略偏 upper）· US G4–5 · 2026-10-31<br/>
+    Digital SAT 模擬排版 · 自編短文對齊 CA／Digital SAT-style · English Tutor</div>
+    <div class="tip">這是模擬考試排版的挑戰，不是真的 SAT；同一場可前後跳題再讀短文。點單字可看英＋中解釋；全部做完再按「提交本場」。</div>
+  </header>
+
+  <div class="module-bar" id="moduleBar" aria-label="Question navigation"></div>
+
+  <div class="layout" id="layout">
+    <div id="passageCol"></div>
+    <div class="quiz-card" id="quizCard">
+      <div class="q-tag" id="qTag"></div>
+      <div class="q-stem" id="qStem"></div>
+      <div id="opts"></div>
+      <div class="explain" id="explain"></div>
+      <div class="nav-row">
+        <button type="button" id="prevBtn">← 上一題</button>
+        <button type="button" id="nextBtn">下一題 →</button>
+        <span class="progress" id="progress"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <div class="nav-row" style="margin-top:1rem;">
+    <button type="button" id="submit">提交本場</button>
+    <button type="button" id="copyBtn">複製成績</button>
+    <button type="button" id="reset">重做</button>
+  </div>
+  <div id="score"></div>
+  <footer>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 短文為自編（aligned to CA / Digital SAT-style）· 無底部中文查英文列</footer>
+</div>
+<script>
+const GLOSSARY = {"slipped": {"en": "entered quietly without drawing attention", "zh": "悄悄溜進"}, "bookmark": {"en": "a thin marker placed between pages", "zh": "書籤"}, "crane": {"en": "here: a bird shape folded from paper", "zh": "（紙）鶴"}, "folded": {"en": "bent paper into a shape", "zh": "摺成"}, "frowned": {"en": "made an unhappy or puzzled face", "zh": "皺眉"}, "faint": {"en": "very light; hard to see", "zh": "淡淡的；微弱的"}, "margin": {"en": "the blank edge of a page", "zh": "頁邊空白"}, "poetry": {"en": "writing that uses rhythm and careful word choice", "zh": "詩；詩歌"}, "shelf": {"en": "a flat board for holding books", "zh": "書架"}, "mystery": {"en": "a story about solving a puzzle or crime", "zh": "推理／懸疑故事"}, "novel": {"en": "a long story book", "zh": "長篇小說"}, "trunk": {"en": "the thick main stem of a tree", "zh": "樹幹"}, "rings": {"en": "circular marks inside a tree trunk", "zh": "（年）輪"}, "stacked": {"en": "placed one on top of another", "zh": "疊起來"}, "generous": {"en": "giving a lot; plentiful", "zh": "充沛的；慷慨的"}, "narrow": {"en": "not wide; thin", "zh": "窄的"}, "drought": {"en": "a long time with little or no rain", "zh": "乾旱"}, "sunlight": {"en": "light from the sun", "zh": "陽光"}, "dendrochronologists": {"en": "scientists who study tree rings to learn about the past", "zh": "樹木年代學家"}, "detectives": {"en": "people who solve mysteries by finding clues", "zh": "偵探"}, "matching": {"en": "finding things that are alike or go together", "zh": "比對；配對"}, "patterns": {"en": "repeated designs or regular arrangements", "zh": "圖案；規律"}, "estimate": {"en": "make a careful guess based on evidence", "zh": "估計；推估"}, "rainfall": {"en": "the amount of rain that falls", "zh": "降雨量"}, "temperatures": {"en": "how hot or cold the air is", "zh": "氣溫"}, "centuries": {"en": "periods of one hundred years", "zh": "幾個世紀"}, "forest": {"en": "a large area covered with trees", "zh": "森林"}, "diary": {"en": "a book for recording what happens each day", "zh": "日記"}, "research": {"en": "careful study to learn new facts", "zh": "研究"}, "scientists": {"en": "people who study nature and how things work", "zh": "科學家"}, "growth": {"en": "the process of getting bigger", "zh": "生長"}, "quiet": {"en": "with little sound; gentle", "zh": "安靜的"}, "hello": {"en": "a greeting", "zh": "打招呼；問候"}, "clues": {"en": "hints that help you solve a puzzle", "zh": "線索"}, "workshop": {"en": "a short practice session to improve a skill", "zh": "工作坊；練習小站"}, "clearest": {"en": "easiest to understand", "zh": "最清楚的"}, "report": {"en": "a written explanation of facts", "zh": "報告"}};
+const ITEMS = [{"tag": "主旨", "passages": [{"label": "Literary", "title": "The Missing Bookmark", "paras": ["Every Friday after lunch, Nina slipped into the school library to finish a mystery novel. She always left a thin blue bookmark on page eighty-seven. One rainy Friday, the bookmark was gone. In its place sat a tiny paper crane folded from a corner of notebook paper. Nina frowned, then smiled. Someone else had been reading her book—and leaving a quiet hello.", "She opened the novel carefully. A faint pencil note in the margin said, \"Chapter nine is the best.\" Nina read until the bell rang. The next Friday she left a paper crane of her own, with a note: \"I agree. Meet me by the poetry shelf?\""]}], "stem": "What is the main idea of this passage?", "choices": ["Nina prefers rainy Fridays to sunny ones.", "A shared mystery book leads Nina to a quiet friendship through paper cranes.", "The librarian forbids writing in library books.", "Chapter nine of every mystery novel is the most exciting."], "answer": 1, "why": "整篇圍繞 Nina 發現紙鶴留言、用紙鶴回應，開啟安靜的友誼。"}, {"tag": "找證據", "passages": [{"label": "Literary", "title": "The Missing Bookmark", "paras": ["Every Friday after lunch, Nina slipped into the school library to finish a mystery novel. She always left a thin blue bookmark on page eighty-seven. One rainy Friday, the bookmark was gone. In its place sat a tiny paper crane folded from a corner of notebook paper. Nina frowned, then smiled. Someone else had been reading her book—and leaving a quiet hello.", "She opened the novel carefully. A faint pencil note in the margin said, \"Chapter nine is the best.\" Nina read until the bell rang. The next Friday she left a paper crane of her own, with a note: \"I agree. Meet me by the poetry shelf?\""]}], "stem": "Which sentence best supports the idea that Nina is open to meeting the other reader?", "choices": ["She always left a thin blue bookmark on page eighty-seven.", "Nina frowned, then smiled.", "The next Friday she left a paper crane of her own, with a note: \"I agree. Meet me by the poetry shelf?\"", "She opened the novel carefully."], "answer": 2, "why": "主動留下紙鶴並邀請對方到詩架見面，最直接證明她願意認識對方。"}, {"tag": "推論", "passages": [{"label": "Literary", "title": "The Missing Bookmark", "paras": ["Every Friday after lunch, Nina slipped into the school library to finish a mystery novel. She always left a thin blue bookmark on page eighty-seven. One rainy Friday, the bookmark was gone. In its place sat a tiny paper crane folded from a corner of notebook paper. Nina frowned, then smiled. Someone else had been reading her book—and leaving a quiet hello.", "She opened the novel carefully. A faint pencil note in the margin said, \"Chapter nine is the best.\" Nina read until the bell rang. The next Friday she left a paper crane of her own, with a note: \"I agree. Meet me by the poetry shelf?\""]}], "stem": "Based on the passage, the other reader most likely —", "choices": ["wanted to spoil the ending of the mystery for Nina.", "stole Nina's bookmark to keep as a souvenir.", "enjoyed the same book and chose a gentle way to connect with Nina.", "worked in the library and checked books every Friday."], "answer": 2, "why": "對方留下紙鶴與讚美章節的筆記，是溫柔地聯繫，不是破壞或偷竊。"}, {"tag": "上下文猜字", "passages": [{"label": "Literary", "title": "The Missing Bookmark", "paras": ["Every Friday after lunch, Nina slipped into the school library to finish a mystery novel. She always left a thin blue bookmark on page eighty-seven. One rainy Friday, the bookmark was gone. In its place sat a tiny paper crane folded from a corner of notebook paper. Nina frowned, then smiled. Someone else had been reading her book—and leaving a quiet hello."]}], "stem": "In the sentence \"Nina slipped into the school library,\" the word slipped most nearly means —", "choices": ["fell down on the wet floor", "entered quietly and without drawing attention", "ran as fast as she could", "forgot where the library was"], "answer": 1, "why": "這裡 slipped into 指安靜、不引人注意地走進圖書館，不是跌倒。"}, {"tag": "作者目的", "passages": [{"label": "Informational", "title": "Why Trees Keep a Diary", "paras": ["If you cut a tree trunk carefully—something scientists do only for research—you can see rings stacked like circles inside a tree cake. Each ring usually marks one year of growth. A wide ring often means a wet, generous year. A narrow ring can mean drought, cold, or little sunlight.", "Scientists called dendrochronologists study these rings like detectives. By matching patterns across many trees, they can estimate rainfall and temperatures from centuries ago—long before weather apps existed. A forest, in other words, keeps a quiet diary written in wood."]}], "stem": "The author's main purpose in this passage is to —", "choices": ["persuade readers to cut down trees for souvenirs.", "explain how tree rings can record past growing conditions.", "teach readers how to bake a cake shaped like a tree.", "warn that weather apps are inaccurate."], "answer": 1, "why": "全文在說明年輪如何記錄過去的生長與氣候，屬解說目的。"}, {"tag": "找證據", "passages": [{"label": "Informational", "title": "Why Trees Keep a Diary", "paras": ["If you cut a tree trunk carefully—something scientists do only for research—you can see rings stacked like circles inside a tree cake. Each ring usually marks one year of growth. A wide ring often means a wet, generous year. A narrow ring can mean drought, cold, or little sunlight.", "Scientists called dendrochronologists study these rings like detectives. By matching patterns across many trees, they can estimate rainfall and temperatures from centuries ago—long before weather apps existed. A forest, in other words, keeps a quiet diary written in wood."]}], "stem": "Which detail best supports the claim that a narrow ring can signal a difficult growing year?", "choices": ["Rings are stacked like circles inside a tree cake.", "Scientists are called dendrochronologists.", "A narrow ring can mean drought, cold, or little sunlight.", "Weather apps did not exist centuries ago."], "answer": 2, "why": "句子直接把窄年輪與乾旱、寒冷或缺陽光連在一起，是最有力的證據。"}, {"tag": "上下文猜字", "passages": [{"label": "Informational", "title": "Why Trees Keep a Diary", "paras": ["Scientists called dendrochronologists study these rings like detectives. By matching patterns across many trees, they can estimate rainfall and temperatures from centuries ago—long before weather apps existed. A forest, in other words, keeps a quiet diary written in wood."]}], "stem": "As used in the passage, estimate most nearly means —", "choices": ["guess a number carefully based on evidence", "delete old weather records", "plant new trees in a forest", "ignore patterns that look confusing"], "answer": 0, "why": "estimate 在此指根據年輪證據，審慎推估過去的雨量與溫度。"}, {"tag": "簡易文法／表達", "passages": [{"label": "Expression", "title": "Sentence Workshop", "paras": ["Choose the clearest, most correct sentence for a school science report."]}], "stem": "Which choice is the best sentence?", "choices": ["Tree rings shows how much rain fell each year.", "Tree rings show how much rain fell each year.", "Tree rings showing how much rain fell each year.", "Tree rings show how much rain falling each year."], "answer": 1, "why": "主詞 Tree rings 是複數，動詞要用 show；B 主謂一致且時態完整。"}, {"tag": "兩段比較", "passages": [{"label": "Passage A · Literary", "title": "The Missing Bookmark (excerpt)", "paras": ["Nina frowned, then smiled. Someone else had been reading her book—and leaving a quiet hello. The next Friday she left a paper crane of her own, with a note: \"I agree. Meet me by the poetry shelf?\""]}, {"label": "Passage B · Informational", "title": "Why Trees Keep a Diary (excerpt)", "paras": ["Scientists called dendrochronologists study these rings like detectives. By matching patterns across many trees, they can estimate rainfall and temperatures from centuries ago. A forest, in other words, keeps a quiet diary written in wood."]}], "stem": "What idea do both passages share?", "choices": ["Paper cranes are the best way to study climate.", "Quiet clues—notes or tree rings—can help someone understand something new.", "Libraries should replace books with weather apps.", "Detectives and librarians do exactly the same job."], "answer": 1, "why": "A 用紙鶴／筆記當線索認識新朋友；B 用年輪當線索了解過去氣候——都是「安靜的線索帶來新理解」。"}];
+const LETTERS = ["A","B","C","D"];
+const PACK_META = {
+  child: "Seren",
+  date: "2026-10-31",
+  title: "Reading Adventure Challenge · Mini SAT · The Missing Bookmark + Why Trees Keep a Diary",
+  level: "≈900–1000L (upper stretch) · US G4–5 · mini Digital SAT-style (NOT a real SAT)"
+};
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}-sat-mini`;
+
+let cur = 0;
+let answers = Array(ITEMS.length).fill(null);
+let graded = false;
+let lastReport = null;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+function tokenizePara(text) {
+  return text.split(/(\s+|[.,!?;:"“”'()—–\-])/).filter(t => t.length);
+}
+function paraToHtml(text) {
+  return tokenizePara(text).map(tok => {
+    if (/^[A-Za-z][A-Za-z']*$/.test(tok)) {
+      const key = tok.toLowerCase();
+      return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+    }
+    return escapeHtml(tok);
+  }).join("");
+}
+function renderPassageBlock(p) {
+  const body = p.paras.map(t => `<p>${paraToHtml(t)}</p>`).join("");
+  return `<article class="passage"><div class="passage-label">${escapeHtml(p.label)}</div><h2>${escapeHtml(p.title)}</h2>${body}</article>`;
+}
+
+let activeEl = null;
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = null;
+}
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : (rec.zh || "");
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextElementSibling;
+  if (next && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = display + " " + next.dataset.display; }
+  }
+  if (!entry) entry = GLOSSARY[key];
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) { hideGloss(); return; }
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = wordEl;
+  wordEl.classList.add("active");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄；試試從句子猜意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）";
+  }
+  document.getElementById("gloss").classList.add("show");
+  recordLookup(label, entry);
+}
+function bindPassageClicks(root) {
+  let lastTapEl = null, lastTapTime = 0;
+  root.addEventListener("click", (e) => {
+    const t = e.target.closest(".word");
+    if (!t) return;
+    const now = Date.now();
+    if (t === lastTapEl && now - lastTapTime < 350) return;
+    lastTapEl = t; lastTapTime = now;
+    showGloss(t);
+  });
+}
+
+function renderNav() {
+  const bar = document.getElementById("moduleBar");
+  let html = `<span class="label">模組題號</span>`;
+  for (let i = 0; i < ITEMS.length; i++) {
+    let cls = "qbtn";
+    if (i === cur) cls += " current";
+    else if (graded) {
+      if (answers[i] === ITEMS[i].answer) cls += " mark-ok";
+      else cls += " mark-bad";
+    } else if (answers[i] !== null) cls += " answered";
+    html += `<button type="button" class="${cls}" data-go="${i}" aria-label="Question ${i+1}">${i+1}</button>`;
+  }
+  bar.innerHTML = html;
+  bar.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { go(+b.dataset.go); }));
+}
+
+function renderItem() {
+  hideGloss();
+  const item = ITEMS[cur];
+  const layout = document.getElementById("layout");
+  layout.className = "layout" + (item.passages.length === 1 ? " single-pass" : "");
+  const col = document.getElementById("passageCol");
+  col.innerHTML = item.passages.map(renderPassageBlock).join("");
+  bindPassageClicks(col);
+  document.getElementById("qTag").textContent = `題 ${cur+1}／${ITEMS.length} · ${item.tag}`;
+  document.getElementById("qStem").textContent = `${cur+1}. ${item.stem}`;
+  const opts = document.getElementById("opts");
+  opts.innerHTML = item.choices.map((c, ci) => `
+    <label class="opt" data-c="${ci}">
+      <input type="radio" name="curQ" value="${ci}" ${answers[cur]===ci?"checked":""} ${graded?"disabled":""}/>
+      <span><strong>${LETTERS[ci]}.</strong> ${escapeHtml(c)}</span>
+    </label>`).join("");
+  opts.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("change", () => {
+      answers[cur] = Number(inp.value);
+      renderNav();
+      document.getElementById("progress").textContent = `已作答 ${answers.filter(a=>a!==null).length}/${ITEMS.length}`;
+    });
+  });
+  const ex = document.getElementById("explain");
+  if (graded) {
+    const chosen = answers[cur];
+    opts.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok","mark-bad"));
+    const okLab = opts.querySelector(`.opt[data-c="${item.answer}"]`);
+    if (okLab) okLab.classList.add("mark-ok");
+    if (chosen === item.answer) {
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[item.answer]}）<br/>${escapeHtml(item.why)}`;
+    } else if (chosen === null) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正解 <strong>${LETTERS[item.answer]}</strong>。<br/>${escapeHtml(item.why)}`;
+    } else {
+      const bad = opts.querySelector(`.opt[data-c="${chosen}"]`);
+      if (bad) bad.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[chosen]}，正解 <strong>${LETTERS[item.answer]}</strong>。<br/>${escapeHtml(item.why)}`;
+    }
+  } else {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  }
+  document.getElementById("prevBtn").disabled = cur === 0;
+  document.getElementById("nextBtn").disabled = cur === ITEMS.length - 1;
+  document.getElementById("progress").textContent = `已作答 ${answers.filter(a=>a!==null).length}/${ITEMS.length}`;
+  renderNav();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function go(i) {
+  if (i < 0 || i >= ITEMS.length) return;
+  cur = i;
+  renderItem();
+}
+
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const { words, total } = lookupStats();
+  if (!words.length) return ["查詢單字：無"];
+  return [`查詢單字（共 ${total} 次，${words.length} 個字）：`,
+    ...words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function grade() {
+  graded = true;
+  let correct = 0;
+  const detail = [];
+  ITEMS.forEach((q, qi) => {
+    const chosen = answers[qi];
+    if (chosen === q.answer) {
+      correct += 1;
+      detail.push(`Q${qi+1} [${q.tag}]: ✓ ${LETTERS[chosen]}`);
+    } else if (chosen === null) {
+      detail.push(`Q${qi+1} [${q.tag}]: 未作答（正解 ${LETTERS[q.answer]}）`);
+    } else {
+      detail.push(`Q${qi+1} [${q.tag}]: ✗ 選${LETTERS[chosen]}／正解${LETTERS[q.answer]}`);
+    }
+  });
+  const score = document.getElementById("score");
+  let cheer = "";
+  if (correct === ITEMS.length) cheer = " · 挑戰全過關！你是閱讀冒險家 🌟";
+  else if (correct >= 7) cheer = " · 很強！再看講解就能更穩";
+  else if (correct >= 5) cheer = " · 不錯的開始，挑戰本來就比日常難一點";
+  else cheer = " · 沒關係，看完講解再挑戰一次";
+  score.innerHTML = `得分：${correct} / ${ITEMS.length}` + cheer;
+  const nWords = lookupStats().words.length;
+  const tip = document.createElement("div");
+  tip.style.cssText = "font-size:0.85em;font-weight:normal;margin-top:4px;";
+  tip.textContent = nWords ? `這次查了 ${nWords} 個字 👍` : "這次沒有查單字，讀得很順喔 👍";
+  score.appendChild(tip);
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  lastReport = [
+    "【迷你SAT成績回報 → English Tutor】",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `程度：${PACK_META.level}`,
+    `得分：${correct}/${ITEMS.length}`,
+    "明細：",
+    ...detail.map(d => "- " + d),
+    ...lookupReportLines(),
+    "（請貼到微信給家庭大管家轉 English Tutor）"
+  ].join("\n");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+  renderItem();
+}
+
+async function copyResults() {
+  if (!lastReport) { alert("請先提交本場。"); return; }
+  const btn = document.getElementById("copyBtn");
+  try { await navigator.clipboard.writeText(lastReport); }
+  catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = lastReport; ta.style.position = "fixed"; ta.style.left = "-9999px";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (e2) {
+      alert("無法自動複製，請手動選取：\n\n" + lastReport);
+      document.body.removeChild(ta); return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！去微信貼上";
+  btn.classList.add("copied");
+  setTimeout(() => { btn.textContent = "複製成績"; btn.classList.remove("copied"); }, 2500);
+}
+
+function resetQuiz() {
+  answers = Array(ITEMS.length).fill(null);
+  graded = false;
+  lastReport = null;
+  cur = 0;
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  document.getElementById("score").innerHTML = "";
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  renderItem();
+}
+
+document.getElementById("prevBtn").addEventListener("click", () => go(cur - 1));
+document.getElementById("nextBtn").addEventListener("click", () => go(cur + 1));
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+document.getElementById("gloss").addEventListener("click", hideGloss);
+renderItem();
+</script>
+</body>
+</html>
