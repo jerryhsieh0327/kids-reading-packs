@@ -1,1 +1,639 @@
-<�s�D
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Seren Reading · Going for the Doctor · 2026-11-02</title>
+<style>
+  :root {
+    --bg: #eef6ff; --card: #fff; --ink: #1a2744; --muted: #4a5d7a;
+    --accent: #2b6cb0; --accent-soft: #dbeafe; --wrong: #b91c1c; --wrong-soft: #fee2e2;
+    --ok: #2e7d32; --ok-soft: #c8e6c9; --border: #90caf9; --shadow: 0 8px 24px rgba(26,39,68,.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #eef6ff 0%, #f3e5f5 45%, #fff8e1 100%);
+    color: var(--ink); line-height: 1.65; min-height: 100vh;
+    padding-bottom: 140px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.25rem; box-shadow: var(--shadow); margin-bottom: 1rem; border-left: 6px solid var(--accent);
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .meta a { color: var(--accent); }
+  .tip {
+    margin-top: 0.75rem; padding: 0.65rem 0.8rem; background: var(--accent-soft);
+    border-radius: 8px; font-size: 0.88rem; color: #1e3a5f; border: 1px dashed var(--accent);
+  }
+  .passage {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 1.25rem 1.35rem; box-shadow: var(--shadow); font-size: 1.15rem; line-height: 1.85;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  }
+  .passage p { margin: 0 0 1rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer; touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(43,108,176,0.25); border-radius: 3px;
+  }
+  .passage .word:hover { background: rgba(43,108,176,0.14); }
+  .passage .word.active { background: var(--accent); color: #fff; }
+  #gloss {
+    display: none; position: sticky; top: 0; z-index: 20; margin: 0.75rem 0;
+    background: #1a2744; color: #fff; border-radius: 10px; padding: 0.85rem 1rem;
+    box-shadow: var(--shadow); cursor: pointer;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-size: 1.25rem; font-weight: 700; }
+  #gloss .g-en { opacity: 0.9; font-size: 0.95rem; margin-top: 0.2rem; }
+  #gloss .g-zh { font-size: 1.1rem; margin-top: 0.35rem; color: #ffe082; }
+  #gloss .g-hint { font-size: 0.75rem; opacity: 0.7; margin-top: 0.4rem; }
+  .quiz {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 1.1rem 1.2rem; box-shadow: var(--shadow); margin-top: 1rem;
+  }
+  .quiz h2 { margin: 0 0 0.4rem; font-size: 1.15rem; }
+  .section-note { color: var(--muted); font-size: 0.88rem; margin: 0 0 0.8rem; }
+  .q { margin: 0 0 1.1rem; padding-bottom: 0.9rem; border-bottom: 1px dashed var(--border); }
+  .q:last-child { border-bottom: 0; }
+  .q .stem { font-weight: 600; margin-bottom: 0.45rem; font-size: 1.02rem; }
+  .opt {
+    display: block; padding: 0.55rem 0.7rem; margin: 0.28rem 0; border: 1px solid #cfd8e3;
+    border-radius: 8px; background: #f8fafc; cursor: pointer;
+  }
+  .opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .opt.mark-ok { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.mark-bad { border-color: var(--wrong); background: var(--wrong-soft); }
+  .opt input { margin-right: 0.45rem; }
+  .explain { display: none; margin-top: 0.45rem; padding: 0.5rem 0.65rem; border-radius: 8px; font-size: 0.92rem; }
+  .explain.show-ok { display: block; background: var(--ok-soft); color: #1b5e20; }
+  .explain.show-bad { display: block; background: var(--wrong-soft); color: #7f1d1d; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+  button {
+    font-size: 1rem; padding: 0.65rem 1rem; border: 0; border-radius: 10px;
+    background: var(--accent); color: #fff; cursor: pointer;
+  }
+  #reset { background: #64748b; }
+  #copyBtn { background: #5d4037; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #2e7d32; }
+  #score { margin-top: 0.75rem; font-weight: 700; font-size: 1.05rem; display: none; }
+  #score.show { display: block; }
+  .word-tips { margin-top: 0.8rem; font-size: 0.9rem; }
+  .tip-list { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+  .tip-chip {
+    background: var(--accent-soft); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.2rem 0.65rem; cursor: pointer; font-size: 0.88rem;
+  }
+  .src-line { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 0; }
+  #lookupBar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    background: #fffbe8; border-top: 2px solid #e0c060;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    box-shadow: 0 -2px 8px rgba(0,0,0,.12);
+  }
+  #lookupBar form { display: flex; gap: 6px; max-width: 760px; margin: 0 auto; }
+  #lookupInput {
+    flex: 1; font-size: 18px; padding: 10px; border: 1px solid #ccc; border-radius: 10px;
+    -webkit-appearance: none;
+  }
+  #lookupBar button { font-size: 17px; padding: 10px 14px; border-radius: 10px; border: 0; background: #2b6cb0; color: #fff; }
+  #lookupOut { max-width: 760px; margin: 6px auto 0; font-size: 17px; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🐎🌙 Going for the Doctor</h1>
+    <div class="meta">
+      Seren · 來源 <strong>Project Gutenberg</strong>（公版）· 作者 <strong>Anna Sewell</strong><br />
+      篇名：<em>Black Beauty</em> 第 18 章節選 · 出版 Lexile：<strong>1020L</strong>（全書標示）· 類型：敘事／冒險 · 2026-11-02<br />
+      授權：Public Domain（美國）· 原文：<a href="https://www.gutenberg.org/ebooks/271" target="_blank" rel="noopener noreferrer">gutenberg.org/ebooks/271</a><br />
+      預估：約 20–25 分鐘（讀短文＋Reading 5＋Vocab 10）
+    </div>
+    <div class="tip">
+      💡 <strong>怎麼做：</strong>先讀下方短文（點單字可看中英文解釋）。不會的字也可以用底部「輸入英文單字查中文」。<br/>
+      再做 Reading 5 題＋Vocab 10 題。全部做完按「提交全部答案」，再按「複製成績」貼到微信給爸爸媽媽！查過的字（點讀＋輸入）都會進成績單。
+    </div>
+    <p class="src-line">本頁完整嵌入公版節選，無需翻牆；Lexile 1020L 為 <em>Black Beauty</em> 全書公開標示（MetaMetrics／常見書目），非本節選另行認證。</p>
+  </header>
+
+  <article class="passage" id="passage" aria-label="Reading passage"></article>
+  <div class="word-tips">
+    <strong>提示字（可點讀）</strong>
+    <div class="tip-list" id="tip-words"></div>
+  </div>
+
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz-reading">
+    <h2>Comprehension Check（5 題）</h2>
+    <p class="section-note">根據上方短文 <em>Going for the Doctor</em>（Black Beauty 節選）作答。</p>
+    <form id="quiz-form-reading"></form>
+  </section>
+
+  <section class="quiz" id="quiz-vocab">
+    <h2>Vocabulary in Context（10）</h2>
+    <p class="section-note">粗體＋底線的字，請選在句子裡最接近的意思。可與短文呼應，但不必逐句對照。</p>
+    <form id="quiz-form-vocab"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交全部答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+</div>
+
+<div id="lookupBar">
+  <form id="lookupForm" autocomplete="off">
+    <input id="lookupInput" type="search" inputmode="latin" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="輸入英文單字查中文" aria-label="輸入英文單字查中文" />
+    <button type="submit">查</button>
+  </form>
+  <div id="lookupOut">讀短文時看不懂的字，打在這裡查（離線詞庫）。</div>
+</div>
+
+<script>
+const GLOSSARY = {
+  "a": { en: "one", zh: "一個" },
+  "again": { en: "one more time", zh: "再次" },
+  "all": { en: "every one", zh: "全部" },
+  "all right": { en: "okay", zh: "好的；沒問題" },
+  "almost": { en: "nearly", zh: "幾乎" },
+  "along": { en: "moving forward on a path", zh: "沿著" },
+  "and": { en: "joins ideas", zh: "和" },
+  "another": { en: "one more; a different one", zh: "另一個" },
+  "any": { en: "even one", zh: "任何" },
+  "asleep": { en: "sleeping", zh: "睡著的" },
+  "at": { en: "in a place or time", zh: "在" },
+  "back": { en: "rear of the body; return", zh: "背；回去" },
+  "be": { en: "exist; happen", zh: "是；成為" },
+  "beauty": { en: "as a name; also loveliness", zh: "Beauty（馬名）；美麗" },
+  "been": { en: "past participle of be", zh: "已經" },
+  "before": { en: "earlier than", zh: "在……之前" },
+  "behind": { en: "at the rear", zh: "在後面" },
+  "bell": { en: "a metal object that rings", zh: "鈴；鐘" },
+  "best": { en: "better than all others", zh: "最好的" },
+  "black beauty": { en: "the horse telling the story", zh: "黑駿馬（書中馬名）" },
+  "bridle": { en: "straps and bit for guiding a horse", zh: "馬籠頭" },
+  "but": { en: "however", zh: "但是" },
+  "by": { en: "near", zh: "在……旁邊" },
+  "calling": { en: "shouting a name", zh: "呼叫著" },
+  "came": { en: "moved toward", zh: "來了" },
+  "can": { en: "able to", zh: "能夠" },
+  "cannot": { en: "is not able to", zh: "無法" },
+  "care": { en: "attention and protection", zh: "照顧；小心" },
+  "church": { en: "a building for worship", zh: "教堂" },
+  "clock": { en: "a device that shows time", zh: "時鐘" },
+  "come": { en: "happen", zh: "發生" },
+  "common": { en: "shared open land", zh: "公地；草地" },
+  "corner": { en: "place where two roads meet", zh: "轉角" },
+  "could": { en: "was able to", zh: "能夠" },
+  "courage": { en: "bravery", zh: "勇氣" },
+  "dash": { en: "to run very fast", zh: "猛衝" },
+  "dashed": { en: "ran very fast", zh: "猛衝了" },
+  "day": { en: "24 hours; daytime", zh: "白天；一天" },
+  "deliver": { en: "to bring something to someone", zh: "送達" },
+  "determined": { en: "decided; not giving up", zh: "下定決心的" },
+  "devotion": { en: "deep loyalty and love", zh: "奉獻；忠誠" },
+  "did": { en: "performed an action", zh: "做了" },
+  "die": { en: "to stop living", zh: "死去" },
+  "doctor": { en: "a person who treats the sick", zh: "醫生" },
+  "done up": { en: "completely worn out", zh: "精疲力盡" },
+  "door": { en: "entrance to a room or building", zh: "門" },
+  "drops": { en: "falls from tiredness", zh: "倒下" },
+  "errand": { en: "a short trip to do a task", zh: "差事" },
+  "ever": { en: "at any time", zh: "曾經；無論何時" },
+  "everything": { en: "all things", zh: "每樣東西" },
+  "exactly": { en: "precisely; with no error", zh: "正好；精確地" },
+  "exhausted": { en: "very tired", zh: "筋疲力盡" },
+  "far": { en: "distant", zh: "遠" },
+  "feeling": { en: "sensing", zh: "感覺到" },
+  "feet": { en: "ends of the legs; also distance units", zh: "腳；英尺" },
+  "fetch": { en: "to go get and bring back", zh: "去取來" },
+  "first": { en: "coming before all others", zh: "第一；首先" },
+  "for": { en: "intended to get", zh: "去找；為了" },
+  "gallop": { en: "a horse's fastest run", zh: "疾馳；飛奔" },
+  "galloping": { en: "running at a horse's fastest pace", zh: "正在疾馳" },
+  "gardener": { en: "person who cares for a garden", zh: "園丁" },
+  "gate": { en: "a door in a fence or wall", zh: "大門" },
+  "get": { en: "to obtain; to arrive", zh: "得到；到達" },
+  "give": { en: "to hand over", zh: "給" },
+  "go": { en: "travel", zh: "走" },
+  "gordon": { en: "the family's last name", zh: "戈登（姓）" },
+  "got": { en: "obtained; put on", zh: "拿到；裝上" },
+  "had": { en: "possessed; caused", zh: "已經；讓" },
+  "hall": { en: "main room or corridor of a house", zh: "大廳" },
+  "hard": { en: "with great effort; difficult", zh: "用力地；困難的" },
+  "harm": { en: "damage", zh: "傷害" },
+  "has": { en: "owns; possesses", zh: "有" },
+  "he": { en: "the male person/horse", zh: "他" },
+  "head": { en: "top part of the body", zh: "頭" },
+  "heard": { en: "listened to a sound", zh: "聽見" },
+  "here": { en: "in this place", zh: "這裡" },
+  "here's": { en: "here is", zh: "這是" },
+  "him": { en: "that male", zh: "他" },
+  "his": { en: "belonging to him", zh: "他的" },
+  "hope": { en: "wish", zh: "希望" },
+  "horse": { en: "a large animal people ride", zh: "馬" },
+  "hot": { en: "having a high temperature", zh: "熱的" },
+  "house": { en: "a building people live in", zh: "房子" },
+  "if": { en: "on the condition that", zh: "如果" },
+  "ill": { en: "sick; not well", zh: "生病的" },
+  "in": { en: "inside", zh: "在……裡" },
+  "insist": { en: "to demand firmly", zh: "堅持要求" },
+  "into": { en: "to the inside of", zh: "進入" },
+  "john": { en: "the coachman's name", zh: "約翰（馬夫）" },
+  "just": { en: "only; a moment ago", zh: "剛剛；只是" },
+  "kept": { en: "continued; held", zh: "保持；留下" },
+  "know": { en: "to understand", zh: "知道" },
+  "lanes": { en: "narrow country roads", zh: "小巷；鄉間小路" },
+  "left": { en: "gone away from", zh: "留下；離開" },
+  "lend": { en: "to let someone use temporarily", zh: "借出" },
+  "level": { en: "flat; even", zh: "平坦的" },
+  "life": { en: "being alive", zh: "生命" },
+  "like": { en: "want", zh: "想要" },
+  "lived": { en: "had a home", zh: "住在" },
+  "lodge": { en: "small house at a gate", zh: "門房；小屋" },
+  "lose": { en: "to fail to keep", zh: "失去" },
+  "loud": { en: "having a strong sound", zh: "大聲的" },
+  "loyal": { en: "faithful", zh: "忠誠的" },
+  "master": { en: "the man who owns the horse/house", zh: "主人" },
+  "me": { en: "the speaker (Beauty)", zh: "我" },
+  "message": { en: "information sent to someone", zh: "訊息" },
+  "mind": { en: "to care about; object to", zh: "介意；在意" },
+  "minute": { en: "short time", zh: "一會兒" },
+  "mistress": { en: "the lady of the house", zh: "女主人" },
+  "moment": { en: "a very short time", zh: "片刻；瞬間" },
+  "money": { en: "coins or bills used to pay", zh: "錢" },
+  "mrs": { en: "title for a married woman", zh: "太太" },
+  "muddy": { en: "covered with wet dirt", zh: "泥濘的" },
+  "must": { en: "have to", zh: "必須" },
+  "my": { en: "belonging to me", zh: "我的" },
+  "nearly": { en: "almost", zh: "幾乎" },
+  "neck": { en: "part connecting head and body", zh: "脖子" },
+  "need": { en: "require", zh: "需要" },
+  "never": { en: "not at any time", zh: "從不" },
+  "no": { en: "negation; not any", zh: "不；沒有" },
+  "not": { en: "no", zh: "不" },
+  "note": { en: "a short written message", zh: "便條；紙條" },
+  "now": { en: "at this time", zh: "現在" },
+  "of": { en: "belonging to", zh: "的" },
+  "off": { en: "away", zh: "離開" },
+  "once": { en: "one time", zh: "一次" },
+  "open": { en: "not closed", zh: "開著" },
+  "opened": { en: "became not shut", zh: "打開" },
+  "out": { en: "outside; away from inside", zh: "出來" },
+  "pace": { en: "speed", zh: "步速" },
+  "paces": { en: "steps; speeds", zh: "步伐；步速" },
+  "peril": { en: "serious danger", zh: "危險" },
+  "piece": { en: "a part of something", zh: "一段；一塊" },
+  "proud": { en: "feeling pleased with oneself", zh: "驕傲的；自豪的" },
+  "puddles": { en: "small pools of water", zh: "水坑" },
+  "pulled": { en: "drew toward oneself", zh: "拉；停下" },
+  "quite": { en: "completely; rather", zh: "相當；完全" },
+  "ready": { en: "prepared", zh: "準備好" },
+  "refuse": { en: "to say no", zh: "拒絕" },
+  "rely": { en: "to depend on", zh: "依靠" },
+  "remember": { en: "keep in mind", zh: "記得" },
+  "remembered": { en: "kept in mind", zh: "記得了" },
+  "replied": { en: "gave an answer", zh: "回答" },
+  "rest": { en: "a break to recover strength", zh: "休息" },
+  "riding-whip": { en: "a short whip used when riding", zh: "馬鞭" },
+  "right": { en: "correct; okay", zh: "對；好的" },
+  "ring": { en: "to make a bell sound", zh: "響鈴" },
+  "ringing": { en: "making a bell sound", zh: "鈴聲響著" },
+  "river": { en: "a large stream of water", zh: "河" },
+  "road": { en: "a way for travel", zh: "路" },
+  "round": { en: "in a circle; around", zh: "繞一圈" },
+  "roused": { en: "woken up suddenly", zh: "突然被叫醒" },
+  "running": { en: "moving fast on feet", zh: "奔跑" },
+  "saddle": { en: "seat put on a horse's back", zh: "馬鞍" },
+  "said": { en: "spoke", zh: "說" },
+  "see": { en: "to look at with eyes", zh: "看" },
+  "sent": { en: "caused to go", zh: "派送" },
+  "sent for": { en: "asked to come", zh: "派人去請" },
+  "sharp": { en: "exactly on time", zh: "準點" },
+  "should": { en: "ought to", zh: "應該" },
+  "shouted": { en: "cried out loudly", zh: "大喊" },
+  "shut": { en: "closed", zh: "關上" },
+  "side": { en: "the edge or flank of something", zh: "旁邊；一側" },
+  "sir": { en: "polite word for a man", zh: "先生" },
+  "son": { en: "a male child", zh: "兒子" },
+  "soon": { en: "before long", zh: "不久" },
+  "spare": { en: "to give up for someone else's use", zh: "撥出；抽出" },
+  "splashing": { en: "hitting water and throwing it", zh: "濺起水花" },
+  "stable": { en: "building where horses live", zh: "馬廄" },
+  "stood": { en: "remained upright", zh: "站著" },
+  "straw": { en: "dried stalks used for bedding", zh: "稻草" },
+  "striking": { en: "sounding the hour", zh: "敲響（鐘點）" },
+  "stroke": { en: "to rub gently with the hand", zh: "輕撫" },
+  "stroked": { en: "rubbed gently with the hand", zh: "輕撫了" },
+  "struck": { en: "hit; sounded (of a clock)", zh: "敲響了" },
+  "such": { en: "of that kind", zh: "如此的" },
+  "suddenly": { en: "quickly and without warning", zh: "突然" },
+  "summon": { en: "to call someone to come", zh: "召喚" },
+  "summoned": { en: "called to come", zh: "被召喚" },
+  "swift": { en: "very fast", zh: "迅速的" },
+  "take": { en: "to carry or use", zh: "拿；帶" },
+  "take care": { en: "be careful; protect", zh: "小心照顧" },
+  "tearing": { en: "moving very fast", zh: "飛奔；撕裂" },
+  "that": { en: "pointing to something", zh: "那" },
+  "there": { en: "in that place", zh: "那裡" },
+  "think": { en: "to use the mind", zh: "想" },
+  "thinks": { en: "believes; has an opinion", zh: "認為" },
+  "till": { en: "until", zh: "直到" },
+  "time": { en: "a measured period", zh: "時間" },
+  "to": { en: "toward", zh: "對" },
+  "town": { en: "settlement", zh: "城鎮" },
+  "trust": { en: "belief that someone is reliable", zh: "信任" },
+  "turned": { en: "changed direction", zh: "轉彎" },
+  "unlocked": { en: "opened with a key", zh: "開了鎖" },
+  "up": { en: "toward a higher place; stop", zh: "停下；向上" },
+  "urgency": { en: "need for quick action", zh: "緊急；急迫" },
+  "urgent": { en: "needing quick action", zh: "緊急的" },
+  "very": { en: "to a high degree", zh: "非常" },
+  "wait": { en: "to stay until something happens", zh: "等待" },
+  "wake": { en: "to stop sleeping", zh: "醒來" },
+  "wanted": { en: "wished for", zh: "想要" },
+  "was": { en: "past of be", zh: "是；在" },
+  "way": { en: "a path or route", zh: "路；方式" },
+  "we": { en: "speaker + others", zh: "我們" },
+  "weary": { en: "tired", zh: "疲倦的" },
+  "well": { en: "in a good way; healthy", zh: "好好地；健康" },
+  "went": { en: "moved away", zh: "走了" },
+  "whip": { en: "a thin stick used to urge a horse", zh: "鞭子" },
+  "will": { en: "shall", zh: "會" },
+  "willing": { en: "ready to agree", zh: "願意" },
+  "window": { en: "glass opening", zh: "窗戶" },
+  "with": { en: "accompanied by", zh: "帶著；和" },
+  "worn out": { en: "very tired", zh: "累壞了" },
+  "worst": { en: "most severe", zh: "最糟" },
+  "would": { en: "past form of will; conditional", zh: "會；將會" },
+  "yes": { en: "agreement", zh: "是；好" },
+  "you": { en: "the person spoken to", zh: "你" },
+  "your": { en: "belonging to you", zh: "你的" }
+};
+
+const TIP_WORDS = ["urgent", "gallop", "done up", "mistress", "bridle", "proud", "exhausted", "devotion"];
+const PASSAGE_PARAS = ["One night, a few days after James had left, I had eaten my hay and was lying down in my straw fast asleep, when I was suddenly roused by the stable bell ringing very loud. I heard the door of John's house open, and his feet running up to the hall. He was back again in no time; he unlocked the stable door, and came in, calling out, “Wake up, Beauty! You must go well now, if ever you did;” and almost before I could think he had got the saddle on my back and the bridle on my head. He just ran round for his coat, and then took me at a quick trot up to the hall door. The squire stood there, with a lamp in his hand.", "“Now, John,” he said, “ride for your life—that is, for your mistress' life; there is not a moment to lose. Give this note to Dr. White; give your horse a rest at the inn, and be back as soon as you can.”", "John said, “Yes, sir,” and was on my back in a minute. The gardener who lived at the lodge had heard the bell ring, and was ready with the gate open, and away we went through the park, and through the village, and down the hill till we came to the toll-gate. John called very loud and thumped upon the door; the man was soon out and flung open the gate.", "“Now,” said John, “do you keep the gate open for the doctor; here's the money,” and off he went again.", "There was before us a long piece of level road by the river side; John said to me, “Now, Beauty, do your best,” and so I did; I wanted no whip nor spur, and for two miles I galloped as fast as I could lay my feet to the ground; I don't believe that my old grandfather, who won the race at Newmarket, could have gone faster. When we came to the bridge John pulled me up a little and patted my neck. “Well done, Beauty! good old fellow,” he said. He would have let me go slower, but my spirit was up, and I was off again as fast as before. The air was frosty, the moon was bright; it was very pleasant. We came through a village, then through a dark wood, then uphill, then downhill, till after eight miles' run we came to the town, through the streets and into the market-place. It was all quite still except the clatter of my feet on the stones—everybody was asleep. The church clock struck three as we drew up at Dr. White's door. John rang the bell twice, and then knocked at the door like thunder. A window was thrown up, and Dr. White, in his nightcap, put his head out and said, “What do you want?”", "“Mrs. Gordon is very ill, sir; master wants you to go at once; he thinks she will die if you cannot get there. Here is a note.”", "He shut the window, and was soon at the door.", "“The worst of it is,” he said, “that my horse has been out all day and is quite done up; my son has just been sent for, and he has taken the other. What is to be done? Can I have your horse?”", "“He has come at a gallop nearly all the way, sir, and I was to give him a rest here; but I think my master would not be against it, if you think fit, sir.”", "“All right,” he said; “I will soon be ready.”", "John stood by me and stroked my neck; I was very hot. The doctor came out with his riding-whip.", "“You need not take that, sir,” said John; “Black Beauty will go till he drops. Take care of him, sir, if you can; I should not like any harm to come to him.”", "“No, no, John,” said the doctor, “I hope not,” and in a minute we had left John far behind."];
+const QUESTIONS = [{"stem": "1. Why does John wake Black Beauty in the middle of the night?", "choices": ["To take him hunting for a hare.", "Because Mrs. Gordon is very ill and needs the doctor at once.", "To exercise him before breakfast.", "Because the stable is on fire."], "answer": 1, "explain": "主人說要「為女主人的性命」趕路，並給醫生一張便條——Mrs. Gordon 病得很重。"}, {"stem": "2. What does the master tell John when he hands him the note?", "choices": ["Ride slowly so Beauty does not tire.", "Wait until morning to leave.", "Ride for your life—there is not a moment to lose.", "Let the gardener go instead."], "answer": 2, "explain": "原文：\"ride for your life—that is, for your mistress' life; there is not a moment to lose.\""}, {"stem": "3. How does Black Beauty feel during the hard gallop by the river?", "choices": ["Angry that John is pushing him.", "Afraid of the muddy lanes.", "Proud to know what John wanted of him.", "Bored by the long level road."], "answer": 2, "explain": "Beauty 說他記得這樣用力飛奔，且 \"I felt proud to know that I was the horse he wanted.\""}, {"stem": "4. Why can't the doctor use his own horse?", "choices": ["His horse is lame.", "His horse has been out all day and is quite done up.", "He sold his horse that morning.", "His son took the horse to another town."], "answer": 1, "explain": "醫生說自己的馬整天在外面，已經精疲力盡（done up）。"}, {"stem": "5. What does John ask the doctor to do with Black Beauty?", "choices": ["Leave Beauty at the church and walk.", "Use the riding-whip if Beauty goes slowly.", "Take care of him, because Beauty will go till he drops.", "Trade Beauty for a fresher horse."], "answer": 2, "explain": "John 說不用帶馬鞭，Beauty 會拼到倒下，請醫生盡量照顧他。"}];
+const VOCAB_QUESTIONS = [{"stem": "The message was <u><b>urgent</b></u>, so John did not wait a moment.", "choices": ["funny", "needing action right away", "quiet and slow", "written in pencil"], "answer": 1, "explain": "urgent＝緊急的。"}, {"stem": "After the long gallop, Beauty was very <u><b>weary</b></u>.", "choices": ["hungry for oats", "angry at John", "very tired", "ready to race again"], "answer": 2, "explain": "weary＝疲倦的。"}, {"stem": "John had to <u><b>fetch</b></u> the doctor as fast as he could.", "choices": ["hide from", "go get and bring back", "argue with", "pay"], "answer": 1, "explain": "fetch＝去把……帶來。"}, {"stem": "Beauty kept a swift <u><b>pace</b></u> along the river road.", "choices": ["speed of movement", "kind of saddle", "type of food", "stable door"], "answer": 0, "explain": "pace＝步速／速度。"}, {"stem": "The doctor’s horse was completely <u><b>exhausted</b></u> after being out all day.", "choices": ["brand new", "very tired", "loudly neighing", "still a colt"], "answer": 1, "explain": "exhausted＝筋疲力盡（文中 done up）。"}, {"stem": "Black Beauty showed great <u><b>devotion</b></u> by running until he almost dropped.", "choices": ["deep loyalty and care", "fear of the dark", "dislike of mud", "wish to rest forever"], "answer": 0, "explain": "devotion＝忠誠與奉獻。"}, {"stem": "They rode through <u><b>muddy</b></u> lanes after the rain.", "choices": ["full of wet dirt", "made of stone", "covered with ice", "lined with flowers"], "answer": 0, "explain": "muddy＝泥濘的。"}, {"stem": "John <u><b>summoned</b></u> Beauty with the stable bell.", "choices": ["sold", "called to come", "brushed carefully", "fed with carrots"], "answer": 1, "explain": "summoned＝召喚／叫來。"}, {"stem": "Mrs. Gordon was in <u><b>peril</b></u> if the doctor did not arrive.", "choices": ["a cheerful mood", "serious danger", "a deep sleep", "the garden"], "answer": 1, "explain": "peril＝嚴重危險。"}, {"stem": "Beauty was <u><b>determined</b></u> to do his best for John.", "choices": ["decided not to give up", "too sleepy to move", "afraid of the doctor", "angry about the whip"], "answer": 0, "explain": "determined＝下定決心的。"}];
+
+const PACK_META = {
+  child: "Seren",
+  date: "2026-11-02",
+  title: "Going for the Doctor (Black Beauty, Ch. 18 excerpt)",
+  type: "Reading + Vocab",
+  level: "1020L (Black Beauty book Lexile) · PD",
+  source: "Project Gutenberg #271 · Anna Sewell · Public Domain"
+};
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function tokenize(text) {
+  return text.split(/(\s+|—|–)/).filter(Boolean);
+}
+function wrapTokens(text) {
+  return tokenize(text).map(tok => {
+    if (/^\s+$/.test(tok) || tok === "—" || tok === "–") return tok;
+    const m = tok.match(/^(["'“‘(\[]*)(.*?)(["'”’)\],.;:!?]*)$/);
+    if (!m) return escapeHtml(tok);
+    const [, pre, core, post] = m;
+    if (!core || !/[A-Za-z]/.test(core)) return escapeHtml(tok);
+    return escapeHtml(pre) + `<span class="word" data-word="${escapeHtml(core)}">${escapeHtml(core)}</span>` + escapeHtml(post);
+  }).join("");
+}
+function renderPassage() {
+  const el = document.getElementById("passage");
+  el.innerHTML = PASSAGE_PARAS.map(p => `<p>${wrapTokens(p)}</p>`).join("");
+}
+function renderTipWords() {
+  const box = document.getElementById("tip-words");
+  box.innerHTML = TIP_WORDS.map(w => `<span class="tip-chip word" data-word="${escapeHtml(w)}">${escapeHtml(w)}</span>`).join("");
+}
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+}
+function findEntry(raw) {
+  const w = String(raw).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z' -]/g, "").trim().replace(/\s+/g, " ");
+  if (!w) return { w, entry: null };
+  if (GLOSSARY[w]) return { w, entry: GLOSSARY[w] };
+  const c = [w.replace(/'s$/,""), w.replace(/ies$/,"y"), w.replace(/es$/,""), w.replace(/s$/,""),
+    w.replace(/ied$/,"y"), w.replace(/ed$/,""), w.replace(/d$/,""), w.replace(/ing$/,""),
+    w.replace(/ing$/,"e"), w.replace(/ly$/,"")];
+  for (const k of c) { if (k && GLOSSARY[k]) return { w, entry: GLOSSARY[k], base: k }; }
+  // multiword
+  if (GLOSSARY["done up"] && w.includes("done") ) { /* handled by phrase below */ }
+  return { w, entry: null };
+}
+function showGloss(wordEl) {
+  const key = (wordEl.dataset.word || wordEl.textContent || "").toLowerCase().replace(/[’']/g,"'");
+  // try 2-word phrases with neighbor
+  let entry = null, label = key;
+  const prev = wordEl.previousElementSibling;
+  const next = wordEl.nextElementSibling;
+  if (prev && prev.classList && prev.classList.contains("word")) {
+    const phrase = (prev.dataset.word + " " + key).toLowerCase();
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
+  }
+  if (!entry && next && next.classList && next.classList.contains("word")) {
+    const phrase = (key + " " + next.dataset.word).toLowerCase();
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
+  }
+  if (!entry) {
+    const r = findEntry(key);
+    entry = r.entry; label = r.w;
+  }
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+  wordEl.classList.add("active");
+  const g = document.getElementById("gloss");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = entry.en;
+    document.getElementById("g-zh").textContent = entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "(not in glossary)";
+    document.getElementById("g-zh").textContent = "這個字還沒收錄";
+  }
+  g.classList.add("show");
+  recordLookup(label, entry, "tap");
+}
+
+function renderQuizForm(formId, questions, namePrefix) {
+  const form = document.getElementById(formId);
+  form.innerHTML = questions.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt"><input type="radio" name="${namePrefix}${qi}" value="${ci}" />
+      <span class="choice-text">${wrapTokens(c)}</span></label>`).join("");
+    return `<div class="q" data-qi="${qi}">
+      <div class="stem">${wrapTokens(q.stem.replace(/<u><b>/g,"⟦").replace(/<\/b><\/u>/g,"⟧"))
+        .replace(/⟦/g,"<u><b>").replace(/⟧/g,"</b></u>")}</div>
+      ${opts}
+      <div class="explain" id="ex-${namePrefix}${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+const TYPED_KEY = LOOKUP_KEY + ":typed";
+let typed = {};
+try { typed = JSON.parse(localStorage.getItem(TYPED_KEY) || "{}") || {}; } catch (e) { typed = {}; }
+
+function recordLookup(label, entry, source) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const store = source === "typed" ? typed : lookups;
+  const key = source === "typed" ? TYPED_KEY : LOOKUP_KEY;
+  const rec = store[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "", source };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : "";
+  rec.source = source;
+  store[w] = rec;
+  try { localStorage.setItem(key, JSON.stringify(store)); } catch (e) {}
+}
+function lookupStats(store) {
+  const words = Object.keys(store);
+  const total = words.reduce((n, w) => n + store[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const tap = lookupStats(lookups);
+  const lines = [];
+  if (!tap.words.length) lines.push("查詢單字（點讀）：無");
+  else lines.push(`查詢單字（點讀，共 ${tap.total} 次，${tap.words.length} 個字）：`,
+    ...tap.words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`));
+  const tp = lookupStats(typed);
+  if (!tp.words.length) lines.push("查詢單字（輸入）：無");
+  else lines.push(`查詢單字（輸入，共 ${tp.total} 次，${tp.words.length} 個字）：`,
+    ...tp.words.map(w => `- ${w} ×${typed[w].count}｜${typed[w].inGlossary ? typed[w].zh : "（未收錄）"}`));
+  return lines;
+}
+
+function gradeSet(questions, namePrefix) {
+  let correct = 0;
+  questions.forEach((q, qi) => {
+    const picked = document.querySelector(`input[name="${namePrefix}${qi}"]:checked`);
+    const ex = document.getElementById(`ex-${namePrefix}${qi}`);
+    const labels = document.querySelectorAll(`input[name="${namePrefix}${qi}"]`);
+    labels.forEach(inp => {
+      inp.disabled = true;
+      const lab = inp.closest(".opt");
+      lab.classList.remove("mark-ok", "mark-bad");
+      if (+inp.value === q.answer) lab.classList.add("mark-ok");
+      if (picked && inp === picked && +picked.value !== q.answer) lab.classList.add("mark-bad");
+    });
+    if (picked && +picked.value === q.answer) {
+      correct++;
+      ex.className = "explain show-ok";
+      ex.textContent = "✓ " + q.explain;
+    } else {
+      ex.className = "explain show-bad";
+      ex.textContent = "✗ " + q.explain;
+    }
+  });
+  return correct;
+}
+
+let lastReport = null;
+function grade() {
+  const r = gradeSet(QUESTIONS, "r");
+  const v = gradeSet(VOCAB_QUESTIONS, "v");
+  const total = QUESTIONS.length + VOCAB_QUESTIONS.length;
+  const correct = r + v;
+  const score = document.getElementById("score");
+  score.classList.add("show");
+  score.textContent = `得分：${correct} / ${total}（Reading ${r}/5 · Vocab ${v}/10）` +
+    (correct === total ? " · 太棒了！" : " · 看完講解再重做一次也可以");
+  document.getElementById("submit").disabled = true;
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  lastReport = [
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `類型：${PACK_META.type}`,
+    `程度：${PACK_META.level}`,
+    `來源：${PACK_META.source}`,
+    `Reading：${r}/5`,
+    `Vocab：${v}/10`,
+    `合計：${correct}/${total}`,
+    ...lookupReportLines(),
+  ].join("\n");
+}
+
+async function copyResults() {
+  if (!lastReport) { alert("請先提交答案。"); return; }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+    btn.classList.add("copied");
+    btn.textContent = "已複製！";
+    setTimeout(() => { btn.classList.remove("copied"); btn.textContent = "複製成績"; }, 1600);
+  } catch (e) {
+    prompt("請手動複製：", lastReport);
+  }
+}
+function resetQuiz() {
+  document.getElementById("quiz-form-reading").reset();
+  document.getElementById("quiz-form-vocab").reset();
+  document.querySelectorAll(".explain").forEach(ex => { ex.className = "explain"; ex.innerHTML = ""; });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form-reading input[type="radio"], #quiz-form-vocab input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderPassage();
+renderTipWords();
+renderQuizForm("quiz-form-reading", QUESTIONS, "r");
+renderQuizForm("quiz-form-vocab", VOCAB_QUESTIONS, "v");
+
+let lastTapEl = null, lastTapTime = 0;
+document.querySelector(".wrap").addEventListener("click", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  const now = Date.now();
+  if (t === lastTapEl && now - lastTapTime < 350) return;
+  lastTapEl = t; lastTapTime = now;
+  showGloss(t);
+});
+document.getElementById("gloss").addEventListener("click", hideGloss);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+
+document.getElementById("lookupForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const inp = document.getElementById("lookupInput");
+  const out = document.getElementById("lookupOut");
+  const r = findEntry(inp.value);
+  if (!r.w) { out.textContent = "請輸入英文單字"; return; }
+  recordLookup(r.w, r.entry, "typed");
+  out.innerHTML = r.entry
+    ? `<b>${escapeHtml(r.w)}</b>${r.base && r.base !== r.w ? "（" + escapeHtml(r.base) + "）" : ""}：${escapeHtml(r.entry.zh)} <span style="color:#666">— ${escapeHtml(r.entry.en)}</span>`
+    : `<b>${escapeHtml(r.w)}</b>：這個字還沒收錄，已記下來，爸爸媽媽會看到 👍`;
+  inp.select();
+});
+</script>
+</body>
+</html>
