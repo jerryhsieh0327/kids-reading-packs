@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Seren Reading · The Midnight Rider · 2026-11-02</title>
+<style>
+  :root {
+    --bg: #f3e6c8;
+    --card: #fff8e8;
+    --ink: #1a2332;
+    --muted: #5c4a32;
+    --accent: #1e3a5f;
+    --accent-soft: #f0d5a0;
+    --amber: #c47a1a;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #1e3a5f;
+    --ok-soft: #dbe7f5;
+    --border: #c4a574;
+    --shadow: 0 8px 24px rgba(26, 35, 50, 0.14);
+    --deep: #14253f;
+    --foam: #f7edd8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #f7ecd4 0%, #efe0c0 45%, #e8dcc8 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.3rem; color: var(--deep); }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .meta a { color: var(--accent); font-weight: 600; }
+  .tip {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #5a3a10;
+    border: 1px dashed var(--amber);
+  }
+  .source-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .source-card .lexile {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff8e8;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.55rem;
+  }
+  .source-card h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    color: var(--deep);
+  }
+  .source-card .byline {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0 0 0.75rem;
+  }
+  .source-card .teaser {
+    margin: 0 0 1rem;
+    font-size: 0.98rem;
+    color: var(--ink);
+  }
+  .open-btn {
+    display: inline-block;
+    background: var(--amber);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.75rem 1.2rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(196, 122, 26, 0.35);
+  }
+  .open-btn:hover { background: #a86412; }
+  .open-note {
+    margin: 0.65rem 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .word-tips {
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.9rem;
+  }
+  .word-tips strong { color: var(--deep); }
+  .word-tips .tip-list { margin: 0.4rem 0 0; line-height: 1.9; }
+  .source-card .word,
+  .quiz .word {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(30,58,95,0.25);
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .source-card .word:hover,
+  .quiz .word:hover { background: rgba(30, 58, 95, 0.12); }
+  .source-card .word.active,
+  .quiz .word.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  #gloss {
+    display: none;
+    position: sticky;
+    bottom: 0.75rem;
+    margin-top: 1rem;
+    background: var(--deep);
+    color: #f7edd8;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--shadow);
+    z-index: 5;
+    border: 2px solid var(--amber);
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  #gloss .g-en { opacity: 0.95; }
+  #gloss .g-zh { margin-top: 0.2rem; color: #f0d5a0; }
+  #gloss .g-hint { margin-top: 0.45rem; font-size: 0.78rem; opacity: 0.75; }
+  .quiz {
+    margin-top: 1.25rem;
+    background: #fffef9;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quiz h2 { margin: 0 0 0.75rem; font-size: 1.15rem; color: var(--deep); }
+  .quiz .section-note {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: -0.35rem 0 0.85rem;
+  }
+  .q {
+    border-top: 1px solid var(--border);
+    padding: 1rem 0;
+  }
+  .q:first-of-type { border-top: none; padding-top: 0.25rem; }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; }
+  .q-stem u { text-decoration-thickness: 2px; }
+  .opt {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.4rem 0.55rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0.2rem 0;
+  }
+  .opt:hover { background: #f3e6c8; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: #c8e6c9; }
+  .opt.mark-bad { background: var(--wrong-soft); }
+  .explain {
+    display: none;
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .explain.show { display: block; }
+  .explain.ok { background: #c8e6c9; color: #1b5e20; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+  button {
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #cbb89a; color: var(--ink); }
+  #copyBtn { background: var(--amber); color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #2e7d32; }
+  #score {
+    display: none;
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    background: var(--foam);
+    color: var(--ink);
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  #score.show { display: block; }
+  footer {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🏇📜 The Midnight Rider</h1>
+    <div class="meta">
+      Seren · 來源 <strong>CommonLit</strong> · 作者 <strong>Virginia Stevens</strong><br />
+      官方 Lexile：<strong>1070L</strong>（5th Grade）· 類型：社會／歷史敘事（美國獨立 · Caesar Rodney）· 2026-11-02<br />
+      原文連結：<a href="https://www.commonlit.org/texts/the-midnight-rider" target="_blank" rel="noopener noreferrer">commonlit.org/texts/the-midnight-rider</a><br />
+      預估：約 20–25 分鐘（先讀原文＋Reading 5 題＋Vocab 10 題）
+    </div>
+    <div class="tip">
+      💡 <strong>怎麼做：</strong>先點下方「打開原文（CommonLit）」把文章讀完，再回來答 Reading 5 題。<br/>
+      Vocab 10 題<strong>不跟短文綁定</strong>。題幹／選項／提示卡裡不懂的字可以<strong>點一下</strong>看英文＋中文 gloss；再點一次就關掉。<br/>
+      全部做完按「提交全部答案」，再按「複製成績」貼到微信給爸爸媽媽喔！查過的點讀會進成績單。
+    </div>
+  </header>
+
+  <aside class="source-card" id="source-card" aria-label="Reading source card">
+    <span class="lexile">1070L · 5th Grade · CommonLit</span>
+    <h2>The Midnight Rider</h2>
+    <p class="byline">Virginia Stevens · CommonLit（版權全文在原文頁）</p>
+    <p class="teaser">一位德拉瓦州代表在暴風雨的夜裡連夜趕路，只為趕到費城投下關鍵一票——在不劇透結局的前提下：這是關於勇氣、責任，與美國獨立前夕的真實故事。</p>
+    <a class="open-btn" href="https://www.commonlit.org/texts/the-midnight-rider" target="_blank" rel="noopener noreferrer">打開原文（CommonLit）</a>
+    <p class="open-note">本頁不收錄全文。請在新分頁閱讀 CommonLit 原文後再答題。</p>
+    <div class="word-tips">
+      <strong>提示：原文裡可能會遇到這些字（可點讀）</strong>
+      <div class="tip-list" id="tip-words"></div>
+    </div>
+  </aside>
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz-reading">
+    <h2>Comprehension Check（5 題）</h2>
+    <p class="section-note">根據 CommonLit 原文 <em>The Midnight Rider</em> 作答。可回原文分頁再讀。</p>
+    <form id="quiz-form-reading"></form>
+  </section>
+
+  <section class="quiz" id="quiz-vocab">
+    <h2>Vocabulary in Context（10）</h2>
+    <p class="section-note">這 10 題<strong>不跟短文綁定</strong>。粗體＋底線的字，請選在句子裡最接近的意思。</p>
+    <form id="quiz-form-vocab"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交全部答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+
+  <footer>原文版權屬 CommonLit／作者 Virginia Stevens；本頁僅連結＋自編題目，未收錄全文。<br/>無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · English Tutor</footer>
+</div>
+
+<script>
+const GLOSSARY = {
+  "a": { en: "one; any", zh: "\u4e00\u500b\uff1b\u4e00" },
+  "about": { en: "concerning; around", zh: "\u95dc\u65bc\uff1b\u5927\u7d04" },
+  "action": { en: "something done", zh: "\u884c\u52d5" },
+  "after": { en: "later than", zh: "\u5728\u2026\u2026\u4e4b\u5f8c" },
+  "against": { en: "opposing; in contact with", zh: "\u5c0d\u6297\uff1b\u9760\u8457" },
+  "agreed": { en: "said yes; shared the same decision", zh: "\u540c\u610f\uff1b\u9054\u6210\u4e00\u81f4" },
+  "also": { en: "in addition", zh: "\u4e5f" },
+  "american": { en: "of the United States", zh: "\u7f8e\u570b\u7684" },
+  "and": { en: "joins words or ideas", zh: "\u548c\uff1b\u4e26\u4e14" },
+  "another": { en: "one more; a different one", zh: "\u53e6\u4e00\u500b" },
+  "arrived": { en: "reached a place", zh: "\u62b5\u9054" },
+  "artist": { en: "a person who makes art", zh: "\u85dd\u8853\u5bb6" },
+  "autumn": { en: "the fall season", zh: "\u79cb\u5929" },
+  "based": { en: "built on; founded on", zh: "\u6839\u64da\uff1b\u4ee5\u2026\u2026\u70ba\u57fa\u790e" },
+  "before": { en: "earlier than", zh: "\u5728\u2026\u2026\u4e4b\u524d" },
+  "besides": { en: "in addition to", zh: "\u9664\u4e86\u2026\u2026\u4e4b\u5916" },
+  "body": { en: "a person's physical self", zh: "\u8eab\u9ad4" },
+  "boots": { en: "strong shoes that cover the ankle", zh: "\u9774\u5b50" },
+  "both": { en: "the two together", zh: "\u5169\u8005" },
+  "bread": { en: "a baked food made from flour", zh: "\u9eb5\u5305" },
+  "break": { en: "to end a tie; to separate", zh: "\u6253\u7834\uff08\u5e73\u624b\uff09\uff1b\u65b7\u958b" },
+  "breaking": { en: "making something come apart", zh: "\u5206\u89e3\uff1b\u6253\u7834" },
+  "bribe": { en: "money given to make someone do wrong", zh: "\u8cc4\u8cc2" },
+  "bricks": { en: "hard blocks used to build walls", zh: "\u78da\u584a" },
+  "britain": { en: "Great Britain; England's country group", zh: "\u82f1\u570b" },
+  "british": { en: "from Britain", zh: "\u82f1\u570b\u7684" },
+  "builder": { en: "a person who builds", zh: "\u5efa\u9020\u8005" },
+  "caesar": { en: "a given name (here: Caesar Rodney)", zh: "\u4eba\u540d\uff08\u51f1\u6492\u00b7\u7f85\u5fb7\u5c3c\uff09" },
+  "calm": { en: "peaceful; not loud or angry", zh: "\u5e73\u975c\u7684" },
+  "cancer": { en: "a serious disease", zh: "\u764c\u75c7" },
+  "cancerous": { en: "related to or caused by cancer", zh: "\u764c\u6027\u7684\uff1b\u60e1\u6027\u7684" },
+  "canvas": { en: "strong cloth artists paint on", zh: "\u756b\u5e03" },
+  "capture": { en: "to take by force", zh: "\u4f54\u9818\uff1b\u6355\u7372" },
+  "captured": { en: "taken by force", zh: "\u88ab\u4f54\u9818\uff1b\u88ab\u6293" },
+  "care": { en: "medical help; attention", zh: "\u91ab\u7642\u7167\u8b77\uff1b\u7167\u9867" },
+  "careful": { en: "done with thought and attention", zh: "\u4ed4\u7d30\u7684" },
+  "carry": { en: "to take from one place to another", zh: "\u651c\u5e36" },
+  "cast": { en: "to give (a vote)", zh: "\u6295\u4e0b\uff08\u4e00\u7968\uff09" },
+  "change": { en: "to make different", zh: "\u6539\u8b8a" },
+  "charger": { en: "a device that gives power to a battery", zh: "\u5145\u96fb\u5668" },
+  "checking": { en: "looking at carefully", zh: "\u6aa2\u67e5" },
+  "chemical": { en: "related to chemistry; a substance", zh: "\u5316\u5b78\u7684\uff1b\u5316\u5b78\u7269\u8cea" },
+  "chest": { en: "the front of the upper body", zh: "\u80f8\u53e3" },
+  "choose": { en: "to pick", zh: "\u9078\u64c7" },
+  "chose": { en: "picked (past)", zh: "\u9078\u64c7\u4e86" },
+  "class": { en: "a group of students learning together", zh: "\u73ed\u7d1a\uff1b\u8ab2\u5802" },
+  "coach": { en: "a person who trains a team", zh: "\u6559\u7df4" },
+  "coins": { en: "metal money", zh: "\u786c\u5e63" },
+  "cold": { en: "low temperature", zh: "\u5bd2\u51b7\u7684" },
+  "color": { en: "hue such as red or blue", zh: "\u984f\u8272" },
+  "conceal": { en: "to hide from view", zh: "\u96b1\u85cf" },
+  "concealed": { en: "hidden", zh: "\u96b1\u85cf\u4e86" },
+  "conclude": { en: "to reach a decision after thinking", zh: "\u5f97\u51fa\u7d50\u8ad6" },
+  "congress": { en: "a meeting of lawmakers; Continental Congress", zh: "\u570b\u6703\uff1b\u5927\u9678\u6703\u8b70" },
+  "constituents": { en: "the people a leader represents", zh: "\u9078\u6c11\uff1b\u6240\u4ee3\u8868\u7684\u6c11\u773e" },
+  "continental": { en: "of the continent; Continental Congress", zh: "\u5927\u9678\u7684\uff1b\uff08\u6b64\u8655\uff09\u5927\u9678\u6703\u8b70\u7684" },
+  "could": { en: "was able to", zh: "\u80fd\u5920" },
+  "courage": { en: "bravery when facing danger", zh: "\u52c7\u6c23" },
+  "danger": { en: "a chance of harm", zh: "\u5371\u96aa" },
+  "dangerous": { en: "likely to cause harm", zh: "\u5371\u96aa\u7684" },
+  "debate": { en: "a formal discussion of different opinions", zh: "\u8faf\u8ad6\uff1b\u8a0e\u8ad6" },
+  "decided": { en: "chosen; settled", zh: "\u6c7a\u5b9a\u4e86" },
+  "deciding": { en: "settling a choice; making the final difference", zh: "\u6c7a\u5b9a\u6027\u7684\uff1b\u505a\u51fa\u6c7a\u5b9a" },
+  "decision": { en: "a choice made after thinking", zh: "\u6c7a\u5b9a" },
+  "deepen": { en: "to make deeper or stronger", zh: "\u52a0\u6df1" },
+  "delaware": { en: "a small U.S. state", zh: "\u5fb7\u62c9\u74e6\u5dde" },
+  "delegates": { en: "people chosen to speak or vote for others", zh: "\u4ee3\u8868" },
+  "despite": { en: "even though; in spite of", zh: "\u5118\u7ba1" },
+  "device": { en: "a tool or machine made for a purpose", zh: "\u88dd\u7f6e\uff1b\u8a2d\u5099" },
+  "different": { en: "not the same", zh: "\u4e0d\u540c\u7684" },
+  "discussion": { en: "talk about a topic", zh: "\u8a0e\u8ad6" },
+  "does": { en: "performs an action", zh: "\u505a" },
+  "dover": { en: "a city in Delaware", zh: "\u591a\u4f5b\uff08\u5fb7\u62c9\u74e6\u5dde\u57ce\u5e02\uff09" },
+  "down": { en: "toward a lower place", zh: "\u5411\u4e0b" },
+  "drawing": { en: "attracting (attention)", zh: "\u5f15\u8d77\uff08\u6ce8\u610f\uff09" },
+  "during": { en: "throughout a period of time", zh: "\u5728\u2026\u2026\u671f\u9593" },
+  "each": { en: "every one", zh: "\u6bcf\u4e00" },
+  "easy": { en: "not hard", zh: "\u5bb9\u6613\u7684" },
+  "else": { en: "other; in addition", zh: "\u5176\u4ed6" },
+  "england": { en: "a country in Britain", zh: "\u82f1\u683c\u862d\uff0f\u82f1\u570b" },
+  "english": { en: "from England; the English language", zh: "\u82f1\u570b\u7684\uff1b\u82f1\u8a9e" },
+  "entered": { en: "went into", zh: "\u9032\u5165" },
+  "enzyme": { en: "a natural helper that speeds up a chemical change in the body", zh: "\u9176\uff1b\u9175\u7d20" },
+  "estimate": { en: "to make a careful guess based on information", zh: "\u4f30\u8a08" },
+  "even": { en: "surprisingly; still", zh: "\u5373\u4f7f\uff1b\u751a\u81f3" },
+  "evidence": { en: "facts that support a conclusion", zh: "\u8b49\u64da" },
+  "exact": { en: "precise; correct in every detail", zh: "\u7cbe\u78ba\u7684" },
+  "face": { en: "the front of the head", zh: "\u81c9" },
+  "fame": { en: "being widely known", zh: "\u540d\u8072" },
+  "finals": { en: "the last games in a contest", zh: "\u6c7a\u8cfd" },
+  "fleet": { en: "a group of ships", zh: "\u8266\u968a" },
+  "folded": { en: "bent over on itself", zh: "\u647a\u597d\u7684" },
+  "for": { en: "intended to; because of", zh: "\u70ba\u4e86\uff1b\u56e0\u70ba" },
+  "force": { en: "strength; power", zh: "\u6b66\u529b\uff1b\u529b\u91cf" },
+  "forced": { en: "made to do something", zh: "\u8feb\u4f7f" },
+  "formal": { en: "following set rules; serious in style", zh: "\u6b63\u5f0f\u7684" },
+  "free": { en: "without cost; not held", zh: "\u514d\u8cbb\u7684\uff1b\u81ea\u7531\u7684" },
+  "from": { en: "starting at", zh: "\u5f9e" },
+  "game": { en: "a contest with rules", zh: "\u6bd4\u8cfd\uff1b\u904a\u6232" },
+  "gates": { en: "doors in a wall or fence", zh: "\u5927\u9580" },
+  "geese": { en: "more than one goose", zh: "\u9d5d\uff08\u8907\u6578\uff09" },
+  "general": { en: "a high military leader", zh: "\u5c07\u8ecd" },
+  "giving": { en: "handing over; offering", zh: "\u7d66\u4e88" },
+  "gold": { en: "a yellow precious metal", zh: "\u91d1" },
+  "growth": { en: "something that has grown; a lump", zh: "\u8d05\u751f\u7269\uff1b\u751f\u9577\u7269" },
+  "guess": { en: "an idea formed without full proof", zh: "\u731c\u6e2c" },
+  "hall": { en: "a large public building or room", zh: "\u5927\u5ef3\uff1b\u6703\u5802" },
+  "hanging": { en: "death by hanging; being hung", zh: "\u7d5e\u5211" },
+  "harbor": { en: "a sheltered place for ships", zh: "\u6e2f\u53e3" },
+  "hat": { en: "covering for the head", zh: "\u5e3d\u5b50" },
+  "have": { en: "to own or hold", zh: "\u6709" },
+  "he": { en: "that male person", zh: "\u4ed6" },
+  "help": { en: "to make easier; assistance", zh: "\u5e6b\u52a9" },
+  "helper": { en: "something or someone that helps", zh: "\u5e6b\u52a9\u8005\uff1b\u8f14\u52a9\u7269" },
+  "helping": { en: "giving help", zh: "\u5e6b\u52a9" },
+  "hid": { en: "kept out of sight (past of hide)", zh: "\u96b1\u85cf\u4e86" },
+  "hide": { en: "to keep out of sight", zh: "\u96b1\u85cf" },
+  "hikers": { en: "people who walk long distances outdoors", zh: "\u5065\u884c\u8005" },
+  "his": { en: "belonging to him", zh: "\u4ed6\u7684" },
+  "history": { en: "the study of the past", zh: "\u6b77\u53f2" },
+  "hold": { en: "to keep; to carry on", zh: "\u8209\u884c\uff1b\u63e1\u4f4f" },
+  "honest": { en: "truthful; fair", zh: "\u8aa0\u5be6\u7684" },
+  "hoped": { en: "wished for", zh: "\u5e0c\u671b" },
+  "horses": { en: "animals people ride", zh: "\u99ac" },
+  "how": { en: "in what way", zh: "\u5982\u4f55" },
+  "ill": { en: "sick; not healthy", zh: "\u751f\u75c5\u7684" },
+  "illness": { en: "a sickness", zh: "\u75be\u75c5" },
+  "important": { en: "mattering a lot", zh: "\u91cd\u8981\u7684" },
+  "independence": { en: "freedom from outside control", zh: "\u7368\u7acb" },
+  "independence hall": { en: "the building in Philadelphia where Congress met", zh: "\u7368\u7acb\u5ef3" },
+  "independent": { en: "free; not ruled by another", zh: "\u7368\u7acb\u7684" },
+  "information": { en: "facts you can use", zh: "\u8cc7\u8a0a" },
+  "interrupt": { en: "to stop someone briefly by breaking in", zh: "\u6253\u65b7" },
+  "into": { en: "to the inside of", zh: "\u9032\u5165" },
+  "invented": { en: "created for the first time", zh: "\u767c\u660e\u4e86" },
+  "judgment": { en: "a careful opinion or decision", zh: "\u5224\u65b7\uff1b\u898b\u89e3" },
+  "king": { en: "a male ruler", zh: "\u570b\u738b" },
+  "king's highway": { en: "a historic road Rodney used", zh: "\u570b\u738b\u5927\u9053\uff08\u53e4\u9a5b\u9053\uff09" },
+  "lab": { en: "short for laboratory", zh: "\u5be6\u9a57\u5ba4" },
+  "larger": { en: "bigger", zh: "\u66f4\u5927\u7684" },
+  "learned": { en: "found out; studied", zh: "\u5b78\u5230" },
+  "let": { en: "allow", zh: "\u8b93\uff1b\u5141\u8a31" },
+  "library": { en: "a place with books to read or borrow", zh: "\u5716\u66f8\u9928" },
+  "light": { en: "brightness from the sun or a lamp", zh: "\u5149" },
+  "locked": { en: "fastened with a lock", zh: "\u9396\u4e0a\u7684" },
+  "longer": { en: "for more time", zh: "\u66f4\u9577" },
+  "low": { en: "not high; pulled down", zh: "\u4f4e\u7684" },
+  "made": { en: "created; caused", zh: "\u88fd\u4f5c\uff1b\u4f7f" },
+  "major": { en: "important; a military rank (major general)", zh: "\u4e3b\u8981\u7684\uff1b\u5c11\u5c07" },
+  "make": { en: "to create or cause", zh: "\u505a\uff1b\u4f7f" },
+  "many": { en: "a large number of", zh: "\u8a31\u591a" },
+  "map": { en: "a drawing of places", zh: "\u5730\u5716" },
+  "maya": { en: "a girl's name", zh: "\u4eba\u540d" },
+  "mckean": { en: "Thomas McKean, a Delaware delegate", zh: "\u9ea5\u80af\uff08\u5fb7\u62c9\u74e6\u4ee3\u8868\uff09" },
+  "medical": { en: "related to health care", zh: "\u91ab\u7642\u7684" },
+  "meeting": { en: "a gathering of people", zh: "\u6703\u8b70" },
+  "men": { en: "adult males; people", zh: "\u4eba\uff1b\u7537\u4eba" },
+  "messages": { en: "information sent to someone", zh: "\u8a0a\u606f" },
+  "messengers": { en: "people who carry messages", zh: "\u4fe1\u5dee" },
+  "midnight": { en: "the middle of the night", zh: "\u5348\u591c" },
+  "migrate": { en: "to travel from one region to another with the seasons", zh: "\u9077\u5f99" },
+  "miles": { en: "units of distance", zh: "\u82f1\u91cc" },
+  "mind": { en: "thoughts; opinion", zh: "\u60f3\u6cd5\uff1b\u5fc3\u610f" },
+  "mixed": { en: "stirred together", zh: "\u6df7\u5408" },
+  "moon": { en: "Earth's natural satellite", zh: "\u6708\u4eae" },
+  "more": { en: "a greater amount", zh: "\u66f4\u591a" },
+  "most": { en: "nearly; to the greatest degree", zh: "\u6700\uff1b\u5e7e\u4e4e" },
+  "muddy": { en: "covered with wet dirt", zh: "\u6ce5\u6fd8\u7684" },
+  "natural": { en: "found in nature; not made by people", zh: "\u5929\u7136\u7684" },
+  "nearly": { en: "almost", zh: "\u5e7e\u4e4e" },
+  "needed": { en: "required", zh: "\u9700\u8981" },
+  "needing": { en: "requiring", zh: "\u9700\u8981" },
+  "never": { en: "not ever", zh: "\u5f9e\u4e0d" },
+  "night": { en: "the dark time of day", zh: "\u591c\u665a" },
+  "nina": { en: "a girl's name", zh: "\u4eba\u540d" },
+  "notice": { en: "to see or pay attention to", zh: "\u6ce8\u610f" },
+  "observe": { en: "to watch carefully", zh: "\u89c0\u5bdf" },
+  "older": { en: "having lived longer", zh: "\u8f03\u5e74\u9577\u7684" },
+  "one": { en: "a single thing", zh: "\u4e00\u500b" },
+  "only": { en: "just; no more than", zh: "\u53ea\u6709" },
+  "opinions": { en: "what people think", zh: "\u610f\u898b" },
+  "opposing": { en: "against; disagreeing", zh: "\u53cd\u5c0d\u7684" },
+  "ordering": { en: "asking to buy something", zh: "\u8a02\u8cfc" },
+  "own": { en: "belonging to oneself", zh: "\u81ea\u5df1\u7684" },
+  "paint": { en: "colored liquid for covering surfaces", zh: "\u6cb9\u6f06\uff1b\u984f\u6599" },
+  "parchment": { en: "old-style writing material", zh: "\u7f8a\u76ae\u7d19" },
+  "passenger": { en: "a person riding in a vehicle", zh: "\u4e58\u5ba2" },
+  "pennsylvania": { en: "a U.S. state; home of Philadelphia", zh: "\u8cd3\u5915\u6cd5\u5c3c\u4e9e\u5dde" },
+  "people": { en: "human beings", zh: "\u4eba\u5011" },
+  "personal": { en: "about one's own life", zh: "\u500b\u4eba\u7684" },
+  "phases": { en: "changing shapes of the moon", zh: "\u76f8\u4f4d" },
+  "philadelphia": { en: "a city where Congress met in 1776", zh: "\u8cbb\u57ce" },
+  "phone": { en: "a telephone", zh: "\u96fb\u8a71" },
+  "pigment": { en: "a substance that gives color", zh: "\u8272\u7d20\uff1b\u984f\u6599" },
+  "place": { en: "a location", zh: "\u5730\u65b9" },
+  "plant": { en: "a living green thing that grows", zh: "\u690d\u7269" },
+  "portable": { en: "easy to carry from place to place", zh: "\u53ef\u651c\u5f0f\u7684\uff1b\u8f15\u4fbf\u7684" },
+  "power": { en: "energy; electricity", zh: "\u96fb\u529b\uff1b\u529b\u91cf" },
+  "present": { en: "here now; in attendance", zh: "\u51fa\u5e2d\u7684\uff1b\u5728\u5834\u7684" },
+  "promised": { en: "said you would do something", zh: "\u627f\u8afe" },
+  "quarter": { en: "a 25-cent U.S. coin", zh: "\u4e8c\u5341\u4e94\u7f8e\u5206\u786c\u5e63" },
+  "quick": { en: "fast", zh: "\u5feb\u901f\u7684" },
+  "quietly": { en: "with little or no sound", zh: "\u5b89\u975c\u5730" },
+  "reach": { en: "to arrive at; to get to", zh: "\u5230\u9054\uff1b\u5f97\u51fa" },
+  "readers": { en: "people who are reading", zh: "\u8b80\u8005" },
+  "reading": { en: "looking at and understanding words", zh: "\u95b1\u8b80" },
+  "recess": { en: "a break time at school", zh: "\u4e0b\u8ab2\u4f11\u606f" },
+  "recognition": { en: "being identified by others", zh: "\u88ab\u8a8d\u51fa" },
+  "red": { en: "the color of blood or ripe apples", zh: "\u7d05\u8272" },
+  "region": { en: "an area of land", zh: "\u5730\u5340" },
+  "reports": { en: "written accounts of facts", zh: "\u5831\u544a" },
+  "represents": { en: "speaks or acts for", zh: "\u4ee3\u8868" },
+  "required": { en: "needed; demanded", zh: "\u9700\u8981\uff1b\u8981\u6c42" },
+  "rest": { en: "to stop and recover energy", zh: "\u4f11\u606f" },
+  "ride": { en: "a journey on a horse or vehicle", zh: "\u9a0e\u884c\uff1b\u8def\u7a0b" },
+  "rider": { en: "a person who rides", zh: "\u9a0e\u58eb\uff1b\u9a0e\u624b" },
+  "risk": { en: "a chance of danger", zh: "\u98a8\u96aa" },
+  "risked": { en: "took a chance of danger", zh: "\u5192\u8457\u2026\u2026\u7684\u98a8\u96aa" },
+  "rocks": { en: "stones", zh: "\u5ca9\u77f3" },
+  "rodney": { en: "Caesar Rodney, Delaware patriot", zh: "\u7f85\u5fb7\u5c3c\uff08\u5fb7\u62c9\u74e6\u611b\u570b\u8005\uff09" },
+  "saliva": { en: "the liquid in your mouth", zh: "\u553e\u6db2" },
+  "scarf": { en: "cloth worn around the neck or face", zh: "\u570d\u5dfe\uff1b\u9762\u5dfe" },
+  "science": { en: "the study of nature and how things work", zh: "\u79d1\u5b78" },
+  "scientists": { en: "people who study science", zh: "\u79d1\u5b78\u5bb6" },
+  "seasons": { en: "parts of the year such as spring or fall", zh: "\u5b63\u7bc0" },
+  "seat": { en: "a place to sit", zh: "\u5ea7\u4f4d" },
+  "secret": { en: "kept hidden", zh: "\u79d8\u5bc6\u7684" },
+  "selection": { en: "the passage or text you read", zh: "\u9078\u6587\uff1b\u7bc7\u7ae0" },
+  "send": { en: "to cause to go", zh: "\u9001\uff1b\u4f7f\u524d\u5f80" },
+  "serious": { en: "important and not playful", zh: "\u56b4\u91cd\u7684\uff1b\u8a8d\u771f\u7684" },
+  "settle": { en: "to decide; to make final", zh: "\u6c7a\u5b9a\uff1b\u89e3\u6c7a" },
+  "sharp": { en: "able to cut; pointed", zh: "\u5c16\u92b3\u7684" },
+  "ships": { en: "large boats", zh: "\u8239\u8266" },
+  "should": { en: "ought to", zh: "\u61c9\u8a72" },
+  "situation": { en: "the way things are at a moment", zh: "\u60c5\u6cc1" },
+  "slipped": { en: "moved smoothly or quietly", zh: "\u6084\u6084\u79fb\u52d5" },
+  "slipped into": { en: "entered quietly without drawing attention", zh: "\u6084\u6084\u9032\u5165" },
+  "so": { en: "therefore; in order that", zh: "\u6240\u4ee5\uff1b\u5982\u6b64" },
+  "solid": { en: "firm and strong", zh: "\u5805\u56fa\u7684" },
+  "south": { en: "toward the bottom of a map", zh: "\u5357\u65b9" },
+  "speeds": { en: "makes faster", zh: "\u52a0\u901f" },
+  "spurs": { en: "metal points on boots to urge a horse", zh: "\u99ac\u523a" },
+  "start": { en: "to begin", zh: "\u958b\u59cb" },
+  "state": { en: "a region with its own government; condition", zh: "\u5dde\uff1b\u72c0\u614b" },
+  "still": { en: "even so; continuing", zh: "\u4ecd\u7136" },
+  "storm": { en: "bad weather with rain and wind", zh: "\u66b4\u98a8\u96e8" },
+  "strong": { en: "having power; not weak", zh: "\u5f37\u58ef\u7684\uff1b\u5805\u56fa\u7684" },
+  "sturdy": { en: "strong and solid", zh: "\u5805\u56fa\u7684" },
+  "substance": { en: "a particular kind of material", zh: "\u7269\u8cea" },
+  "sunset": { en: "the time when the sun goes down", zh: "\u65e5\u843d" },
+  "support": { en: "to back; to help succeed", zh: "\u652f\u6301" },
+  "surgery": { en: "a medical operation", zh: "\u624b\u8853" },
+  "tear": { en: "to rip apart", zh: "\u6495\u88c2" },
+  "the": { en: "points to a specific thing", zh: "\u9019\uff0f\u90a3" },
+  "their": { en: "belonging to them", zh: "\u4ed6\u5011\u7684" },
+  "them": { en: "those people or things", zh: "\u4ed6\u5011" },
+  "thinking": { en: "using the mind", zh: "\u601d\u8003" },
+  "though": { en: "even if", zh: "\u96d6\u7136" },
+  "three": { en: "the number 3", zh: "\u4e09" },
+  "through": { en: "from one side to the other; during", zh: "\u7a7f\u904e\uff1b\u7d93\u904e" },
+  "tie": { en: "an equal score; a draw", zh: "\u5e73\u624b" },
+  "tied": { en: "having the same votes or score", zh: "\u6253\u6210\u5e73\u624b" },
+  "to": { en: "toward; in order to", zh: "\u5230\uff1b\u70ba\u4e86" },
+  "train": { en: "a set of railroad cars", zh: "\u706b\u8eca" },
+  "travel": { en: "to go from place to place", zh: "\u65c5\u884c" },
+  "traveled": { en: "went from place to place", zh: "\u65c5\u884c\u4e86" },
+  "treason": { en: "the crime of betraying one's country", zh: "\u53db\u570b\u7f6a" },
+  "twice": { en: "two times", zh: "\u5169\u6b21" },
+  "unanimous": { en: "agreed to by everyone; no opposing votes", zh: "\u4e00\u81f4\u901a\u904e\u7684\uff1b\u5168\u9ad4\u540c\u610f\u7684" },
+  "unless": { en: "except if", zh: "\u9664\u975e" },
+  "until": { en: "up to the time of", zh: "\u76f4\u5230" },
+  "up": { en: "toward a higher place", zh: "\u5411\u4e0a" },
+  "urgent": { en: "needing quick action; very important right now", zh: "\u7dca\u6025\u7684" },
+  "urgently": { en: "in a way that needs quick action", zh: "\u7dca\u6025\u5730" },
+  "very": { en: "to a high degree", zh: "\u975e\u5e38" },
+  "visibility": { en: "how clearly you can see", zh: "\u80fd\u898b\u5ea6" },
+  "vote": { en: "a formal choice in a decision", zh: "\u6295\u7968\uff1b\u9078\u7968" },
+  "votes": { en: "formal choices counted together", zh: "\u9078\u7968" },
+  "wall": { en: "a side of a building", zh: "\u7246" },
+  "want": { en: "to wish for", zh: "\u60f3\u8981" },
+  "wanted": { en: "wished for", zh: "\u60f3\u8981" },
+  "watch": { en: "to look at carefully", zh: "\u89c0\u770b\uff1b\u89c0\u5bdf" },
+  "weather": { en: "conditions outdoors such as rain or sun", zh: "\u5929\u6c23" },
+  "what": { en: "asks for information", zh: "\u4ec0\u9ebc" },
+  "when": { en: "at the time that", zh: "\u7576\u2026\u2026\u6642" },
+  "whether": { en: "if \u2026 or \u2026", zh: "\u662f\u5426" },
+  "which": { en: "asks you to choose", zh: "\u54ea\u4e00\u500b" },
+  "why": { en: "for what reason", zh: "\u70ba\u4ec0\u9ebc" },
+  "win": { en: "to succeed in a contest", zh: "\u7372\u52dd" },
+  "winter": { en: "the coldest season", zh: "\u51ac\u5929" },
+  "with": { en: "together; using", zh: "\u548c\uff1b\u7528" },
+  "without": { en: "not having", zh: "\u6c92\u6709" },
+  "would": { en: "was going to; conditional", zh: "\u6703\uff1b\u5c07\u6703" },
+  "write": { en: "to put words on paper", zh: "\u5beb" },
+  "written": { en: "put into words on paper", zh: "\u5beb\u4e0b\u7684" },
+  "york": { en: "as in New York", zh: "\u7d04\u514b\uff08\u7d10\u7d04\uff09" }
+};
+
+const TIP_WORDS = ["ride", "independence", "unanimous", "constituents", "treason", "cancerous"];
+
+const QUESTIONS = [
+  {
+    stem: "1. What is the main idea of this selection?",
+    choices: [
+      "Rodney invented the Delaware state quarter during the Continental Congress.",
+      "British ships in New York harbor forced Congress to cancel the independence vote.",
+      "Rodney rode through a storm from Dover to Philadelphia so Delaware's vote could break a tie and help make independence unanimous.",
+      "Rodney traveled to England for cancer surgery while Congress debated."
+    ],
+    answer: 2,
+    why: "主旨題：全文核心是 Rodney 連夜趕去費城，打破德拉瓦平手並促成一致通過獨立。"
+  },
+  {
+    stem: "2. What situation made Rodney's ride urgently necessary?",
+    choices: [
+      "Delaware's two present delegates were tied—one for independence, one against—and Congress needed a unanimous decision.",
+      "Philadelphia's gates locked at sunset unless messengers arrived muddy.",
+      "McKean had already voted no and needed Rodney to change his mind in secret.",
+      "The British fleet had already captured Independence Hall."
+    ],
+    answer: 0,
+    why: "證據／情境題：德拉瓦兩位在場代表一票贊成、一票反對打成平手，而獨立表決必須全體一致。"
+  },
+  {
+    stem: "3. In the selection, the Continental Congress needed a unanimous vote. Unanimous most nearly means —",
+    choices: [
+      "secret and unsigned",
+      "delayed until winter",
+      "decided by only one state",
+      "agreed to by everyone with no opposing votes"
+    ],
+    answer: 3,
+    why: "文中詞義：unanimous＝全體一致、沒有反對票；獨立案需要各州一致同意。"
+  },
+  {
+    stem: "4. Why did Rodney still make the ride even though he was ill and risked hanging for treason?",
+    choices: [
+      "He wanted fame as a major general before the British fleet arrived.",
+      "He believed his constituents and his own judgment required him to support independence, despite personal danger and giving up English medical care.",
+      "Congress promised him free cancer surgery if he arrived by 4 p.m.",
+      "He hoped the scarf would let him vote twice for Delaware."
+    ],
+    answer: 1,
+    why: "推論題：他明知可能被控叛國、也無法再赴英治病，仍依選民與自己的判斷支持獨立。"
+  },
+  {
+    stem: "5. Besides helping Rodney avoid recognition, what else did his scarf conceal?",
+    choices: [
+      "A map of King's Highway folded against his chest",
+      "Messages from McKean written on parchment",
+      "A cancerous growth on his face",
+      "Gold coins meant as a bribe for Read"
+    ],
+    answer: 2,
+    why: "細節題：圍巾除了遮臉以免被認出，也遮住臉上的癌性腫瘤。"
+  }
+];
+
+const VOCAB_QUESTIONS = [
+  {
+    stemHtml: true,
+    stem: "1. The builder had to <strong><u>estimate</u></strong> how many bricks the wall would need before ordering. In this sentence, estimate most nearly means —",
+    choices: [
+      "throw away unused bricks",
+      "make a careful guess based on information",
+      "paint the wall a brighter color",
+      "hire more workers for free"
+    ],
+    answer: 1,
+    why: "語境：先估算需要多少磚再訂購 → estimate＝根據資訊仔細估計。"
+  },
+  {
+    stemHtml: true,
+    stem: "2. Maya <strong><u>slipped into</u></strong> the quiet library so she would not interrupt the readers. Slipped into most nearly means —",
+    choices: [
+      "entered quietly without drawing attention",
+      "fell down the library stairs",
+      "shouted to greet every reader",
+      "locked the door from outside"
+    ],
+    answer: 0,
+    why: "語境：為了不打擾而進入 → slipped into＝悄悄進入（不是跌倒）。"
+  },
+  {
+    stemHtml: true,
+    stem: "3. The hikers chose <strong><u>sturdy</u></strong> boots that would not tear on sharp rocks. Sturdy most nearly means —",
+    choices: [
+      "weak and thin",
+      "bright and new",
+      "strong and solid",
+      "soft and quiet"
+    ],
+    answer: 2,
+    why: "語境：不會被尖石撕裂 → sturdy＝堅固的。"
+  },
+  {
+    stemHtml: true,
+    stem: "4. Scientists <strong><u>observe</u></strong> the moon's phases each night and write what they notice. Observe most nearly means —",
+    choices: [
+      "draw funny pictures only",
+      "ignore the sky completely",
+      "travel to another planet",
+      "watch carefully"
+    ],
+    answer: 3,
+    why: "語境：每晚看月相並記下 → observe＝仔細觀察。"
+  },
+  {
+    stemHtml: true,
+    stem: "5. After reading three lab reports, Nina could <strong><u>conclude</u></strong> that the plant needed more light. Conclude most nearly means —",
+    choices: [
+      "reach a decision after thinking about evidence",
+      "copy the reports without reading them",
+      "water the plant only at midnight",
+      "throw the reports away"
+    ],
+    answer: 0,
+    why: "語境：讀完報告後下判斷 → conclude＝根據證據得出結論。"
+  },
+  {
+    stemHtml: true,
+    stem: "6. The artist mixed red <strong><u>pigment</u></strong> into the paint to deepen the sunset on her canvas. Pigment most nearly means —",
+    choices: [
+      "a kind of brush handle",
+      "a substance that gives color",
+      "a frame for hanging art",
+      "a soft cloth for cleaning"
+    ],
+    answer: 1,
+    why: "語境：混入紅色使日落更深 → pigment＝帶來顏色的物質／顏料。"
+  },
+  {
+    stemHtml: true,
+    stem: "7. Dad packed a <strong><u>portable</u></strong> charger so we could power the phone on the train. Portable most nearly means —",
+    choices: [
+      "too heavy to lift",
+      "built into the wall",
+      "easy to carry from place to place",
+      "only usable underwater"
+    ],
+    answer: 2,
+    why: "語境：火車上也能幫手機充電 → portable＝可攜帶的。"
+  },
+  {
+    stemHtml: true,
+    stem: "8. Many geese <strong><u>migrate</u></strong> south when autumn weather turns cold. Migrate most nearly means —",
+    choices: [
+      "change color overnight",
+      "travel from one region to another with the seasons",
+      "build nests only in libraries",
+      "sleep through every afternoon"
+    ],
+    answer: 1,
+    why: "語境：秋天往南飛 → migrate＝隨季節遷徙。"
+  },
+  {
+    stemHtml: true,
+    stem: "9. In science class we learned an <strong><u>enzyme</u></strong> in saliva helps start breaking down bread. Enzyme most nearly means —",
+    choices: [
+      "a metal spoon used at lunch",
+      "a page in the science book",
+      "a loud bell that ends class",
+      "a natural helper in the body that speeds up a chemical change"
+    ],
+    answer: 3,
+    why: "語境：唾液裡幫助開始分解麵包 → enzyme＝體內加速化學變化的天然酵素。"
+  },
+  {
+    stemHtml: true,
+    stem: "10. The class held a calm <strong><u>debate</u></strong> about whether recess should be longer. Debate most nearly means —",
+    choices: [
+      "a formal discussion of different opinions",
+      "a secret note passed under desks",
+      "a race around the playground",
+      "a test with only one question"
+    ],
+    answer: 0,
+    why: "語境：班級平靜討論休息時間是否該更長 → debate＝正式討論不同意見。"
+  }
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function tokenize(text) {
+  return String(text).match(/[A-Za-z]+(?:'[A-Za-z]+)?|[^A-Za-z]+/g) || [];
+}
+
+function wrapTokens(text) {
+  return tokenize(text).map(tok => {
+    if (/^[A-Za-z]/.test(tok)) {
+      const key = tok.toLowerCase();
+      return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+    }
+    return escapeHtml(tok);
+  }).join("");
+}
+
+function renderTipWords() {
+  const el = document.getElementById("tip-words");
+  el.innerHTML = TIP_WORDS.map((w, i) => {
+    const span = `<span class="word" data-key="${escapeHtml(w)}" data-display="${escapeHtml(w)}">${escapeHtml(w)}</span>`;
+    return span + (i < TIP_WORDS.length - 1 ? " · " : "");
+  }).join("");
+}
+
+let activeKey = null;
+let activeEl = null;
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  if (activeEl) activeEl.classList.remove("active");
+  activeKey = null;
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextSibling;
+  if (next && next.nodeType === 1 && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) {
+      entry = GLOSSARY[phrase];
+      label = display + " " + next.dataset.display;
+    }
+  }
+  // also try previous+current for "slipped into" when tapping "into"
+  if (!entry) {
+    const prev = wordEl.previousSibling;
+    if (prev && prev.nodeType === 1 && prev.classList && prev.classList.contains("word")) {
+      const phrase = prev.dataset.key + " " + key;
+      if (GLOSSARY[phrase]) {
+        entry = GLOSSARY[phrase];
+        label = prev.dataset.display + " " + display;
+      }
+    }
+  }
+  if (!entry) entry = GLOSSARY[key];
+
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+  if (activeEl) activeEl.classList.remove("active");
+  activeEl = wordEl;
+  activeKey = key;
+  wordEl.classList.add("active");
+
+  const g = document.getElementById("gloss");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄這個字；試試看從句子猜猜它的意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）先讀完整句，猜猜看～";
+  }
+  g.classList.add("show");
+  recordLookup(label, entry);
+}
+
+function renderQuizForm(formId, questions, namePrefix) {
+  const form = document.getElementById(formId);
+  form.innerHTML = questions.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt" data-set="${namePrefix}" data-q="${qi}" data-c="${ci}">
+        <input type="radio" name="${namePrefix}${qi}" value="${ci}" />
+        <span><strong>${LETTERS[ci]}.</strong> ${wrapTokens(c)}</span>
+      </label>`).join("");
+    let stem;
+    if (q.stemHtml) {
+      // Keep bold/underline HTML; wrap remaining plain English by splitting tags lightly
+      stem = q.stem.replace(/([^<>]+)|(<[^>]+>)/g, (m, text, tag) => {
+        if (tag) return tag;
+        return wrapTokens(text);
+      });
+    } else {
+      stem = wrapTokens(q.stem);
+    }
+    return `<div class="q" data-set="${namePrefix}" data-q="${qi}">
+      <div class="q-stem">${stem}</div>
+      ${opts}
+      <div class="explain" id="ex-${namePrefix}${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const PACK_META = {
+  child: "Seren",
+  date: "2026-11-02",
+  title: "The Midnight Rider (CommonLit · Virginia Stevens)",
+  type: "社會／歷史敘事（美國獨立）",
+  level: "官方 1070L · 5th Grade · CommonLit"
+};
+
+let lastReport = null;
+
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "", source: "tap" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : "";
+  rec.source = "tap";
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const tap = lookupStats();
+  if (!tap.words.length) return ["查詢單字（點讀）：無"];
+  return [`查詢單字（點讀，共 ${tap.total} 次，${tap.words.length} 個字）：`,
+    ...tap.words.map(w =>
+      `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function gradeSet(questions, namePrefix) {
+  let correct = 0;
+  const detail = [];
+  questions.forEach((q, qi) => {
+    const chosen = document.querySelector(`input[name="${namePrefix}${qi}"]:checked`);
+    const ex = document.getElementById("ex-" + namePrefix + qi);
+    document.querySelectorAll(`.opt[data-set="${namePrefix}"][data-q="${qi}"]`).forEach(lab => {
+      lab.classList.remove("mark-ok", "mark-bad");
+    });
+    const ansLab = document.querySelector(`.opt[data-set="${namePrefix}"][data-q="${qi}"][data-c="${q.answer}"]`);
+    if (ansLab) ansLab.classList.add("mark-ok");
+
+    if (!chosen) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正確答案是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: 未作答（正解 ${LETTERS[q.answer]}）`);
+      return;
+    }
+    const ci = Number(chosen.value);
+    if (ci === q.answer) {
+      correct += 1;
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[q.answer]}）<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✓ ${LETTERS[ci]}`);
+    } else {
+      const badLab = document.querySelector(`.opt[data-set="${namePrefix}"][data-q="${qi}"][data-c="${ci}"]`);
+      if (badLab) badLab.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[ci]}，正確是 <strong>${LETTERS[q.answer]}</strong>。<br/>${escapeHtml(q.why)}`;
+      detail.push(`Q${qi + 1}: ✗ 選${LETTERS[ci]}／正解${LETTERS[q.answer]}`);
+    }
+  });
+  return { correct, detail };
+}
+
+function grade() {
+  const reading = gradeSet(QUESTIONS, "r");
+  const vocab = gradeSet(VOCAB_QUESTIONS, "v");
+
+  const score = document.getElementById("score");
+  const rFull = reading.correct === QUESTIONS.length;
+  const vFull = vocab.correct === VOCAB_QUESTIONS.length;
+  score.innerHTML = `Reading：${reading.correct} / ${QUESTIONS.length}` + (rFull ? " · 太棒了！" : "") +
+    `<br/>Vocabulary in Context：${vocab.correct} / ${VOCAB_QUESTIONS.length}` + (vFull ? " · 太棒了！" : "") +
+    ((rFull && vFull) ? "<br/>兩大題全對！🎉" : "<br/>看完講解再重做一次也可以");
+  const tapN = lookupStats().words.length;
+  const cheer = document.createElement("div");
+  cheer.style.fontSize = "0.85em";
+  cheer.style.fontWeight = "normal";
+  cheer.style.marginTop = "4px";
+  cheer.textContent = tapN
+    ? `今天查了點讀 ${tapN} 個字 👍 認識新單字真棒！`
+    : "今天沒有查單字，讀得很順喔 👍";
+  score.appendChild(cheer);
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  document.querySelectorAll('#quiz-form-reading input[type="radio"], #quiz-form-vocab input[type="radio"]').forEach(i => { i.disabled = true; });
+
+  lastReport = [
+    "【Reading成績回報 → English Tutor】",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `類型：${PACK_META.type}`,
+    `程度：${PACK_META.level}`,
+    `來源：CommonLit · https://www.commonlit.org/texts/the-midnight-rider`,
+    `Reading：${reading.correct}/${QUESTIONS.length}`,
+    "Reading 明細：",
+    ...reading.detail.map(d => "- " + d),
+    `Vocabulary in Context：${vocab.correct}/${VOCAB_QUESTIONS.length}`,
+    "Vocab 明細：",
+    ...vocab.detail.map(d => "- " + d),
+    ...lookupReportLines(),
+    "（請貼到微信給家庭大管家轉 English Tutor）"
+  ].join("\n");
+
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+}
+
+async function copyResults() {
+  if (!lastReport) {
+    alert("請先提交答案。");
+    return;
+  }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = lastReport;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch (e2) {
+      alert("無法自動複製，請手動選取以下文字：\n\n" + lastReport);
+      document.body.removeChild(ta);
+      return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！去微信貼上";
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = "複製成績";
+    btn.classList.remove("copied");
+  }, 2500);
+}
+
+function resetQuiz() {
+  document.getElementById("quiz-form-reading").reset();
+  document.getElementById("quiz-form-vocab").reset();
+  document.querySelectorAll(".explain").forEach(ex => {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form-reading input[type="radio"], #quiz-form-vocab input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderTipWords();
+renderQuizForm("quiz-form-reading", QUESTIONS, "r");
+renderQuizForm("quiz-form-vocab", VOCAB_QUESTIONS, "v");
+
+let lastTapEl = null, lastTapTime = 0;
+document.querySelector(".wrap").addEventListener("click", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  // don't steal clicks from radio labels awkwardly — still OK to gloss
+  const now = Date.now();
+  if (t === lastTapEl && now - lastTapTime < 350) return;
+  lastTapEl = t; lastTapTime = now;
+  showGloss(t);
+});
+
+document.getElementById("gloss").addEventListener("click", hideGloss);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+
+</script>
+</body>
+</html>
