@@ -16,7 +16,7 @@
     font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
     background: linear-gradient(165deg, #eef6ff 0%, #f3e5f5 45%, #fff8e1 100%);
     color: var(--ink); line-height: 1.65; min-height: 100vh;
-    padding-bottom: 140px;
+    padding-bottom: 2rem;
   }
   .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
   header {
@@ -44,15 +44,16 @@
   .passage .word:hover { background: rgba(43,108,176,0.14); }
   .passage .word.active { background: var(--accent); color: #fff; }
   #gloss {
-    display: none; position: sticky; top: 0; z-index: 20; margin: 0.75rem 0;
-    background: #1a2744; color: #fff; border-radius: 10px; padding: 0.85rem 1rem;
-    box-shadow: var(--shadow); cursor: pointer;
+    display: none; position: fixed; z-index: 100; max-width: min(280px, calc(100vw - 24px));
+    background: #1a2744; color: #fff; border-radius: 10px; padding: 0.7rem 0.85rem;
+    box-shadow: 0 10px 28px rgba(26,39,68,.28); cursor: pointer;
+    pointer-events: auto;
   }
   #gloss.show { display: block; }
-  #gloss .g-word { font-size: 1.25rem; font-weight: 700; }
-  #gloss .g-en { opacity: 0.9; font-size: 0.95rem; margin-top: 0.2rem; }
-  #gloss .g-zh { font-size: 1.1rem; margin-top: 0.35rem; color: #ffe082; }
-  #gloss .g-hint { font-size: 0.75rem; opacity: 0.7; margin-top: 0.4rem; }
+  #gloss .g-word { font-size: 1.15rem; font-weight: 700; }
+  #gloss .g-en { opacity: 0.9; font-size: 0.9rem; margin-top: 0.15rem; }
+  #gloss .g-zh { font-size: 1.05rem; margin-top: 0.3rem; color: #ffe082; }
+  #gloss .g-hint { font-size: 0.72rem; opacity: 0.7; margin-top: 0.35rem; }
   .quiz {
     background: var(--card); border: 2px solid var(--border); border-radius: 12px;
     padding: 1.1rem 1.2rem; box-shadow: var(--shadow); margin-top: 1rem;
@@ -91,19 +92,6 @@
     padding: 0.2rem 0.65rem; cursor: pointer; font-size: 0.88rem;
   }
   .src-line { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 0; }
-  #lookupBar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
-    background: #fffbe8; border-top: 2px solid #e0c060;
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
-    box-shadow: 0 -2px 8px rgba(0,0,0,.12);
-  }
-  #lookupBar form { display: flex; gap: 6px; max-width: 760px; margin: 0 auto; }
-  #lookupInput {
-    flex: 1; font-size: 18px; padding: 10px; border: 1px solid #ccc; border-radius: 10px;
-    -webkit-appearance: none;
-  }
-  #lookupBar button { font-size: 17px; padding: 10px 14px; border-radius: 10px; border: 0; background: #2b6cb0; color: #fff; }
-  #lookupOut { max-width: 760px; margin: 6px auto 0; font-size: 17px; min-height: 1.2em; }
 </style>
 </head>
 <body>
@@ -117,8 +105,8 @@
       預估：約 20–25 分鐘（讀短文＋Reading 5＋Vocab 10）
     </div>
     <div class="tip">
-      💡 <strong>怎麼做：</strong>先讀下方短文（點單字可看中英文解釋）。不會的字也可以用底部「輸入英文單字查中文」。<br/>
-      再做 Reading 5 題＋Vocab 10 題。全部做完按「提交全部答案」，再按「複製成績」貼到微信給爸爸媽媽！查過的字（點讀＋輸入）都會進成績單。
+      💡 <strong>怎麼做：</strong>先讀下方短文——點或雙點單字，中英文解釋會出現在字旁邊；再點同一字（或點解釋／點別處）就消失。<br/>
+      再做 Reading 5 題＋Vocab 10 題。全部做完按「提交全部答案」，再按「複製成績」貼到微信給爸爸媽媽！點過的字會進成績單。
     </div>
     <p class="src-line">本頁完整嵌入公版節選，無需翻牆；Lexile 1020L 為 <em>Black Beauty</em> 全書公開標示（MetaMetrics／常見書目），非本節選另行認證。</p>
   </header>
@@ -133,7 +121,7 @@
     <div class="g-word" id="g-word"></div>
     <div class="g-en" id="g-en"></div>
     <div class="g-zh" id="g-zh"></div>
-    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+    <div class="g-hint">再點同一字／點這裡／點別處 → 關閉</div>
   </div>
 
   <section class="quiz" id="quiz-reading">
@@ -153,14 +141,6 @@
     </div>
     <div id="score"></div>
   </section>
-</div>
-
-<div id="lookupBar">
-  <form id="lookupForm" autocomplete="off">
-    <input id="lookupInput" type="search" inputmode="latin" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="輸入英文單字查中文" aria-label="輸入英文單字查中文" />
-    <button type="submit">查</button>
-  </form>
-  <div id="lookupOut">讀短文時看不懂的字，打在這裡查（離線詞庫）。</div>
 </div>
 
 <script>
@@ -423,10 +403,6 @@ function renderTipWords() {
   const box = document.getElementById("tip-words");
   box.innerHTML = TIP_WORDS.map(w => `<span class="tip-chip word" data-word="${escapeHtml(w)}">${escapeHtml(w)}</span>`).join("");
 }
-function hideGloss() {
-  document.getElementById("gloss").classList.remove("show");
-  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
-}
 function findEntry(raw) {
   const w = String(raw).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z' -]/g, "").trim().replace(/\s+/g, " ");
   if (!w) return { w, entry: null };
@@ -439,39 +415,6 @@ function findEntry(raw) {
   if (GLOSSARY["done up"] && w.includes("done") ) { /* handled by phrase below */ }
   return { w, entry: null };
 }
-function showGloss(wordEl) {
-  const key = (wordEl.dataset.word || wordEl.textContent || "").toLowerCase().replace(/[’']/g,"'");
-  // try 2-word phrases with neighbor
-  let entry = null, label = key;
-  const prev = wordEl.previousElementSibling;
-  const next = wordEl.nextElementSibling;
-  if (prev && prev.classList && prev.classList.contains("word")) {
-    const phrase = (prev.dataset.word + " " + key).toLowerCase();
-    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
-  }
-  if (!entry && next && next.classList && next.classList.contains("word")) {
-    const phrase = (key + " " + next.dataset.word).toLowerCase();
-    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
-  }
-  if (!entry) {
-    const r = findEntry(key);
-    entry = r.entry; label = r.w;
-  }
-  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
-  wordEl.classList.add("active");
-  const g = document.getElementById("gloss");
-  document.getElementById("g-word").textContent = label;
-  if (entry) {
-    document.getElementById("g-en").textContent = entry.en;
-    document.getElementById("g-zh").textContent = entry.zh;
-  } else {
-    document.getElementById("g-en").textContent = "(not in glossary)";
-    document.getElementById("g-zh").textContent = "這個字還沒收錄";
-  }
-  g.classList.add("show");
-  recordLookup(label, entry, "tap");
-}
-
 function renderQuizForm(formId, questions, namePrefix) {
   const form = document.getElementById(formId);
   form.innerHTML = questions.map((q, qi) => {
@@ -490,39 +433,28 @@ function renderQuizForm(formId, questions, namePrefix) {
 const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
 let lookups = {};
 try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
-const TYPED_KEY = LOOKUP_KEY + ":typed";
-let typed = {};
-try { typed = JSON.parse(localStorage.getItem(TYPED_KEY) || "{}") || {}; } catch (e) { typed = {}; }
 
-function recordLookup(label, entry, source) {
+function recordLookup(label, entry) {
   const w = String(label).toLowerCase().trim();
   if (!w) return;
-  const store = source === "typed" ? typed : lookups;
-  const key = source === "typed" ? TYPED_KEY : LOOKUP_KEY;
-  const rec = store[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "", source };
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "", source: "tap" };
   rec.count += 1;
   rec.inGlossary = !!entry;
   rec.zh = entry ? entry.zh : "";
-  rec.source = source;
-  store[w] = rec;
-  try { localStorage.setItem(key, JSON.stringify(store)); } catch (e) {}
+  rec.source = "tap";
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
 }
-function lookupStats(store) {
-  const words = Object.keys(store);
-  const total = words.reduce((n, w) => n + store[w].count, 0);
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
   return { words, total };
 }
 function lookupReportLines() {
-  const tap = lookupStats(lookups);
-  const lines = [];
-  if (!tap.words.length) lines.push("查詢單字（點讀）：無");
-  else lines.push(`查詢單字（點讀，共 ${tap.total} 次，${tap.words.length} 個字）：`,
-    ...tap.words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`));
-  const tp = lookupStats(typed);
-  if (!tp.words.length) lines.push("查詢單字（輸入）：無");
-  else lines.push(`查詢單字（輸入，共 ${tp.total} 次，${tp.words.length} 個字）：`,
-    ...tp.words.map(w => `- ${w} ×${typed[w].count}｜${typed[w].inGlossary ? typed[w].zh : "（未收錄）"}`));
-  return lines;
+  const tap = lookupStats();
+  if (!tap.words.length) return ["查詢單字（點讀）：無"];
+  return [`查詢單字（點讀，共 ${tap.total} 次，${tap.words.length} 個字）：`,
+    ...tap.words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
 }
 
 function gradeSet(questions, namePrefix) {
@@ -608,32 +540,127 @@ renderTipWords();
 renderQuizForm("quiz-form-reading", QUESTIONS, "r");
 renderQuizForm("quiz-form-vocab", VOCAB_QUESTIONS, "v");
 
+let activeEl = null;
 let lastTapEl = null, lastTapTime = 0;
-document.querySelector(".wrap").addEventListener("click", (e) => {
+
+function positionGlossNear(wordEl) {
+  const g = document.getElementById("gloss");
+  const rect = wordEl.getBoundingClientRect();
+  const pad = 8;
+  // Temporarily show to measure
+  const wasHidden = !g.classList.contains("show");
+  if (wasHidden) {
+    g.style.visibility = "hidden";
+    g.classList.add("show");
+  }
+  const gw = g.offsetWidth || 220;
+  const gh = g.offsetHeight || 100;
+  if (wasHidden) {
+    g.classList.remove("show");
+    g.style.visibility = "";
+  }
+  let top = rect.bottom + pad;
+  let left = rect.left;
+  // Prefer below; if not enough room, place above
+  if (top + gh > window.innerHeight - pad) {
+    top = Math.max(pad, rect.top - gh - pad);
+  }
+  // Keep horizontally in viewport
+  if (left + gw > window.innerWidth - pad) {
+    left = Math.max(pad, window.innerWidth - gw - pad);
+  }
+  if (left < pad) left = pad;
+  g.style.top = Math.round(top) + "px";
+  g.style.left = Math.round(left) + "px";
+}
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = (wordEl.dataset.word || wordEl.textContent || "").toLowerCase().replace(/[’']/g,"'");
+  let entry = null, label = key;
+  const prev = wordEl.previousElementSibling;
+  const next = wordEl.nextElementSibling;
+  if (prev && prev.classList && prev.classList.contains("word")) {
+    const phrase = (prev.dataset.word + " " + key).toLowerCase();
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
+  }
+  if (!entry && next && next.classList && next.classList.contains("word")) {
+    const phrase = (key + " " + next.dataset.word).toLowerCase();
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
+  }
+  if (!entry) {
+    const r = findEntry(key);
+    entry = r.entry; label = r.w;
+  }
+
+  // Toggle close if same word already open
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+  wordEl.classList.add("active");
+  activeEl = wordEl;
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = entry.en;
+    document.getElementById("g-zh").textContent = entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "(not in glossary)";
+    document.getElementById("g-zh").textContent = "這個字還沒收錄";
+  }
+  positionGlossNear(wordEl);
+  document.getElementById("gloss").classList.add("show");
+  recordLookup(label, entry);
+}
+
+document.addEventListener("click", (e) => {
+  const gloss = document.getElementById("gloss");
+  const t = e.target.closest(".word");
+  if (t) {
+    const now = Date.now();
+    // Ignore the 2nd click of a physical double-click so it doesn't toggle-close
+    if (t === lastTapEl && now - lastTapTime < 350) return;
+    lastTapEl = t; lastTapTime = now;
+    showGloss(t);
+    e.stopPropagation();
+    return;
+  }
+  if (e.target.closest("#gloss")) {
+    hideGloss();
+    e.stopPropagation();
+    return;
+  }
+  if (gloss.classList.contains("show")) hideGloss();
+}, true);
+
+document.addEventListener("dblclick", (e) => {
   const t = e.target.closest(".word");
   if (!t) return;
-  const now = Date.now();
-  if (t === lastTapEl && now - lastTapTime < 350) return;
-  lastTapEl = t; lastTapTime = now;
-  showGloss(t);
+  e.preventDefault();
+  if (activeEl !== t) showGloss(t);
 });
-document.getElementById("gloss").addEventListener("click", hideGloss);
+
+window.addEventListener("scroll", () => {
+  if (activeEl && document.getElementById("gloss").classList.contains("show")) {
+    positionGlossNear(activeEl);
+  }
+}, { passive: true });
+window.addEventListener("resize", () => {
+  if (activeEl && document.getElementById("gloss").classList.contains("show")) {
+    positionGlossNear(activeEl);
+  }
+});
+
 document.getElementById("submit").addEventListener("click", grade);
 document.getElementById("copyBtn").addEventListener("click", copyResults);
 document.getElementById("reset").addEventListener("click", resetQuiz);
-
-document.getElementById("lookupForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const inp = document.getElementById("lookupInput");
-  const out = document.getElementById("lookupOut");
-  const r = findEntry(inp.value);
-  if (!r.w) { out.textContent = "請輸入英文單字"; return; }
-  recordLookup(r.w, r.entry, "typed");
-  out.innerHTML = r.entry
-    ? `<b>${escapeHtml(r.w)}</b>${r.base && r.base !== r.w ? "（" + escapeHtml(r.base) + "）" : ""}：${escapeHtml(r.entry.zh)} <span style="color:#666">— ${escapeHtml(r.entry.en)}</span>`
-    : `<b>${escapeHtml(r.w)}</b>：這個字還沒收錄，已記下來，爸爸媽媽會看到 👍`;
-  inp.select();
-});
 </script>
 </body>
 </html>
