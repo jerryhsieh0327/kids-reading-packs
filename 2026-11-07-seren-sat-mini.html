@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>迷你 SAT · Seren · 2026-11-07</title>
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --ink: #1e1b4b;
+    --muted: #4c4a6a;
+    --accent: #4f46e5;
+    --accent-soft: #e0e7ff;
+    --gold: #f59e0b;
+    --gold-soft: #fef3c7;
+    --wrong: #b91c1c;
+    --wrong-soft: #fee2e2;
+    --ok: #15803d;
+    --ok-soft: #dcfce7;
+    --border: #c7d2fe;
+    --shadow: 0 10px 28px rgba(49, 46, 129, 0.12);
+    --nav: #312e81;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #eef2ff 0%, #faf5ff 45%, #fff7ed 100%);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 1rem 1rem 3.5rem; }
+  header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 0.85rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, #4f46e5, #a855f7, #f59e0b);
+  }
+  .badge {
+    display: inline-block;
+    background: var(--gold-soft);
+    color: #92400e;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.4rem;
+  }
+  header h1 { margin: 0 0 0.3rem; font-size: 1.28rem; }
+  .meta { color: var(--muted); font-size: 0.88rem; }
+  .tip {
+    margin-top: 0.65rem;
+    padding: 0.65rem 0.8rem;
+    background: var(--accent-soft);
+    border-radius: 12px;
+    font-size: 0.88rem;
+    color: #3730a3;
+  }
+  .timer-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem;
+    margin-top: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+  }
+  .timer-label { font-size: 0.82rem; font-weight: 700; color: #9a3412; }
+  #timerDisplay {
+    font-variant-numeric: tabular-nums;
+    font-size: 1.35rem; font-weight: 800; color: #c2410c;
+    min-width: 4.2rem;
+  }
+  #timerDisplay.warn { color: #b91c1c; }
+  #pauseBtn {
+    background: #fb923c; color: #fff;
+    padding: 0.4rem 0.9rem; font-size: 0.85rem;
+  }
+  #pauseBtn.paused { background: #16a34a; }
+  .timer-note { font-size: 0.75rem; color: #9a3412; }
+  .module-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 0.65rem 0.75rem;
+    margin-bottom: 0.85rem; box-shadow: var(--shadow);
+  }
+  .module-bar .label {
+    font-size: 0.78rem; font-weight: 700; color: var(--nav); margin-right: 0.25rem;
+  }
+  .qbtn {
+    width: 2rem; height: 2rem; border-radius: 999px;
+    border: 2px solid var(--border); background: #fff; color: var(--ink);
+    font-weight: 700; font-size: 0.85rem; cursor: pointer; padding: 0;
+    position: relative;
+  }
+  .qbtn.current { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .qbtn.answered { border-color: #818cf8; background: #eef2ff; }
+  .qbtn.mark-ok { border-color: var(--ok); background: var(--ok-soft); }
+  .qbtn.mark-bad { border-color: var(--wrong); background: var(--wrong-soft); }
+  .qbtn.flagged { border-color: #d97706; box-shadow: 0 0 0 2px #fde68a; }
+  .qbtn.flagged::after {
+    content: "🚩"; position: absolute; top: -0.45rem; right: -0.35rem; font-size: 0.65rem;
+  }
+  .layout { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
+  @media (min-width: 760px) {
+    .layout.single-pass { grid-template-columns: 1.05fr 0.95fr; align-items: start; }
+  }
+  .passage {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.1rem 1.2rem; box-shadow: var(--shadow);
+    font-size: 1.08rem; line-height: 1.8;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  }
+  .passage + .passage { margin-top: 0.65rem; }
+  .passage-label {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase; color: #4338ca;
+    background: var(--accent-soft); padding: 0.18rem 0.5rem; border-radius: 6px;
+    margin-bottom: 0.45rem;
+  }
+  .passage h2 { margin: 0 0 0.35rem; font-size: 1.12rem; color: #312e81; }
+  .src-line { font-size: 0.78rem; color: var(--muted); margin: 0 0 0.65rem; line-height: 1.4; }
+  .passage p { margin: 0 0 0.8rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer; touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(79,70,229,0.25); border-radius: 3px;
+  }
+  .passage .word:hover { background: rgba(79, 70, 229, 0.12); }
+  .passage .word.active { background: var(--accent); color: #fff; }
+  #gloss {
+    display: none; position: fixed; z-index: 100;
+    max-width: min(280px, calc(100vw - 24px));
+    background: #1a2744; color: #fff; border-radius: 10px;
+    padding: 0.7rem 0.85rem;
+    box-shadow: 0 10px 28px rgba(26,39,68,.28);
+    cursor: pointer; pointer-events: auto;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-size: 1.15rem; font-weight: 700; }
+  #gloss .g-en { opacity: 0.9; font-size: 0.9rem; margin-top: 0.15rem; }
+  #gloss .g-zh { font-size: 1.05rem; margin-top: 0.3rem; color: #ffe082; }
+  #gloss .g-hint { font-size: 0.72rem; opacity: 0.7; margin-top: 0.35rem; }
+  .quiz-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.1rem 1.2rem; box-shadow: var(--shadow);
+  }
+  .q-tag {
+    display: inline-block; font-size: 0.7rem; font-weight: 700; color: #6d28d9;
+    background: #f3e8ff; padding: 0.12rem 0.45rem; border-radius: 5px; margin-bottom: 0.35rem;
+  }
+  .q-stem { font-weight: 600; margin-bottom: 0.55rem; font-size: 1.02rem; white-space: pre-wrap; }
+  .opt {
+    display: flex; gap: 0.5rem; align-items: flex-start;
+    padding: 0.5rem 0.6rem; border-radius: 8px; cursor: pointer; margin: 0.25rem 0;
+    border: 1px solid transparent;
+  }
+  .opt:hover { background: #f5f3ff; }
+  .opt input { margin-top: 0.3rem; }
+  .opt.mark-ok { background: var(--ok-soft); border-color: #86efac; }
+  .opt.mark-bad { background: var(--wrong-soft); border-color: #fca5a5; }
+  .explain { display: none; margin-top: 0.55rem; padding: 0.55rem 0.7rem; border-radius: 8px; font-size: 0.9rem; }
+  .explain.show { display: block; }
+  .explain.ok { background: var(--ok-soft); color: #14532d; }
+  .explain.bad { background: var(--wrong-soft); color: #7f1d1d; }
+  .nav-row { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.9rem; align-items: center; }
+  button {
+    border: none; border-radius: 999px;
+    padding: 0.65rem 1.15rem;
+    font-size: 0.92rem; font-weight: 600; cursor: pointer;
+  }
+  #prevBtn, #nextBtn { background: #e0e7ff; color: var(--ink); }
+  #flagBtn { background: #fef3c7; color: #92400e; }
+  #flagBtn.on { background: #f59e0b; color: #fff; }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  #reset { background: #fce7f3; color: #9d174d; }
+  #copyBtn { background: #b45309; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #15803d; }
+  #score {
+    display: none; margin-top: 0.85rem; padding: 0.85rem 1rem;
+    border-radius: 12px; background: linear-gradient(135deg, #eef2ff, #fef3c7);
+    font-weight: 600;
+  }
+  #score.show { display: block; }
+  footer { margin-top: 1rem; text-align: center; color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
+  .progress { margin-left: auto; font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+  .chart-box { margin-top: 0.5rem; }
+  .chart-note { font-size: 0.78rem; color: #6d28d9; margin: 0 0 0.35rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">⭐ Reading Adventure Challenge · 正式週六場 · 新制</div>
+    <h1>🧭 迷你 SAT 風格挑戰</h1>
+    <div class="meta">Seren · ≈1000–1100L（略高於日常）· US G4–5 · 2026-11-07<br/>
+    Digital SAT 模擬 · ~21 題 · 約 30 分鐘 · 公版原文嵌入 · English Tutor</div>
+    <div class="tip">💡 點或雙點單字，中英文解釋會出現在<strong>字旁邊</strong>；再點同一字（或點解釋／點別處）就消失。可前後跳題、標記稍後再看。計時可暫停；時間到了不會自動交卷。全部做完再按「提交本場」。</div>
+    <div class="timer-row">
+      <span class="timer-label">⏱ 計時</span>
+      <span id="timerDisplay">30:00</span>
+      <button type="button" id="pauseBtn">暫停</button>
+      <span class="timer-note" id="timerNote">建議約 30 分鐘 · 可暫停</span>
+    </div>
+  </header>
+
+  <div class="module-bar" id="moduleBar" aria-label="Question navigation"></div>
+
+  <div class="layout" id="layout">
+    <div id="passageCol"></div>
+    <div class="quiz-card" id="quizCard">
+      <div class="q-tag" id="qTag"></div>
+      <div class="q-stem" id="qStem"></div>
+      <div id="opts"></div>
+      <div class="explain" id="explain"></div>
+      <div class="nav-row">
+        <button type="button" id="prevBtn">← 上一題</button>
+        <button type="button" id="nextBtn">下一題 →</button>
+        <button type="button" id="flagBtn">🚩 標記本題</button>
+        <span class="progress" id="progress"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點一下該字，或點這裡關閉</div>
+  </div>
+
+  <div class="nav-row" style="margin-top:1rem;">
+    <button type="button" id="submit">提交本場</button>
+    <button type="button" id="copyBtn">複製成績</button>
+    <button type="button" id="reset">重做</button>
+  </div>
+  <div id="score"></div>
+  <footer>
+    無需登入 · 點字查詞與測驗皆在瀏覽器內完成 · 無底部中文查英文列<br/>
+    公版來源：Oz Gutenberg #55（1030L）· Keller Gutenberg #2397（1090L）· Black Beauty Gutenberg #271（1020L）· PD<br/>
+    圖表為練習用虛構數據 · Grammar／Word Workshop 為練習句（無 Lexile）
+  </footer>
+</div>
+<script>
+const CHART_HTML = "<div class=\"chart-box\" aria-label=\"Practice chart\">\n<p class=\"chart-note\">\ud83d\udcca Practice chart only\uff08\u7df4\u7fd2\u7528\u5716\u8868\uff0c\u975e\u771f\u5be6\u6b77\u53f2\u6578\u64da\uff09\u00b7 New words learned per month after breakthrough</p>\n<svg viewBox=\"0 0 360 200\" width=\"100%\" style=\"max-width:360px;display:block;margin:0.4rem auto;background:#f8fafc;border-radius:10px;border:1px solid #c7d2fe;\">\n  <text x=\"180\" y=\"18\" text-anchor=\"middle\" font-size=\"12\" fill=\"#312e81\" font-weight=\"700\">New Words Added (practice data)</text>\n  <!-- y axis labels -->\n  <text x=\"28\" y=\"175\" font-size=\"10\" fill=\"#4c4a6a\">0</text>\n  <text x=\"28\" y=\"135\" font-size=\"10\" fill=\"#4c4a6a\">20</text>\n  <text x=\"28\" y=\"95\" font-size=\"10\" fill=\"#4c4a6a\">40</text>\n  <!-- bars: M1=15, M2=25, M3=40, M4=30  scale: 40 words = 80px -->\n  <rect x=\"60\" y=\"140\" width=\"40\" height=\"30\" fill=\"#818cf8\" rx=\"4\"/>\n  <text x=\"80\" y=\"135\" text-anchor=\"middle\" font-size=\"11\" fill=\"#312e81\" font-weight=\"700\">15</text>\n  <text x=\"80\" y=\"185\" text-anchor=\"middle\" font-size=\"11\" fill=\"#4c4a6a\">Month 1</text>\n  <rect x=\"130\" y=\"120\" width=\"40\" height=\"50\" fill=\"#6366f1\" rx=\"4\"/>\n  <text x=\"150\" y=\"115\" text-anchor=\"middle\" font-size=\"11\" fill=\"#312e81\" font-weight=\"700\">25</text>\n  <text x=\"150\" y=\"185\" text-anchor=\"middle\" font-size=\"11\" fill=\"#4c4a6a\">Month 2</text>\n  <rect x=\"200\" y=\"90\" width=\"40\" height=\"80\" fill=\"#4f46e5\" rx=\"4\"/>\n  <text x=\"220\" y=\"85\" text-anchor=\"middle\" font-size=\"11\" fill=\"#312e81\" font-weight=\"700\">40</text>\n  <text x=\"220\" y=\"185\" text-anchor=\"middle\" font-size=\"11\" fill=\"#4c4a6a\">Month 3</text>\n  <rect x=\"270\" y=\"110\" width=\"40\" height=\"60\" fill=\"#6366f1\" rx=\"4\"/>\n  <text x=\"290\" y=\"105\" text-anchor=\"middle\" font-size=\"11\" fill=\"#312e81\" font-weight=\"700\">30</text>\n  <text x=\"290\" y=\"185\" text-anchor=\"middle\" font-size=\"11\" fill=\"#4c4a6a\">Month 4</text>\n</svg>\n</div>";
+const GLOSSARY = {"tedious": {"en": "long, dull, and boring", "zh": "乏味的；無聊的"}, "perched": {"en": "sitting or resting high up", "zh": "棲在高處；站在高處"}, "obliged": {"en": "thankful; grateful for a favor", "zh": "感激的；承蒙"}, "scarecrow": {"en": "a figure stuffed with straw to scare birds from crops", "zh": "稻草人"}, "straw": {"en": "dried stalks of grain used for stuffing", "zh": "稻草；乾草"}, "brains": {"en": "the organ for thinking; intelligence", "zh": "大腦；智力"}, "emerald": {"en": "a bright green gem; here, the green city", "zh": "綠寶石；（翡翠）城"}, "husky": {"en": "rough or dry-sounding voice", "zh": "沙啞的"}, "growled": {"en": "made a low angry sound", "zh": "低吼"}, "suspected": {"en": "thought something might be true", "zh": "懷疑；覺得可能"}, "lighted": {"en": "burning; set on fire", "zh": "點燃的"}, "match": {"en": "a small stick that makes fire when struck", "zh": "火柴"}, "stumbled": {"en": "almost fell while walking", "zh": "絆跌；踉蹌"}, "uneven": {"en": "not flat or smooth", "zh": "不平的"}, "dismal": {"en": "gloomy and cheerless", "zh": "陰鬱的；淒涼的"}, "lonesome": {"en": "lonely; empty of company", "zh": "寂寞的；荒涼的"}, "merrily": {"en": "in a happy, cheerful way", "zh": "快樂地"}, "mishap": {"en": "a small accident or unlucky event", "zh": "小意外；不幸"}, "fragrance": {"en": "a pleasant smell", "zh": "芳香；香味"}, "honeysuckle": {"en": "a climbing plant with sweet-smelling flowers", "zh": "忍冬；金銀花"}, "spout": {"en": "the opening where water comes out", "zh": "出水口；噴口"}, "gushed": {"en": "flowed out suddenly and strongly", "zh": "湧出；噴出"}, "spelled": {"en": "formed letters of a word in order", "zh": "拼寫"}, "misty": {"en": "unclear, like through fog", "zh": "朦朧的"}, "consciousness": {"en": "awareness; knowing something", "zh": "意識；覺察"}, "thrill": {"en": "a sudden strong feeling of excitement", "zh": "激動；震顫"}, "mystery": {"en": "something hard to understand or explain", "zh": "奧祕；謎"}, "revealed": {"en": "shown or made clear", "zh": "顯露；揭示"}, "awakened": {"en": "woken up; made active", "zh": "喚醒；覺醒"}, "soul": {"en": "a person's inner spirit or deepest self", "zh": "靈魂；心靈"}, "barriers": {"en": "things that block the way", "zh": "障礙"}, "whinnied": {"en": "made a soft horse sound", "zh": "（馬）嘶鳴"}, "colts": {"en": "young male horses", "zh": "小雄馬；馬駒"}, "manners": {"en": "polite ways of behaving", "zh": "禮貌；規矩"}, "well-bred": {"en": "raised with good training and family", "zh": "教養良好的"}, "well-born": {"en": "born into a respected family", "zh": "出身良好的"}, "gentle": {"en": "kind and soft, not rough", "zh": "溫柔的；溫和的"}, "trot": {"en": "a medium-speed horse gait", "zh": "小跑"}, "advice": {"en": "helpful ideas about what to do", "zh": "忠告；建議"}, "duchess": {"en": "a noble title; here, the mother's name", "zh": "公爵夫人（此處為馬名）"}, "slipped": {"en": "moved quietly; or lost grip", "zh": "悄悄溜走；滑落"}, "slipped into": {"en": "entered quietly without drawing attention", "zh": "悄悄溜進"}, "estimate": {"en": "make a careful guess based on evidence", "zh": "估計；推估"}, "rainfall": {"en": "the amount of rain that falls", "zh": "降雨量"}, "centuries": {"en": "periods of one hundred years", "zh": "幾個世紀"}, "patterns": {"en": "repeated designs or regular arrangements", "zh": "圖案；規律"}, "library": {"en": "a place with books for reading", "zh": "圖書館"}, "mystery novel": {"en": "a story about solving a puzzle or crime", "zh": "推理小說"}, "Dorothy": {"en": "the girl from Kansas in The Wizard of Oz", "zh": "多蘿西（綠野仙蹤女主角）"}, "Toto": {"en": "Dorothy's little dog", "zh": "托托（多蘿西的小狗）"}, "Oz": {"en": "the great wizard; also the magical land", "zh": "奧茲（巫師／魔法國度）"}, "Kansas": {"en": "Dorothy's home state in America", "zh": "堪薩斯州"}, "Helen": {"en": "Helen Keller, who could not see or hear", "zh": "海倫·凱勒"}, "Sullivan": {"en": "Annie Sullivan, Helen's teacher", "zh": "蘇利文老師"}, "water": {"en": "the clear liquid we drink; here the breakthrough word", "zh": "水"}, "well-house": {"en": "a small building over a water well", "zh": "井屋"}, "language": {"en": "words and how we use them to mean things", "zh": "語言"}, "eager": {"en": "wanting very much to do something", "zh": "渴望的；熱切的"}};
+const ITEMS = [{"tag": "上下文猜字", "passages": [{"label": "Literary A", "title": "How Dorothy Saved the Scarecrow (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["While Dorothy was looking earnestly into the queer, painted face of the Scarecrow, she was surprised to see one of the eyes slowly wink at her. Presently the figure nodded its head to her in a friendly way. Then she climbed down from the fence and walked up to it.", "\"Good day,\" said the Scarecrow, in a rather husky voice. \"Did you speak?\" asked the girl, in wonder.", "\"Certainly,\" answered the Scarecrow. \"I'm not feeling well,\" he said, with a smile, \"for it is very tedious being perched up here night and day to scare away crows.\"", "\"Can't you get down?\" asked Dorothy. \"No, for this pole is stuck up my back. If you will please take away the pole I shall be greatly obliged to you.\"", "Dorothy reached up both arms and lifted the figure off the pole, for, being stuffed with straw, it was quite light. \"Thank you very much,\" said the Scarecrow. \"I feel like a new man.\""], "chart": false}], "stem": "As used in the passage, \"tedious\" most nearly means —", "choices": ["scary and dangerous", "long and boring", "bright and cheerful", "sudden and surprising"], "answer": 1, "why": "Scarecrow 說整天站在竿上趕烏鴉很 tedious，指又長又無聊。"}, {"tag": "上下文猜字", "passages": [{"label": "Word Workshop", "title": "Practice Sentence (weak-spot review)", "source": "Original practice sentence · no Lexile (workshop item)", "paras": ["Every Friday after lunch, Nina slipped into the school library to finish a mystery novel before the bell rang."], "chart": false}], "stem": "In the sentence \"Nina slipped into the school library,\" the phrase slipped into most nearly means —", "choices": ["fell down on the wet floor", "entered quietly without drawing attention", "ran as fast as she could", "forgot where the library was"], "answer": 1, "why": "這裡 slipped into 指安靜、不引人注意地走進，不是跌倒。"}, {"tag": "上下文猜字", "passages": [{"label": "Word Workshop", "title": "Practice Sentence (weak-spot review)", "source": "Original practice sentence · no Lexile (workshop item)", "paras": ["By matching tree-ring patterns across many trees, scientists can estimate rainfall and temperatures from centuries ago."], "chart": false}], "stem": "As used in the sentence, estimate most nearly means —", "choices": ["guess a number carefully based on evidence", "delete old weather records", "plant new trees in a forest", "ignore patterns that look confusing"], "answer": 0, "why": "estimate 在此指根據年輪證據，審慎推估過去的雨量與溫度。"}, {"tag": "作者目的", "passages": [{"label": "Literary A", "title": "How Dorothy Saved the Scarecrow (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["While Dorothy was looking earnestly into the queer, painted face of the Scarecrow, she was surprised to see one of the eyes slowly wink at her. Presently the figure nodded its head to her in a friendly way. Then she climbed down from the fence and walked up to it.", "\"Good day,\" said the Scarecrow, in a rather husky voice. \"Did you speak?\" asked the girl, in wonder.", "\"Certainly,\" answered the Scarecrow. \"I'm not feeling well,\" he said, with a smile, \"for it is very tedious being perched up here night and day to scare away crows.\"", "\"Can't you get down?\" asked Dorothy. \"No, for this pole is stuck up my back. If you will please take away the pole I shall be greatly obliged to you.\"", "Dorothy reached up both arms and lifted the figure off the pole, for, being stuffed with straw, it was quite light. \"Thank you very much,\" said the Scarecrow. \"I feel like a new man.\""], "chart": false}], "stem": "The author's main purpose in this passage is to —", "choices": ["explain how farmers build scarecrows in Kansas", "show how Dorothy first meets the Scarecrow and helps him down", "warn readers never to climb fences", "describe the weather in the Land of Oz"], "answer": 1, "why": "這段寫 Dorothy 看見稻草人眨眼、對話、並把他從竿上抱下來——介紹相識。"}, {"tag": "作者目的", "passages": [{"label": "Informational / Memoir", "title": "The Story of My Life — The Well-House (excerpt)", "source": "The Story of My Life · Helen Keller · PD Gutenberg #2397 · Lexile 1090L", "paras": ["We walked down the path to the well-house, attracted by the fragrance of the honeysuckle with which it was covered. Some one was drawing water and my teacher placed my hand under the spout. As the cool stream gushed over one hand she spelled into the other the word water, first slowly, then rapidly. I stood still, my whole attention fixed upon the motions of her fingers. Suddenly I felt a misty consciousness as of something forgotten—a thrill of returning thought; and somehow the mystery of language was revealed to me. I knew then that \"w-a-t-e-r\" meant the wonderful cool something that was flowing over my hand. That living word awakened my soul, gave it light, hope, joy, set it free! I left the well-house eager to learn. Everything had a name, and each name gave birth to a new thought."], "chart": false}], "stem": "Helen Keller's main purpose in this passage is to —", "choices": ["persuade readers to dig more wells", "describe the moment language suddenly made sense to her", "teach readers how to spell with their fingers", "complain about Miss Sullivan's teaching methods"], "answer": 1, "why": "全文聚焦水井房那一刻，「w-a-t-e-r」讓她明白語言的奧祕。"}, {"tag": "兩段比較", "passages": [{"label": "Literary A", "title": "The Scarecrow Asks for Brains (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["\"Who are you?\" asked the Scarecrow. \"And where are you going?\"", "\"My name is Dorothy,\" said the girl, \"and I am going to the Emerald City, to ask the Great Oz to send me back to Kansas.\"", "\"Where is the Emerald City? And who is Oz?\" he inquired.", "\"Why, don't you know?\" she returned, in surprise.", "\"No, indeed. I don't know anything. You see, I am stuffed, so I have no brains at all,\" he answered sadly.", "\"Do you think,\" he asked, \"if I go with you, that Oz would give me some brains?\"", "\"I cannot tell,\" she returned, \"but you may come with me, if you like.\"", "\"That is true,\" said the Scarecrow. \"I don't mind my body being stuffed, because I cannot get hurt. But I do not want people to call me a fool.\""], "chart": false}, {"label": "Informational / Memoir", "title": "The Story of My Life — The Well-House (excerpt)", "source": "The Story of My Life · Helen Keller · PD Gutenberg #2397 · Lexile 1090L", "paras": ["We walked down the path to the well-house, attracted by the fragrance of the honeysuckle with which it was covered. Some one was drawing water and my teacher placed my hand under the spout. As the cool stream gushed over one hand she spelled into the other the word water, first slowly, then rapidly. I stood still, my whole attention fixed upon the motions of her fingers. Suddenly I felt a misty consciousness as of something forgotten—a thrill of returning thought; and somehow the mystery of language was revealed to me. I knew then that \"w-a-t-e-r\" meant the wonderful cool something that was flowing over my hand. That living word awakened my soul, gave it light, hope, joy, set it free! I left the well-house eager to learn. Everything had a name, and each name gave birth to a new thought."], "chart": false}], "stem": "What idea do both passages share?", "choices": ["Both characters already know everything they need.", "Both describe someone who deeply wants a new kind of understanding.", "Both take place beside a well-house in Alabama.", "Both argue that straw is better than water."], "answer": 1, "why": "稻草人渴望大腦；Helen 渴望明白語言——都在追求新的理解／能力。"}, {"tag": "兩段比較", "passages": [{"label": "Literary A", "title": "The Scarecrow Asks for Brains (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["\"Who are you?\" asked the Scarecrow. \"And where are you going?\"", "\"My name is Dorothy,\" said the girl, \"and I am going to the Emerald City, to ask the Great Oz to send me back to Kansas.\"", "\"Where is the Emerald City? And who is Oz?\" he inquired.", "\"Why, don't you know?\" she returned, in surprise.", "\"No, indeed. I don't know anything. You see, I am stuffed, so I have no brains at all,\" he answered sadly.", "\"Do you think,\" he asked, \"if I go with you, that Oz would give me some brains?\"", "\"I cannot tell,\" she returned, \"but you may come with me, if you like.\"", "\"That is true,\" said the Scarecrow. \"I don't mind my body being stuffed, because I cannot get hurt. But I do not want people to call me a fool.\""], "chart": false}, {"label": "Informational / Memoir", "title": "The Story of My Life — The Well-House (excerpt)", "source": "The Story of My Life · Helen Keller · PD Gutenberg #2397 · Lexile 1090L", "paras": ["We walked down the path to the well-house, attracted by the fragrance of the honeysuckle with which it was covered. Some one was drawing water and my teacher placed my hand under the spout. As the cool stream gushed over one hand she spelled into the other the word water, first slowly, then rapidly. I stood still, my whole attention fixed upon the motions of her fingers. Suddenly I felt a misty consciousness as of something forgotten—a thrill of returning thought; and somehow the mystery of language was revealed to me. I knew then that \"w-a-t-e-r\" meant the wonderful cool something that was flowing over my hand. That living word awakened my soul, gave it light, hope, joy, set it free! I left the well-house eager to learn. Everything had a name, and each name gave birth to a new thought."], "chart": false}], "stem": "How do the two passages differ most clearly?", "choices": ["Oz is about wanting a body; Keller is about wanting food.", "Oz uses dialogue in a fairy tale; Keller recounts a real breakthrough in her own life.", "Both are written as science lab reports.", "Keller's passage is about Kansas farms."], "answer": 1, "why": "Oz 是童話對話；Keller 是真實回憶錄裡語言覺醒的一刻。"}, {"tag": "兩段比較", "passages": [{"label": "Literary A", "title": "The Scarecrow Asks for Brains (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["\"Who are you?\" asked the Scarecrow. \"And where are you going?\"", "\"My name is Dorothy,\" said the girl, \"and I am going to the Emerald City, to ask the Great Oz to send me back to Kansas.\"", "\"Where is the Emerald City? And who is Oz?\" he inquired.", "\"Why, don't you know?\" she returned, in surprise.", "\"No, indeed. I don't know anything. You see, I am stuffed, so I have no brains at all,\" he answered sadly.", "\"Do you think,\" he asked, \"if I go with you, that Oz would give me some brains?\"", "\"I cannot tell,\" she returned, \"but you may come with me, if you like.\"", "\"That is true,\" said the Scarecrow. \"I don't mind my body being stuffed, because I cannot get hurt. But I do not want people to call me a fool.\""], "chart": false}, {"label": "Literary / Animal", "title": "Black Beauty — Mother's Advice (excerpt)", "source": "Black Beauty · Anna Sewell · PD Gutenberg #271 · Lexile 1020L", "paras": ["One day, when there was a good deal of kicking, my mother whinnied to me to come to her, and then she said:", "\"I wish you to pay attention to what I am going to say to you. The colts who live here are very good colts, but they are cart-horse colts, and of course they have not learned manners. You have been well-bred and well-born. I hope you will grow up gentle and good, and never learn bad ways; do your work with a good will, lift your feet up well when you trot, and never bite or kick even in play.\"", "I have never forgotten my mother's advice; I knew she was a wise old horse, and our master thought a great deal of her. Her name was Duchess, but he often called her Pet."], "chart": false}], "stem": "Both the Scarecrow and Black Beauty's mother are concerned with —", "choices": ["how to start a fire safely", "growing wiser or better in character", "finding the Emerald City as soon as possible", "winning a race at Newmarket"], "answer": 1, "why": "稻草人要大腦以免被當傻瓜；母親叮囑長大要溫柔善良、好好做事——都關乎變得更好／更有智慧。"}, {"tag": "主旨", "passages": [{"label": "Literary A", "title": "The Scarecrow Asks for Brains (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["\"Who are you?\" asked the Scarecrow. \"And where are you going?\"", "\"My name is Dorothy,\" said the girl, \"and I am going to the Emerald City, to ask the Great Oz to send me back to Kansas.\"", "\"Where is the Emerald City? And who is Oz?\" he inquired.", "\"Why, don't you know?\" she returned, in surprise.", "\"No, indeed. I don't know anything. You see, I am stuffed, so I have no brains at all,\" he answered sadly.", "\"Do you think,\" he asked, \"if I go with you, that Oz would give me some brains?\"", "\"I cannot tell,\" she returned, \"but you may come with me, if you like.\"", "\"That is true,\" said the Scarecrow. \"I don't mind my body being stuffed, because I cannot get hurt. But I do not want people to call me a fool.\""], "chart": false}], "stem": "What is the main idea of this passage?", "choices": ["Dorothy refuses to let anyone join her journey.", "The Scarecrow wants brains and asks to travel with Dorothy to Oz.", "Oz has already given the Scarecrow a new heart.", "Scarecrows in Kansas often wink at children."], "answer": 1, "why": "重點是稻草人承認自己沒有大腦，希望跟 Dorothy 去找 Oz 要大腦。"}, {"tag": "細節", "passages": [{"label": "Informational / Memoir", "title": "The Story of My Life — The Well-House (excerpt)", "source": "The Story of My Life · Helen Keller · PD Gutenberg #2397 · Lexile 1090L", "paras": ["We walked down the path to the well-house, attracted by the fragrance of the honeysuckle with which it was covered. Some one was drawing water and my teacher placed my hand under the spout. As the cool stream gushed over one hand she spelled into the other the word water, first slowly, then rapidly. I stood still, my whole attention fixed upon the motions of her fingers. Suddenly I felt a misty consciousness as of something forgotten—a thrill of returning thought; and somehow the mystery of language was revealed to me. I knew then that \"w-a-t-e-r\" meant the wonderful cool something that was flowing over my hand. That living word awakened my soul, gave it light, hope, joy, set it free! I left the well-house eager to learn. Everything had a name, and each name gave birth to a new thought."], "chart": false}], "stem": "According to the passage, what did Miss Sullivan do while cool water ran over Helen's hand?", "choices": ["She sang a song about honeysuckle.", "She spelled the word water into Helen's other hand.", "She drew a map of Alabama.", "She asked Helen to shout the letters aloud."], "answer": 1, "why": "文中寫：cool stream 流過一隻手時，老師在另一隻手拼寫 water。"}, {"tag": "細節", "passages": [{"label": "Literary / Animal", "title": "Black Beauty — Mother's Advice (excerpt)", "source": "Black Beauty · Anna Sewell · PD Gutenberg #271 · Lexile 1020L", "paras": ["One day, when there was a good deal of kicking, my mother whinnied to me to come to her, and then she said:", "\"I wish you to pay attention to what I am going to say to you. The colts who live here are very good colts, but they are cart-horse colts, and of course they have not learned manners. You have been well-bred and well-born. I hope you will grow up gentle and good, and never learn bad ways; do your work with a good will, lift your feet up well when you trot, and never bite or kick even in play.\"", "I have never forgotten my mother's advice; I knew she was a wise old horse, and our master thought a great deal of her. Her name was Duchess, but he often called her Pet."], "chart": false}], "stem": "Which piece of advice does Beauty's mother give?", "choices": ["Bite and kick whenever you play.", "Never do any work for the master.", "Do your work with a good will and never bite or kick even in play.", "Leave the meadow and find the Emerald City."], "answer": 2, "why": "母親說：好好做事、抬腳小跑，即使玩耍也不要咬或踢。"}, {"tag": "找證據", "passages": [{"label": "Literary A", "title": "Toto and the Lighted Match (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["They walked back to the road. Dorothy helped him over the fence, and they started along the path of yellow brick for the Emerald City. Toto did not like this addition to the party at first. He smelled around the stuffed man as if he suspected there might be a nest of rats in the straw, and he often growled in an unfriendly way at the Scarecrow.", "\"Don't mind Toto,\" said Dorothy to her new friend. \"He never bites.\"", "\"Oh, I'm not afraid,\" replied the Scarecrow. \"He can't hurt the straw. I'll tell you a secret,\" he continued. \"There is only one thing in the world I am afraid of.\"", "\"What is that?\" asked Dorothy; \"the Munchkin farmer who made you?\"", "\"No,\" answered the Scarecrow; \"it's a lighted match.\""], "chart": false}], "stem": "Which sentence best supports the idea that Toto distrusts the Scarecrow at first?", "choices": ["Dorothy helped him over the fence.", "He smelled around the stuffed man as if he suspected there might be a nest of rats in the straw, and he often growled.", "They started along the path of yellow brick.", "\"He never bites,\" said Dorothy."], "answer": 1, "why": "Toto 聞稻草人、常對他吼，直接顯示不信任。"}, {"tag": "圖表證據", "passages": [{"label": "Informational + Chart", "title": "Practice Chart: Words Helen Learned (practice data)", "source": "Practice graphic for this quiz · not a historical table · linked to Keller memoir theme", "paras": ["Helen Keller wrote that the day at the well-house awoke her mind to language. A practice study chart below shows how many new words a young learner might add in the first months after such a breakthrough (made-up practice numbers for this question only)."], "chart": true}], "stem": "According to the practice chart, in which month did the learner add the MOST new words?", "choices": ["Month 1", "Month 2", "Month 3", "Month 4"], "answer": 2, "why": "練習圖表中 Month 3 新增字數最高（約 40），故選 C。"}, {"tag": "找證據", "passages": [{"label": "Informational / Memoir", "title": "The Story of My Life — The Well-House (excerpt)", "source": "The Story of My Life · Helen Keller · PD Gutenberg #2397 · Lexile 1090L", "paras": ["We walked down the path to the well-house, attracted by the fragrance of the honeysuckle with which it was covered. Some one was drawing water and my teacher placed my hand under the spout. As the cool stream gushed over one hand she spelled into the other the word water, first slowly, then rapidly. I stood still, my whole attention fixed upon the motions of her fingers. Suddenly I felt a misty consciousness as of something forgotten—a thrill of returning thought; and somehow the mystery of language was revealed to me. I knew then that \"w-a-t-e-r\" meant the wonderful cool something that was flowing over my hand. That living word awakened my soul, gave it light, hope, joy, set it free! I left the well-house eager to learn. Everything had a name, and each name gave birth to a new thought."], "chart": false}], "stem": "Which detail best supports the claim that learning the word \"water\" changed Helen deeply?", "choices": ["The path was covered with honeysuckle.", "Someone was drawing water at the well-house.", "\"That living word awakened my soul, gave it light, hope, joy, set it free!\"", "She stood still with her attention fixed."], "answer": 2, "why": "「living word awakened my soul…」直接寫出這字帶來的深刻轉變。"}, {"tag": "推論", "passages": [{"label": "Literary A", "title": "Toto and the Lighted Match (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. III · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["They walked back to the road. Dorothy helped him over the fence, and they started along the path of yellow brick for the Emerald City. Toto did not like this addition to the party at first. He smelled around the stuffed man as if he suspected there might be a nest of rats in the straw, and he often growled in an unfriendly way at the Scarecrow.", "\"Don't mind Toto,\" said Dorothy to her new friend. \"He never bites.\"", "\"Oh, I'm not afraid,\" replied the Scarecrow. \"He can't hurt the straw. I'll tell you a secret,\" he continued. \"There is only one thing in the world I am afraid of.\"", "\"What is that?\" asked Dorothy; \"the Munchkin farmer who made you?\"", "\"No,\" answered the Scarecrow; \"it's a lighted match.\""], "chart": false}], "stem": "Based on the passage, the Scarecrow is most afraid of a lighted match because —", "choices": ["matches are used only by Munchkin farmers", "fire could burn the straw he is stuffed with", "Toto likes to play with matches", "Dorothy told him matches are magic"], "answer": 1, "why": "他是稻草填充，火／火柴會燒掉他——合理推論。"}, {"tag": "推論", "passages": [{"label": "Informational / Memoir", "title": "The Story of My Life — The Well-House (excerpt)", "source": "The Story of My Life · Helen Keller · PD Gutenberg #2397 · Lexile 1090L", "paras": ["We walked down the path to the well-house, attracted by the fragrance of the honeysuckle with which it was covered. Some one was drawing water and my teacher placed my hand under the spout. As the cool stream gushed over one hand she spelled into the other the word water, first slowly, then rapidly. I stood still, my whole attention fixed upon the motions of her fingers. Suddenly I felt a misty consciousness as of something forgotten—a thrill of returning thought; and somehow the mystery of language was revealed to me. I knew then that \"w-a-t-e-r\" meant the wonderful cool something that was flowing over my hand. That living word awakened my soul, gave it light, hope, joy, set it free! I left the well-house eager to learn. Everything had a name, and each name gave birth to a new thought."], "chart": false}], "stem": "After the well-house moment, Helen most likely —", "choices": ["stopped wanting to learn any more words", "felt excited to discover names for everything around her", "asked to stay away from water forever", "forgot what Miss Sullivan had spelled"], "answer": 1, "why": "她離開 well-house 時 eager to learn，覺得每樣東西都有名字。"}, {"tag": "簡易文法／主謂一致", "passages": [{"label": "Expression", "title": "Sentence Workshop", "source": "Original grammar practice · no Lexile", "paras": ["Choose the clearest, most correct sentence for a school report."], "chart": false}], "stem": "Which choice is the best sentence?", "choices": ["Tree rings shows how much rain fell each year.", "Tree rings show how much rain fell each year.", "Tree rings showing how much rain fell each year.", "Tree rings show how much rain falling each year."], "answer": 1, "why": "主詞 Tree rings 是複數，動詞要用 show；B 主謂一致且時態完整。"}, {"tag": "簡易文法／主謂一致", "passages": [{"label": "Expression", "title": "Sentence Workshop", "source": "Original grammar practice · no Lexile", "paras": ["Choose the clearest, most correct sentence for a school report."], "chart": false}], "stem": "Which choice is the best sentence?", "choices": ["Helen and Miss Sullivan walks to the well-house every morning.", "Helen and Miss Sullivan walk to the well-house every morning.", "Helen and Miss Sullivan walking to the well-house every morning.", "Helen and Miss Sullivan walk to the well-house every mornings."], "answer": 1, "why": "主詞 Helen and Miss Sullivan 是複數，動詞用 walk。"}, {"tag": "簡易文法／連接", "passages": [{"label": "Expression", "title": "Sentence Workshop", "source": "Original grammar practice · no Lexile", "paras": ["Choose the clearest, most correct sentence for a school report."], "chart": false}], "stem": "Which choice most clearly and correctly completes the idea?\nThe Scarecrow fell into the holes, ___ he only laughed because it never hurt him.", "choices": ["but", "because", "unless", "although"], "answer": 0, "why": "前後是轉折：跌倒了，但他只是笑——用 but。"}, {"tag": "轉折／邏輯連接", "passages": [{"label": "Literary A", "title": "The Road Through the Forest (excerpt)", "source": "The Wonderful Wizard of Oz, Ch. IV · L. Frank Baum · PD Gutenberg #55 · Lexile 1030L", "paras": ["After a few hours the road began to be rough, and the walking grew so difficult that the Scarecrow often stumbled over the yellow bricks, which were here very uneven. Sometimes they were broken or missing altogether, leaving holes that Toto jumped across and Dorothy walked around. As for the Scarecrow, having no brains, he walked straight ahead, and so stepped into the holes and fell at full length on the hard bricks. It never hurt him, however, and Dorothy would pick him up and set him upon his feet again, while he joined her in laughing merrily at his own mishap. The farther they went the more dismal and lonesome the country became."], "chart": false}], "stem": "Which transition best fits the blank?\nThe Scarecrow stepped into the holes and fell. ___, it never hurt him, and Dorothy picked him up again.", "choices": ["Therefore", "However", "For example", "In conclusion"], "answer": 1, "why": "跌倒了「然而」沒受傷——轉折用 However。"}, {"tag": "轉折／邏輯連接", "passages": [{"label": "Literary / Animal", "title": "Black Beauty — Mother's Advice (excerpt)", "source": "Black Beauty · Anna Sewell · PD Gutenberg #271 · Lexile 1020L", "paras": ["One day, when there was a good deal of kicking, my mother whinnied to me to come to her, and then she said:", "\"I wish you to pay attention to what I am going to say to you. The colts who live here are very good colts, but they are cart-horse colts, and of course they have not learned manners. You have been well-bred and well-born. I hope you will grow up gentle and good, and never learn bad ways; do your work with a good will, lift your feet up well when you trot, and never bite or kick even in play.\"", "I have never forgotten my mother's advice; I knew she was a wise old horse, and our master thought a great deal of her. Her name was Duchess, but he often called her Pet."], "chart": false}], "stem": "Which sentence would best follow the mother's advice to show that Beauty took it seriously?", "choices": ["Beauty immediately bit the nearest colt.", "Beauty never forgot her words and tried to be gentle and hardworking.", "Beauty ran away to the Emerald City that night.", "Beauty asked Dorothy for a lighted match."], "answer": 1, "why": "文中已寫「I have never forgotten my mother's advice」——接下來應是認真實踐溫柔與勤奮。"}];
+const LETTERS = ["A","B","C","D"];
+const PACK_META = {
+  child: "Seren",
+  date: "2026-11-07",
+  title: "Mini SAT · Oz Scarecrow + Keller Well-House + Black Beauty Advice",
+  level: "≈1000–1100L · US G4–5 · mini Digital SAT-style (NOT a real SAT) · ~21Q / ~30 min"
+};
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}-sat-mini`;
+
+let cur = 0;
+let answers = Array(ITEMS.length).fill(null);
+let flagged = Array(ITEMS.length).fill(false);
+let graded = false;
+let lastReport = null;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+
+/* ---- Timer ---- */
+const TOTAL_SEC = 30 * 60;
+let remaining = TOTAL_SEC;
+let timerPaused = false;
+let timerEnded = false;
+let timerId = null;
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ":" + String(sec).padStart(2, "0");
+}
+function tickTimer() {
+  if (timerPaused || timerEnded) return;
+  if (remaining <= 0) {
+    remaining = 0;
+    timerEnded = true;
+    document.getElementById("timerDisplay").textContent = "0:00";
+    document.getElementById("timerDisplay").classList.add("warn");
+    document.getElementById("timerNote").textContent = "時間到囉～可以慢慢做完再提交，不會自動交卷 💛";
+    clearInterval(timerId);
+    return;
+  }
+  remaining -= 1;
+  const el = document.getElementById("timerDisplay");
+  el.textContent = fmtTime(remaining);
+  if (remaining <= 60) el.classList.add("warn");
+}
+function togglePause() {
+  if (timerEnded) return;
+  timerPaused = !timerPaused;
+  const btn = document.getElementById("pauseBtn");
+  if (timerPaused) {
+    btn.textContent = "繼續";
+    btn.classList.add("paused");
+    document.getElementById("timerNote").textContent = "已暫停 · 按「繼續」再計時";
+  } else {
+    btn.textContent = "暫停";
+    btn.classList.remove("paused");
+    document.getElementById("timerNote").textContent = "建議約 30 分鐘 · 可暫停";
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+function tokenizePara(text) {
+  return text.split(/(\s+|[.,!?;:"“”'()—–\-])/).filter(t => t.length);
+}
+function paraToHtml(text) {
+  return tokenizePara(text).map(tok => {
+    if (/^[A-Za-z][A-Za-z']*$/.test(tok)) {
+      const key = tok.toLowerCase();
+      return `<span class="word" data-key="${escapeHtml(key)}" data-display="${escapeHtml(tok)}">${escapeHtml(tok)}</span>`;
+    }
+    return escapeHtml(tok);
+  }).join("");
+}
+function renderPassageBlock(p) {
+  const body = p.paras.map(t => `<p>${paraToHtml(t)}</p>`).join("");
+  const chart = p.chart ? CHART_HTML : "";
+  const src = p.source ? `<p class="src-line">📚 ${escapeHtml(p.source)}</p>` : "";
+  return `<article class="passage"><div class="passage-label">${escapeHtml(p.label)}</div><h2>${escapeHtml(p.title)}</h2>${src}${body}${chart}</article>`;
+}
+
+let activeEl = null;
+let lastTapEl = null, lastTapTime = 0;
+
+function positionGlossNear(wordEl) {
+  const g = document.getElementById("gloss");
+  const rect = wordEl.getBoundingClientRect();
+  const pad = 8;
+  const wasHidden = !g.classList.contains("show");
+  if (wasHidden) {
+    g.style.visibility = "hidden";
+    g.classList.add("show");
+  }
+  const gw = g.offsetWidth || 220;
+  const gh = g.offsetHeight || 100;
+  if (wasHidden) {
+    g.classList.remove("show");
+    g.style.visibility = "";
+  }
+  let top = rect.bottom + pad;
+  let left = rect.left;
+  if (top + gh > window.innerHeight - pad) {
+    top = Math.max(pad, rect.top - gh - pad);
+  }
+  if (left + gw > window.innerWidth - pad) {
+    left = Math.max(pad, window.innerWidth - gw - pad);
+  }
+  if (left < pad) left = pad;
+  g.style.top = Math.round(top) + "px";
+  g.style.left = Math.round(left) + "px";
+}
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+  activeEl = null;
+}
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : (rec.zh || "");
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function showGloss(wordEl) {
+  const key = wordEl.dataset.key;
+  const display = wordEl.dataset.display;
+  let entry = null;
+  let label = display;
+  const next = wordEl.nextElementSibling;
+  if (next && next.classList && next.classList.contains("word")) {
+    const phrase = key + " " + next.dataset.key;
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = display + " " + next.dataset.display; }
+  }
+  if (!entry) {
+    const prev = wordEl.previousElementSibling;
+    if (prev && prev.classList && prev.classList.contains("word")) {
+      const phrase = prev.dataset.key + " " + key;
+      if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = prev.dataset.display + " " + display; }
+    }
+  }
+  if (!entry) entry = GLOSSARY[key];
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) { hideGloss(); return; }
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+  activeEl = wordEl;
+  wordEl.classList.add("active");
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = "EN: " + entry.en;
+    document.getElementById("g-zh").textContent = "中文：" + entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "EN: (本篇詞庫尚未收錄；試試從句子猜意思！)";
+    document.getElementById("g-zh").textContent = "中文：（未收錄）";
+  }
+  positionGlossNear(wordEl);
+  document.getElementById("gloss").classList.add("show");
+  recordLookup(label, entry);
+}
+
+function renderNav() {
+  const bar = document.getElementById("moduleBar");
+  let html = `<span class="label">模組題號</span>`;
+  for (let i = 0; i < ITEMS.length; i++) {
+    let cls = "qbtn";
+    if (i === cur) cls += " current";
+    else if (graded) {
+      if (answers[i] === ITEMS[i].answer) cls += " mark-ok";
+      else cls += " mark-bad";
+    } else if (answers[i] !== null) cls += " answered";
+    if (flagged[i]) cls += " flagged";
+    html += `<button type="button" class="${cls}" data-go="${i}" aria-label="Question ${i+1}">${i+1}</button>`;
+  }
+  bar.innerHTML = html;
+  bar.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { go(+b.dataset.go); }));
+}
+
+function renderItem() {
+  hideGloss();
+  const item = ITEMS[cur];
+  const layout = document.getElementById("layout");
+  layout.className = "layout" + (item.passages.length === 1 ? " single-pass" : "");
+  const col = document.getElementById("passageCol");
+  col.innerHTML = item.passages.map(renderPassageBlock).join("");
+  document.getElementById("qTag").textContent = `題 ${cur+1}／${ITEMS.length} · ${item.tag}`;
+  document.getElementById("qStem").textContent = `${cur+1}. ${item.stem}`;
+  const opts = document.getElementById("opts");
+  opts.innerHTML = item.choices.map((c, ci) => `
+    <label class="opt" data-c="${ci}">
+      <input type="radio" name="curQ" value="${ci}" ${answers[cur]===ci?"checked":""} ${graded?"disabled":""}/>
+      <span><strong>${LETTERS[ci]}.</strong> ${escapeHtml(c)}</span>
+    </label>`).join("");
+  opts.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("change", () => {
+      answers[cur] = Number(inp.value);
+      renderNav();
+      document.getElementById("progress").textContent = `已作答 ${answers.filter(a=>a!==null).length}/${ITEMS.length}`;
+    });
+  });
+  const ex = document.getElementById("explain");
+  if (graded) {
+    const chosen = answers[cur];
+    opts.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok","mark-bad"));
+    const okLab = opts.querySelector(`.opt[data-c="${item.answer}"]`);
+    if (okLab) okLab.classList.add("mark-ok");
+    if (chosen === item.answer) {
+      ex.className = "explain show ok";
+      ex.innerHTML = `✓ 正確（${LETTERS[item.answer]}）<br/>${escapeHtml(item.why)}`;
+    } else if (chosen === null) {
+      ex.className = "explain show bad";
+      ex.innerHTML = `尚未作答。正解 <strong>${LETTERS[item.answer]}</strong>。<br/>${escapeHtml(item.why)}`;
+    } else {
+      const bad = opts.querySelector(`.opt[data-c="${chosen}"]`);
+      if (bad) bad.classList.add("mark-bad");
+      ex.className = "explain show bad";
+      ex.innerHTML = `✗ 你選 ${LETTERS[chosen]}，正解 <strong>${LETTERS[item.answer]}</strong>。<br/>${escapeHtml(item.why)}`;
+    }
+  } else {
+    ex.className = "explain";
+    ex.innerHTML = "";
+  }
+  document.getElementById("prevBtn").disabled = cur === 0;
+  document.getElementById("nextBtn").disabled = cur === ITEMS.length - 1;
+  document.getElementById("progress").textContent = `已作答 ${answers.filter(a=>a!==null).length}/${ITEMS.length}`;
+  const flagBtn = document.getElementById("flagBtn");
+  if (flagged[cur]) {
+    flagBtn.textContent = "🚩 已標記（再按取消）";
+    flagBtn.classList.add("on");
+  } else {
+    flagBtn.textContent = "🚩 標記本題";
+    flagBtn.classList.remove("on");
+  }
+  renderNav();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function go(i) {
+  if (i < 0 || i >= ITEMS.length) return;
+  cur = i;
+  renderItem();
+}
+
+function toggleFlag() {
+  flagged[cur] = !flagged[cur];
+  renderItem();
+}
+
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const { words, total } = lookupStats();
+  if (!words.length) return ["查詢單字：無"];
+  return [`查詢單字（共 ${total} 次，${words.length} 個字）：`,
+    ...words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function grade() {
+  graded = true;
+  let correct = 0;
+  const detail = [];
+  ITEMS.forEach((q, qi) => {
+    const chosen = answers[qi];
+    const flagMark = flagged[qi] ? " 🚩" : "";
+    if (chosen === q.answer) {
+      correct += 1;
+      detail.push(`Q${qi+1} [${q.tag}]: ✓ ${LETTERS[chosen]}${flagMark}`);
+    } else if (chosen === null) {
+      detail.push(`Q${qi+1} [${q.tag}]: 未作答（正解 ${LETTERS[q.answer]}）${flagMark}`);
+    } else {
+      detail.push(`Q${qi+1} [${q.tag}]: ✗ 選${LETTERS[chosen]}／正解${LETTERS[q.answer]}${flagMark}`);
+    }
+  });
+  const score = document.getElementById("score");
+  let cheer = "";
+  if (correct === ITEMS.length) cheer = " · 挑戰全過關！你是閱讀冒險家 🌟";
+  else if (correct >= 18) cheer = " · 超強！再看講解就能更穩";
+  else if (correct >= 14) cheer = " · 很棒的表現！挑戰本來就比日常難一點";
+  else cheer = " · 沒關係，看完講解再挑戰一次，你會更強";
+  score.innerHTML = `得分：${correct} / ${ITEMS.length}` + cheer;
+  const nWords = lookupStats().words.length;
+  const tip = document.createElement("div");
+  tip.style.cssText = "font-size:0.85em;font-weight:normal;margin-top:4px;";
+  tip.textContent = nWords ? `這次查了 ${nWords} 個字 👍` : "這次沒有查單字，讀得很順喔 👍";
+  score.appendChild(tip);
+  score.classList.add("show");
+  document.getElementById("submit").disabled = true;
+  lastReport = [
+    "【迷你SAT成績回報 → English Tutor】",
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `程度：${PACK_META.level}`,
+    `得分：${correct}/${ITEMS.length}`,
+    "明細：",
+    ...detail.map(d => "- " + d),
+    ...lookupReportLines(),
+    "（請貼到微信給家庭大管家轉 English Tutor）"
+  ].join("\n");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  copyBtn.classList.remove("copied");
+  copyBtn.textContent = "複製成績";
+  renderItem();
+}
+
+async function copyResults() {
+  if (!lastReport) { alert("請先提交本場。"); return; }
+  const btn = document.getElementById("copyBtn");
+  try { await navigator.clipboard.writeText(lastReport); }
+  catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = lastReport; ta.style.position = "fixed"; ta.style.left = "-9999px";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (e2) {
+      alert("無法自動複製，請手動選取：\n\n" + lastReport);
+      document.body.removeChild(ta); return;
+    }
+    document.body.removeChild(ta);
+  }
+  btn.textContent = "已複製！去微信貼上";
+  btn.classList.add("copied");
+  setTimeout(() => { btn.textContent = "複製成績"; btn.classList.remove("copied"); }, 2500);
+}
+
+function resetQuiz() {
+  answers = Array(ITEMS.length).fill(null);
+  flagged = Array(ITEMS.length).fill(false);
+  graded = false;
+  lastReport = null;
+  cur = 0;
+  remaining = TOTAL_SEC;
+  timerPaused = false;
+  timerEnded = false;
+  document.getElementById("timerDisplay").textContent = fmtTime(remaining);
+  document.getElementById("timerDisplay").classList.remove("warn");
+  document.getElementById("pauseBtn").textContent = "暫停";
+  document.getElementById("pauseBtn").classList.remove("paused");
+  document.getElementById("timerNote").textContent = "建議約 30 分鐘 · 可暫停";
+  clearInterval(timerId);
+  timerId = setInterval(tickTimer, 1000);
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  document.getElementById("score").innerHTML = "";
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  renderItem();
+}
+
+document.getElementById("prevBtn").addEventListener("click", () => go(cur - 1));
+document.getElementById("nextBtn").addEventListener("click", () => go(cur + 1));
+document.getElementById("flagBtn").addEventListener("click", toggleFlag);
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+document.getElementById("pauseBtn").addEventListener("click", togglePause);
+
+document.addEventListener("click", (e) => {
+  const gloss = document.getElementById("gloss");
+  const t = e.target.closest(".word");
+  if (t) {
+    const now = Date.now();
+    if (t === lastTapEl && now - lastTapTime < 350) return;
+    lastTapEl = t; lastTapTime = now;
+    showGloss(t);
+    e.stopPropagation();
+    return;
+  }
+  if (e.target.closest("#gloss")) {
+    hideGloss();
+    e.stopPropagation();
+    return;
+  }
+  if (gloss.classList.contains("show")) hideGloss();
+}, true);
+
+document.addEventListener("dblclick", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  e.preventDefault();
+  if (activeEl !== t) showGloss(t);
+});
+
+window.addEventListener("scroll", () => {
+  if (activeEl && document.getElementById("gloss").classList.contains("show")) {
+    positionGlossNear(activeEl);
+  }
+}, { passive: true });
+window.addEventListener("resize", () => {
+  if (activeEl && document.getElementById("gloss").classList.contains("show")) {
+    positionGlossNear(activeEl);
+  }
+});
+
+timerId = setInterval(tickTimer, 1000);
+renderItem();
+</script>
+</body>
+</html>
