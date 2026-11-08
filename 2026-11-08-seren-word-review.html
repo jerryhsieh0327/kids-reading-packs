@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Seren 單字闖關 · 2026-11-08</title>
+<style>
+:root {
+  --bg1: #1e1b4b; --bg2: #312e81; --bg3: #0f766e;
+  --card: #ffffff; --ink: #1e1b4b; --muted: #5b567a;
+  --purple: #7c3aed; --teal: #14b8a6; --pink: #ec4899;
+  --gold: #f59e0b; --ok: #059669; --bad: #dc2626;
+  --soft: #f5f3ff; --border: #e9e5ff;
+  --shadow: 0 10px 28px rgba(30,27,75,.18);
+  --radius: 18px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(236,72,153,.35), transparent 42%),
+    radial-gradient(circle at 88% 12%, rgba(20,184,166,.35), transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(124,58,237,.28), transparent 45%),
+    linear-gradient(160deg, var(--bg1), var(--bg2) 55%, #134e4a);
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+.stars-bg {
+  position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+}
+.stars-bg i {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: #fff; opacity: .55; box-shadow: 0 0 6px #fff;
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+@keyframes twinkle { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:.9;transform:scale(1.2)} }
+.wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 1rem 1rem 5.5rem; }
+header.hero {
+  background: linear-gradient(135deg, #fff 0%, #ede9fe 55%, #ccfbf1 100%);
+  border-radius: 22px; padding: 1.1rem 1.2rem 1.15rem; box-shadow: var(--shadow);
+  border: 2px solid rgba(255,255,255,.7); margin-bottom: 1rem;
+}
+header.hero h1 { margin: 0 0 .25rem; font-size: 1.4rem; letter-spacing: .02em; }
+header.hero .sub { margin: 0; color: var(--muted); font-size: .95rem; }
+.badge-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+.badge {
+  display: inline-flex; align-items: center; gap: .25rem;
+  background: #fff; border: 1px solid var(--border); border-radius: 999px;
+  padding: .28rem .7rem; font-size: .78rem; color: var(--purple); font-weight: 600;
+}
+.panel {
+  background: var(--card); border-radius: var(--radius); padding: 1rem 1.05rem;
+  box-shadow: var(--shadow); margin-bottom: 1rem; border: 1px solid rgba(255,255,255,.55);
+}
+.panel h2 { margin: 0 0 .65rem; font-size: 1.1rem; }
+.hub-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .7rem;
+}
+@media (min-width: 560px) { .hub-grid { grid-template-columns: 1fr 1fr 1fr; } }
+.mode-btn {
+  appearance: none; border: 0; cursor: pointer; text-align: left;
+  background: linear-gradient(160deg, #faf5ff, #ecfeff);
+  border-radius: 16px; padding: .9rem .85rem; min-height: 96px;
+  box-shadow: 0 4px 14px rgba(124,58,237,.12);
+  border: 2px solid #ddd6fe; transition: transform .12s, box-shadow .12s;
+  display: flex; flex-direction: column; gap: .2rem; width: 100%;
+  touch-action: manipulation;
+}
+.mode-btn:active { transform: scale(.97); }
+.mode-btn .ico { font-size: 1.55rem; line-height: 1; }
+.mode-btn .name { font-weight: 800; font-size: 1rem; color: var(--ink); }
+.mode-btn .desc { font-size: .78rem; color: var(--muted); }
+.mode-btn .stars { font-size: .85rem; color: var(--gold); min-height: 1.1em; }
+.mode-btn.challenge {
+  background: linear-gradient(160deg, #fff7ed, #fef3c7);
+  border-color: #fcd34d;
+}
+.mode-btn.done { border-color: #6ee7b7; background: linear-gradient(160deg, #ecfdf5, #f0fdfa); }
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  margin-bottom: .75rem; flex-wrap: wrap;
+}
+.topbar .title { font-weight: 800; font-size: 1.05rem; }
+.btn {
+  appearance: none; border: 0; cursor: pointer; font-weight: 700;
+  border-radius: 999px; padding: .55rem 1rem; font-size: .92rem;
+  touch-action: manipulation; min-height: 44px;
+}
+.btn-ghost { background: #ede9fe; color: var(--purple); }
+.btn-primary { background: linear-gradient(135deg, var(--purple), #4f46e5); color: #fff; }
+.btn-teal { background: linear-gradient(135deg, var(--teal), #0d9488); color: #fff; }
+.btn-gold { background: linear-gradient(135deg, #f59e0b, #ea580c); color: #fff; }
+.btn-speak {
+  background: #e0e7ff; color: #3730a3; border-radius: 12px;
+  padding: .4rem .7rem; font-size: .85rem; min-height: 40px;
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.progress-bar {
+  height: 10px; background: #ede9fe; border-radius: 999px; overflow: hidden; margin: .5rem 0 .8rem;
+}
+.progress-bar > span {
+  display: block; height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--teal), var(--purple));
+  transition: width .25s ease;
+}
+.card-word {
+  background: var(--soft); border: 2px dashed #c4b5fd; border-radius: 16px;
+  padding: 1rem; text-align: center; margin-bottom: .8rem;
+}
+.card-word .en { font-size: 1.55rem; font-weight: 800; letter-spacing: .02em; }
+.card-word .zh { color: var(--muted); margin-top: .25rem; font-size: 1rem; }
+.card-word .gloss { font-size: .88rem; color: #4338ca; margin-top: .35rem; }
+.choices { display: grid; gap: .55rem; }
+.choice {
+  appearance: none; width: 100%; text-align: left; cursor: pointer;
+  background: #fff; border: 2px solid #ddd6fe; border-radius: 14px;
+  padding: .85rem 1rem; font-size: 1rem; font-weight: 600; color: var(--ink);
+  min-height: 48px; touch-action: manipulation;
+}
+.choice:active { transform: scale(.985); }
+.choice.correct { border-color: #34d399; background: #ecfdf5; color: #065f46; }
+.choice.wrong { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+.choice:disabled { cursor: default; }
+.feedback {
+  margin-top: .7rem; padding: .7rem .85rem; border-radius: 12px; font-size: .92rem;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.feedback.bad { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+.flip-board {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .55rem;
+}
+@media (min-width: 480px) { .flip-board { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+.flip-card {
+  aspect-ratio: 1.15 / 1; perspective: 800px; cursor: pointer; border: 0; padding: 0;
+  background: transparent; touch-action: manipulation;
+}
+.flip-inner {
+  position: relative; width: 100%; height: 100%; transition: transform .35s;
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-inner, .flip-card.matched .flip-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute; inset: 0; backface-visibility: hidden; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: .45rem; font-weight: 800; font-size: .92rem; border: 2px solid #c4b5fd;
+  box-shadow: 0 4px 12px rgba(76,29,149,.12);
+}
+.flip-front { background: linear-gradient(145deg, #7c3aed, #4f46e5); color: #fff; font-size: 1.4rem; }
+.flip-back { background: #fff; color: var(--ink); transform: rotateY(180deg); }
+.flip-card.matched .flip-face { border-color: #34d399; background: #ecfdf5; color: #065f46; }
+.flip-card.matched .flip-front { background: #10b981; }
+.bubble-stage {
+  position: relative; min-height: 320px; background: linear-gradient(180deg, #e0e7ff, #ccfbf1);
+  border-radius: 18px; overflow: hidden; border: 2px solid #c7d2fe;
+}
+.bubble-prompt {
+  text-align: center; padding: .85rem; font-weight: 800; font-size: 1.15rem;
+  background: rgba(255,255,255,.75); backdrop-filter: blur(4px);
+}
+.bubble {
+  position: absolute; border-radius: 50%; border: 3px solid rgba(255,255,255,.85);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-weight: 800; color: #fff; padding: .4rem; cursor: pointer;
+  box-shadow: 0 8px 18px rgba(30,27,75,.2); touch-action: manipulation;
+  animation: floaty 3.5s ease-in-out infinite;
+  user-select: none; -webkit-user-select: none;
+}
+@keyframes floaty {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.spell-box {
+  display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin: .8rem 0;
+  min-height: 52px;
+}
+.letter-slot, .letter-chip {
+  min-width: 42px; min-height: 46px; border-radius: 12px; font-weight: 800; font-size: 1.15rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  touch-action: manipulation;
+}
+.letter-slot {
+  border: 2px dashed #a5b4fc; background: #f8fafc; color: var(--ink); padding: 0 .2rem;
+}
+.letter-chip {
+  border: 0; background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #fff; cursor: pointer;
+  box-shadow: 0 4px 10px rgba(79,70,229,.25);
+}
+.letter-chip.used { opacity: .25; pointer-events: none; }
+.cloze-sent {
+  font-size: 1.1rem; background: #f5f3ff; border-radius: 14px; padding: 1rem;
+  border: 2px solid #ddd6fe; margin-bottom: .8rem; line-height: 1.7;
+}
+.cloze-blank {
+  display: inline-block; min-width: 5.5em; border-bottom: 3px solid var(--purple);
+  text-align: center; font-weight: 800; color: var(--purple); margin: 0 .15em;
+}
+.input-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.input-row input {
+  flex: 1; min-width: 160px; font-size: 1.05rem; padding: .7rem .85rem;
+  border-radius: 12px; border: 2px solid #c4b5fd; outline: none;
+}
+.input-row input:focus { border-color: var(--purple); }
+.stat-row {
+  display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .4rem;
+}
+.stat-pill {
+  background: #fff; border: 1px solid var(--border); border-radius: 999px;
+  padding: .3rem .7rem; font-size: .8rem; color: var(--muted); font-weight: 600;
+}
+.footer-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(10px);
+  border-top: 1px solid #e9e5ff; padding: .65rem 1rem calc(.65rem + env(safe-area-inset-bottom));
+  display: flex; justify-content: center; gap: .55rem; flex-wrap: wrap;
+}
+.hidden { display: none !important; }
+.celebrate {
+  text-align: center; padding: 1rem; font-size: 1.15rem; font-weight: 800; color: #065f46;
+}
+.tiny { font-size: .78rem; color: var(--muted); }
+.tag { display: inline-block; background: #fef3c7; color: #92400e; border-radius: 8px; padding: .1rem .4rem; font-size: .72rem; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="stars-bg" id="starsBg" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="hero" id="hero">
+    <h1>🌟 Seren 單字闖關 · 2026-11-08</h1>
+    <p class="sub">上週查過的草原字，再加上週六挑戰裡的小魔法 · 想玩哪關就點哪關，可重玩喔！</p>
+    <div class="badge-row">
+      <span class="badge">📚 12 個單字</span>
+      <span class="badge">🎮 5 種遊戲</span>
+      <span class="badge">✨ 2 個軟挑戰</span>
+      <span class="badge" id="totalStarsBadge">⭐ 0</span>
+    </div>
+  </header>
+
+  <section class="panel" id="hubView">
+    <h2>選擇闖關模式</h2>
+    <div class="hub-grid" id="hubGrid"></div>
+    <p class="tiny" style="margin-top:.85rem">提示：每個遊戲大約 2–4 分鐘。錯了也沒關係，再試一次就好 💪</p>
+  </section>
+
+  <section class="panel hidden" id="gameView">
+    <div class="topbar">
+      <div class="title" id="gameTitle">遊戲</div>
+      <button type="button" class="btn btn-ghost" id="btnBackHub">← 回大廳</button>
+    </div>
+    <div class="progress-bar"><span id="gameProgress"></span></div>
+    <div class="stat-row">
+      <span class="stat-pill" id="gameScorePill">⭐ 0</span>
+      <span class="stat-pill" id="gameRoundPill">第 1 題</span>
+    </div>
+    <div id="gameBody"></div>
+    <div class="feedback" id="gameFeedback"></div>
+    <div style="margin-top:.8rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary hidden" id="btnNext">下一題 →</button>
+      <button type="button" class="btn btn-teal hidden" id="btnFinishMode">完成這關 🎉</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>本週單字銀行</h2>
+    <div id="bankList" style="display:grid; gap:.45rem;"></div>
+  </section>
+</div>
+
+<div class="footer-bar">
+  <button type="button" class="btn btn-gold" id="btnCopyScore">📋 複製成績</button>
+  <button type="button" class="btn btn-ghost" id="btnResetProgress">重置進度</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const DATE = '2026-11-08';
+  const STORAGE_KEY = 'wordReview:seren:2026-11-08';
+  const COPY_HEADER = '【單字闖關回報 → English Tutor】';
+
+  const WORDS = [
+    { id: 'prairie', en: 'prairie', zh: '大草原', gloss: 'a wide, flat grassland',
+      sentence: 'When Dorothy stood in the doorway and looked around, she could see nothing but the great gray prairie on every side.',
+      count: 1, source: '11/04 Reading', tag: '查過' },
+    { id: 'gaunt', en: 'gaunt', zh: '瘦削憔悴', gloss: 'very thin and worn-looking',
+      sentence: 'She was thin and gaunt, and never smiled now.',
+      count: 1, source: '11/04 Reading', tag: '查過' },
+    { id: 'orphan', en: 'orphan', zh: '孤兒', gloss: 'a child without living parents',
+      sentence: 'When Dorothy, who was an orphan, first came to her, Aunt Em had been so startled by the child\'s laughter.',
+      count: 1, source: '11/04 Reading', tag: '查過' },
+    { id: 'resolved', en: 'resolved', zh: '下定決心', gloss: 'decided firmly; made up her mind',
+      sentence: 'As the hours passed and nothing terrible happened, she stopped worrying and resolved to wait calmly and see what the future would bring.',
+      count: 1, source: '11/04 Reading', tag: '查過' },
+    { id: 'tedious', en: 'tedious', zh: '乏味的；無聊的', gloss: 'long, dull, and boring',
+      sentence: 'It is very tedious being perched up here night and day to scare away crows.',
+      count: 1, source: '11/07 mini SAT', tag: '查過' },
+    { id: 'cyclone', en: 'cyclone', zh: '龍捲風', gloss: 'a violent spinning windstorm',
+      sentence: 'The north and south winds met where the house stood and made it the exact center of the cyclone.',
+      count: 0, source: '11/04 Reading', tag: '補充字' },
+    { id: 'cellar', en: 'cellar', zh: '地窖', gloss: 'an underground room',
+      sentence: 'Quick, Dorothy! Run for the cellar!',
+      count: 0, source: '11/04 Reading', tag: '補充字' },
+    { id: 'whirlwinds', en: 'whirlwinds', zh: '旋風', gloss: 'spinning windstorms',
+      sentence: 'The family could go there in case one of those great whirlwinds arose, mighty enough to crush any building in its path.',
+      count: 0, source: '11/04 Reading', tag: '補充字' },
+    { id: 'perched', en: 'perched', zh: '棲在高處', gloss: 'sitting or resting high up',
+      sentence: 'It is very tedious being perched up here night and day to scare away crows.',
+      count: 0, source: '11/07 mini SAT', tag: '補充字' },
+    { id: 'awakened', en: 'awakened', zh: '喚醒；覺醒', gloss: 'woken up; made active',
+      sentence: 'That living word awakened my soul, gave it light, hope, joy, set it free!',
+      count: 0, source: '11/07 mini SAT', tag: '補充字' },
+    { id: 'revealed', en: 'revealed', zh: '顯露；揭示', gloss: 'shown or made clear',
+      sentence: 'Somehow the mystery of language was revealed to me.',
+      count: 0, source: '11/07 mini SAT', tag: '補充字' },
+    { id: 'manners', en: 'manners', zh: '禮貌；規矩', gloss: 'polite ways of behaving',
+      sentence: 'The colts who live here are very good colts, but they have not learned manners.',
+      count: 0, source: '11/07 mini SAT', tag: '補充字' }
+  ];
+
+  const MODES = [
+    { id: 'flip', name: '翻牌記憶', ico: '🃏', desc: '英文 ↔ 中文配對', kind: 'game' },
+    { id: 'bubbles', name: '泡泡點擊', ico: '🫧', desc: '點對意思的泡泡', kind: 'game' },
+    { id: 'spelling', name: '拼字挑戰', ico: '🔤', desc: '把字母排回正確順序', kind: 'game' },
+    { id: 'cloze', name: '句子填空', ico: '✏️', desc: '選出或打出缺的字', kind: 'game' },
+    { id: 'quiz', name: '快問快答', ico: '⚡', desc: '意思與句子小測驗', kind: 'game' },
+    { id: 'gateTogether', name: '好朋友一起走', ico: '🤝', desc: '軟挑戰：兩個名字用 and', kind: 'challenge' },
+    { id: 'gateOne', name: '一個人的腳步', ico: '1️⃣', desc: '軟挑戰：一個人要加 s', kind: 'challenge' }
+  ];
+
+  const state = {
+    mode: null,
+    progress: loadProgress(),
+    session: null
+  };
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultProgress();
+      const p = JSON.parse(raw);
+      return Object.assign(defaultProgress(), p);
+    } catch (e) {
+      return defaultProgress();
+    }
+  }
+
+  function defaultProgress() {
+    return {
+      modes: {},
+      misses: {},
+      soft: {},
+      totalStars: 0,
+      updatedAt: null
+    };
+  }
+
+  function saveProgress() {
+    state.progress.updatedAt = new Date().toISOString();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress)); } catch (e) {}
+    refreshHub();
+    updateTotalStars();
+  }
+
+  function bumpMiss(wordId) {
+    if (!wordId) return;
+    state.progress.misses[wordId] = (state.progress.misses[wordId] || 0) + 1;
+  }
+
+  function speakEn(text) {
+    try {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      u.rate = 0.92;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function pick(arr, n) {
+    return shuffle(arr).slice(0, Math.min(n, arr.length));
+  }
+
+  function wordById(id) {
+    return WORDS.find(w => w.id === id);
+  }
+
+  function el(tag, attrs, kids) {
+    const n = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(k => {
+        if (k === 'className') n.className = attrs[k];
+        else if (k === 'text') n.textContent = attrs[k];
+        else if (k === 'html') n.innerHTML = attrs[k];
+        else if (k.indexOf('on') === 0 && typeof attrs[k] === 'function') n.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+        else if (attrs[k] !== undefined && attrs[k] !== null) n.setAttribute(k, attrs[k]);
+      });
+    }
+    (kids || []).forEach(c => {
+      if (c == null) return;
+      n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return n;
+  }
+
+  function makeStarsBg() {
+    const box = document.getElementById('starsBg');
+    for (let i = 0; i < 28; i++) {
+      const s = document.createElement('i');
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.top = (Math.random() * 100) + '%';
+      s.style.animationDelay = (Math.random() * 3) + 's';
+      s.style.width = s.style.height = (2 + Math.random() * 3) + 'px';
+      box.appendChild(s);
+    }
+  }
+
+  function renderBank() {
+    const box = document.getElementById('bankList');
+    box.innerHTML = '';
+    WORDS.forEach(w => {
+      const row = el('div', {
+        style: 'background:#fafafa;border:1px solid #ede9fe;border-radius:12px;padding:.55rem.7rem;display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center;'
+      }, [
+        el('div', {}, [
+          el('div', { html: '<strong>' + esc(w.en) + '</strong> · ' + esc(w.zh) + (w.tag ? ' <span class="tag">' + esc(w.tag) + '</span>' : '') }),
+          el('div', { className: 'tiny', text: w.gloss + ' · ×' + w.count + ' · ' + w.source })
+        ]),
+        el('button', { type: 'button', className: 'btn-speak', text: '🔊', onclick: function () { speakEn(w.en); } })
+      ]);
+      box.appendChild(row);
+    });
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function starString(n) {
+    n = Math.max(0, Math.min(5, n | 0));
+    return '⭐'.repeat(n) + (n ? '' : '—');
+  }
+
+  function refreshHub() {
+    const grid = document.getElementById('hubGrid');
+    grid.innerHTML = '';
+    MODES.forEach(m => {
+      const mp = state.progress.modes[m.id] || state.progress.soft[m.id] || null;
+      const stars = mp && typeof mp.stars === 'number' ? mp.stars : 0;
+      const done = !!(mp && mp.completed);
+      const btn = el('button', {
+        type: 'button',
+        className: 'mode-btn' + (m.kind === 'challenge' ? ' challenge' : '') + (done ? ' done' : ''),
+        onclick: function () { startMode(m.id); }
+      }, [
+        el('span', { className: 'ico', text: m.ico }),
+        el('span', { className: 'name', text: m.name }),
+        el('span', { className: 'desc', text: m.desc }),
+        el('span', { className: 'stars', text: done ? starString(stars) + ' 完成' : '尚未闖關' })
+      ]);
+      grid.appendChild(btn);
+    });
+  }
+
+  function updateTotalStars() {
+    let t = 0;
+    Object.keys(state.progress.modes).forEach(k => {
+      const m = state.progress.modes[k];
+      if (m && m.stars) t += m.stars;
+    });
+    Object.keys(state.progress.soft).forEach(k => {
+      const m = state.progress.soft[k];
+      if (m && m.stars) t += m.stars;
+    });
+    state.progress.totalStars = t;
+    document.getElementById('totalStarsBadge').textContent = '⭐ ' + t;
+  }
+
+  function showHub() {
+    state.mode = null;
+    state.session = null;
+    document.getElementById('hubView').classList.remove('hidden');
+    document.getElementById('gameView').classList.add('hidden');
+    refreshHub();
+  }
+
+  function showGame() {
+    document.getElementById('hubView').classList.add('hidden');
+    document.getElementById('gameView').classList.remove('hidden');
+  }
+
+  function setProgress(pct) {
+    document.getElementById('gameProgress').style.width = Math.max(0, Math.min(100, pct)) + '%';
+  }
+
+  function setFeedback(ok, msg) {
+    const f = document.getElementById('gameFeedback');
+    f.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+    f.textContent = msg;
+  }
+
+  function clearFeedback() {
+    const f = document.getElementById('gameFeedback');
+    f.className = 'feedback';
+    f.textContent = '';
+  }
+
+  function startMode(id) {
+    const meta = MODES.find(m => m.id === id);
+    if (!meta) return;
+    state.mode = id;
+    showGame();
+    document.getElementById('gameTitle').textContent = meta.ico + ' ' + meta.name;
+    document.getElementById('btnNext').classList.add('hidden');
+    document.getElementById('btnFinishMode').classList.add('hidden');
+    clearFeedback();
+    if (id === 'flip') startFlip();
+    else if (id === 'bubbles') startBubbles();
+    else if (id === 'spelling') startSpelling();
+    else if (id === 'cloze') startCloze();
+    else if (id === 'quiz') startQuiz();
+    else if (id === 'gateTogether') startGateTogether();
+    else if (id === 'gateOne') startGateOne();
+  }
+
+  function finishMode(stars, extra) {
+    const id = state.mode;
+    const meta = MODES.find(m => m.id === id);
+    const payload = Object.assign({ completed: true, stars: stars, at: new Date().toISOString() }, extra || {});
+    if (meta && meta.kind === 'challenge') state.progress.soft[id] = payload;
+    else state.progress.modes[id] = payload;
+    saveProgress();
+    const body = document.getElementById('gameBody');
+    body.innerHTML = '';
+    body.appendChild(el('div', { className: 'celebrate', text: '太棒了！這關拿到 ' + stars + ' 顆星 🌟' }));
+    body.appendChild(el('p', { className: 'tiny', style: 'text-align:center', text: '可以回大廳再玩別的關，或重玩這一關。' }));
+    document.getElementById('btnNext').classList.add('hidden');
+    document.getElementById('btnFinishMode').classList.add('hidden');
+    setProgress(100);
+    document.getElementById('gameScorePill').textContent = '⭐ ' + stars;
+  }
+
+  /* ===== Flip ===== */
+  function startFlip() {
+    const pairs = pick(WORDS, 8);
+    const cards = [];
+    pairs.forEach(w => {
+      cards.push({ pairId: w.id, side: 'en', label: w.en, wordId: w.id });
+      cards.push({ pairId: w.id, side: 'zh', label: w.zh.split('；')[0], wordId: w.id });
+    });
+    const deck = shuffle(cards).map((c, i) => Object.assign({}, c, { key: i }));
+    state.session = { type: 'flip', deck: deck, flipped: [], matched: {}, moves: 0, starsEarned: 0, lock: false };
+    document.getElementById('gameScorePill').textContent = '配對 0/' + pairs.length;
+    document.getElementById('gameRoundPill').textContent = '翻牌記憶';
+    setProgress(0);
+    renderFlip();
+  }
+
+  function renderFlip() {
+    const s = state.session;
+    const body = document.getElementById('gameBody');
+    body.innerHTML = '';
+    const board = el('div', { className: 'flip-board' });
+    s.deck.forEach(card => {
+      const matched = !!s.matched[card.pairId];
+      const flipped = matched || s.flipped.indexOf(card.key) >= 0;
+      const btn = el('button', {
+        type: 'button',
+        className: 'flip-card' + (flipped ? ' flipped' : '') + (matched ? ' matched' : ''),
+        onclick: function () { onFlip(card.key); }
+      }, [
+        el('div', { className: 'flip-inner' }, [
+          el('div', { className: 'flip-face flip-front', text: '✨' }),
+          el('div', { className: 'flip-face flip-back', text: card.label })
+        ])
+      ]);
+      board.appendChild(btn);
+    });
+    body.appendChild(board);
+    body.appendChild(el('p', { className: 'tiny', text: '點兩張牌，配對英文與中文。' }));
+  }
+
+  function onFlip(key) {
+    const s = state.session;
+    if (!s || s.lock) return;
+    const card = s.deck.find(c => c.key === key);
+    if (!card || s.matched[card.pairId] || s.flipped.indexOf(key) >= 0) return;
+    if (s.flipped.length >= 2) return;
+    s.flipped.push(key);
+    renderFlip();
+    if (s.flipped.length < 2) return;
+    s.moves++;
+    const a = s.deck.find(c => c.key === s.flipped[0]);
+    const b = s.deck.find(c => c.key === s.flipped[1]);
+    if (a.pairId === b.pairId && a.side !== b.side) {
+      s.matched[a.pairId] = true;
+      s.starsEarned++;
+      s.flipped = [];
+      const total = Object.keys(s.matched).length;
+      const need = s.deck.length / 2;
+      document.getElementById('gameScorePill').textContent = '配對 ' + total + '/' + need;
+      setProgress((total / need) * 100);
+      setFeedback(true, '配對成功！' + a.label + ' ↔ ' + b.label);
+      renderFlip();
+      if (total >= need) {
+        const stars = s.moves <= need + 4 ? 5 : s.moves <= need + 8 ? 4 : 3;
+        setTimeout(function () { finishMode(stars, { moves: s.moves, matched: total }); }, 450);
+      }
+    } else {
+      bumpMiss(a.wordId);
+      bumpMiss(b.wordId);
+      s.lock = true;
+      setFeedback(false, '還差一點，再試一次～');
+      setTimeout(function () {
+        s.flipped = [];
+        s.lock = false;
+        clearFeedback();
+        renderFlip();
+      }, 750);
+    }
+  }
+
+  /* ===== Bubbles ===== */
+  function startBubbles() {
+    const rounds = pick(WORDS, 8);
+    state.session = { type: 'bubbles', rounds: rounds, i: 0, correct: 0, answered: false };
+    document.getElementById('gameRoundPill').textContent = '泡泡 1/' + rounds.length;
+    document.getElementById('gameScorePill').textContent = '⭐ 0';
+    setProgress(0);
+    renderBubbles();
+  }
+
+  function renderBubbles() {
+    const s = state.session;
+    const body = document.getElementById('gameBody');
+    body.innerHTML = '';
+    clearFeedback();
+    document.getElementById('btnNext').classList.add('hidden');
+    const w = s.rounds[s.i];
+    const askEn = Math.random() > 0.45;
+    s.promptIsEn = askEn;
+    s.targetId = w.id;
+    s.answered = false;
+    const distractors = pick(WORDS.filter(x => x.id !== w.id), 3);
+    const opts = shuffle([w].concat(distractors));
+    const stage = el('div', { className: 'bubble-stage' });
+    stage.appendChild(el('div', {
+      className: 'bubble-prompt',
+      html: askEn
+        ? '找出意思接近：<br><span style="font-size:1.35rem">' + esc(w.en) + '</span> <button type="button" class="btn-speak" id="bubSpeak">🔊</button>'
+        : '哪個英文是：<br><span style="font-size:1.2rem">' + esc(w.zh) + '</span>'
+    }));
+    const colors = ['#7c3aed', '#14b8a6', '#ec4899', '#f59e0b', '#6366f1'];
+    const positions = [
+      { left: '8%', top: '28%', size: 96 },
+      { left: '55%', top: '26%', size: 110 },
+      { left: '18%', top: '58%', size: 100 },
+      { left: '58%', top: '58%', size: 92 }
+    ];
+    opts.forEach(function (o, idx) {
+      const p = positions[idx];
+      const label = askEn ? o.zh.split('；')[0] : o.en;
+      const b = el('button', {
+        type: 'button',
+        className: 'bubble',
+        style: 'left:' + p.left + ';top:' + p.top + ';width:' + p.size + 'px;height:' + p.size + 'px;background:' + colors[idx] + ';font-size:' + (label.length > 10 ? '.72rem' : '.9rem') + ';animation-delay:' + (idx * 0.2) + 's',
+        text: label,
+        onclick: function () { onBubble(o.id); }
+      });
+      stage.appendChild(b);
+    });
+    body.appendChild(stage);
+    const speakBtn = document.getElementById('bubSpeak');
+    if (speakBtn) speakBtn.onclick = function () { speakEn(w.en); };
+  }
+
+  function onBubble(id) {
+    const s = state.session;
+    if (!s || s.answered) return;
+    s.answered = true;
+    const w = s.rounds[s.i];
+    if (id === w.id) {
+      s.correct++;
+      setFeedback(true, '泡泡破得好！✨ ' + w.en + ' = ' + w.zh);
+    } else {
+      bumpMiss(w.id);
+      setFeedback(false, '提示：' + w.en + ' → ' + w.zh + '（' + w.gloss + '）');
+    }
+    document.getElementById('gameScorePill').textContent = '⭐ ' + s.correct;
+    document.getElementById('btnNext').classList.remove('hidden');
+    document.getElementById('btnNext').onclick = function () {
+      s.i++;
+      if (s.i >= s.rounds.length) {
+        const stars = Math.max(3, Math.round((s.correct / s.rounds.length) * 5));
+        finishMode(stars, { correct: s.correct, total: s.rounds.length });
+      } else {
+        document.getElementById('gameRoundPill').textContent = '泡泡 ' + (s.i + 1) + '/' + s.rounds.length;
+        setProgress(((s.i) / s.rounds.length) * 100);
+        renderBubbles();
+      }
+    };
+  }
+
+  /* ===== Spelling ===== */
+  function startSpelling() {
+    const pool = WORDS.filter(w => w.en.replace(/[^a-zA-Z]/g, '').length >= 4 && w.en.replace(/[^a-zA-Z]/g, '').length <= 14);
+    const rounds = pick(pool.length >= 6 ? pool : WORDS, 6);
+    state.session = { type: 'spelling', rounds: rounds, i: 0, correct: 0 };
+    document.getElementById('gameRoundPill').textContent = '拼字 1/' + rounds.length;
+    document.getElementById('gameScorePill').textContent = '⭐ 0';
+    setProgress(0);
+    renderSpelling();
+  }
+
+  function renderSpelling() {
+    const s = state.session;
+    const body = document.getElementById('gameBody');
+    body.innerHTML = '';
+    clearFeedback();
+    document.getElementById('btnNext').classList.add('hidden');
+    const w = s.rounds[s.i];
+    const letters = w.en.split('');
+    const scramble = shuffle(letters.map(function (ch, i) { return { ch: ch, i: i }; }));
+    // ensure not identical order when possible
+    s.answer = [];
+    s.target = letters;
+    s.chips = scramble;
+    s.answered = false;
+
+    const card = el('div', { className: 'card-word' }, [
+      el('div', { className: 'zh', text: w.zh }),
+      el('div', { className: 'gloss', text: w.gloss }),
+      el('div', { style: 'margin-top:.5rem' }, [
+        el('button', { type: 'button', className: 'btn-speak', text: '🔊 聽英文', onclick: function () { speakEn(w.en); } })
+      ])
+    ]);
+    body.appendChild(card);
+    body.appendChild(el('div', { className: 'tiny', text: '依序點字母，組成正確拼法（空格／連字號也要）' }));
+
+    const slots = el('div', { className: 'spell-box', id: 'spellSlots' });
+    letters.forEach(function () { slots.appendChild(el('div', { className: 'letter-slot', text: '' })); });
+    body.appendChild(slots);
+
+    const tray = el('div', { className: 'spell-box', id: 'spellTray' });
+    scramble.forEach(function (item, idx) {
+      tray.appendChild(el('button', {
+        type: 'button',
+        className: 'letter-chip',
+        'data-idx': String(idx),
+        text: item.ch === ' ' ? '␠' : item.ch,
+        onclick: function () { onSpellChip(idx); }
+      }));
+    });
+    body.appendChild(tray);
+
+    const row = el('div', { className: 'input-row' }, [
+      el('button', { type: 'button', className: 'btn btn-ghost', text: '清除', onclick: function () { renderSpelling(); } }),
+      el('button', { type: 'button', className: 'btn btn-primary', text: '檢查 ✓', onclick: checkSpelling })
+    ]);
+    body.appendChild(row);
+  }
+
+  function onSpellChip(idx) {
+    const s = state.session;
+    if (!s || s.answered) return;
+    const tray = document.getElementById('spellTray');
+    const chip = tray && tray.querySelector('[data-idx="' + idx + '"]');
+    if (!chip || chip.classList.contains('used')) return;
+    if (s.answer.length >= s.target.length) return;
+    s.answer.push(s.chips[idx].ch);
+    chip.classList.add('used');
+    const slots = document.getElementById('spellSlots').children;
+    const pos = s.answer.length - 1;
+    slots[pos].textContent = s.chips[idx].ch === ' ' ? '·' : s.chips[idx].ch;
+  }
+
+  function checkSpelling() {
+    const s = state.session;
+    if (!s || s.answered) return;
+    const got = s.answer.join('');
+    const need = s.target.join('');
+    s.answered = true;
+    const w = s.rounds[s.i];
+    if (got.toLowerCase() === need.toLowerCase()) {
+      s.correct++;
+      setFeedback(true, '拼對了！🎉 ' + w.en);
+    } else {
+      bumpMiss(w.id);
+      setFeedback(false, '正確是：' + w.en + '。再記一次就好！');
+    }
+    document.getElementById('gameScorePill').textContent = '⭐ ' + s.correct;
+    document.getElementById('btnNext').classList.remove('hidden');
+    document.getElementById('btnNext').onclick = function () {
+      s.i++;
+      if (s.i >= s.rounds.length) {
+        const stars = Math.max(3, Math.round((s.correct / s.rounds.length) * 5));
+        finishMode(stars, { correct: s.correct, total: s.rounds.length });
+      } else {
+        document.getElementById('gameRoundPill').textContent = '拼字 ' + (s.i + 1) + '/' + s.rounds.length;
+        setProgress((s.i / s.rounds.length) * 100);
+        renderSpelling();
+      }
+    };
+  }
+
+  /* ===== Cloze ===== */
+  function startCloze() {
+    const rounds = pick(WORDS, 7);
+    state.session = { type: 'cloze', rounds: rounds, i: 0, correct: 0 };
+    document.getElementById('gameRoundPill').textContent = '填空 1/' + rounds.length;
+    document.getElementById('gameScorePill').textContent = '⭐ 0';
+    setProgress(0);
+    renderCloze();
+  }
+
+  function blankSentence(w) {
+    const en = w.en;
+    const re = new RegExp(en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    if (re.test(w.sentence)) {
+      return w.sentence.replace(re, '___');
+    }
+    return w.sentence + ' (word: ___)';
+  }
+
+  function renderCloze() {
+    const s = state.session;
+    const body = document.getElementById('gameBody');
+    body.innerHTML = '';
+    clearFeedback();
+    document.getElementById('btnNext').classList.add('hidden');
+    const w = s.rounds[s.i];
+    s.answered = false;
+    body.appendChild(el('div', { className: 'cloze-sent', html: esc(blankSentence(w)).replace('___', '<span class="cloze-blank">_____</span>') }));
+    body.appendChild(el('div', { className: 'tiny', text: '提示：' + w.zh + ' · ' + w.gloss }));
+
+    const choices = shuffle([w].concat(pick(WORDS.filter(x => x.id !== w.id), 3)));
+    const box = el('div', { className: 'choices' });
+    choices.forEach(function (c) {
+      box.appendChild(el('button', {
+        type: 'button',
+        className: 'choice',
+        text: c.en,
+        onclick: function () { onCloze(c.id, box); }
+      }));
+    });
+    body.appendChild(box);
+
+    const typeRow = el('div', { className: 'input-row' }, [
+      el('input', { type: 'text', id: 'clozeInput', placeholder: '或自己打英文…', autocomplete: 'off', autocorrect: 'off', spellcheck: 'false' }),
+      el('button', { type: 'button', className: 'btn btn-teal', text: '送出', onclick: function () {
+        const v = (document.getElementById('clozeInput').value || '').trim();
+        if (!v) return;
+        onClozeTyped(v, box);
+      }})
+    ]);
+    body.appendChild(typeRow);
+  }
+
+  function markClozeDone(ok, box) {
+    const s = state.session;
+    s.answered = true;
+    const w = s.rounds[s.i];
+    Array.prototype.forEach.call(box.querySelectorAll('.choice'), function (btn) {
+      btn.disabled = true;
+      if (btn.textContent.toLowerCase() === w.en.toLowerCase()) btn.classList.add('correct');
+    });
+    if (ok) {
+      s.correct++;
+      setFeedback(true, '填對了！🌟 「' + w.en + '」= ' + w.zh);
+    } else {
+      bumpMiss(w.id);
+      setFeedback(false, '答案是「' + w.en + '」。例句再讀一次會更熟。');
+    }
+    document.getElementById('gameScorePill').textContent = '⭐ ' + s.correct;
+    document.getElementById('btnNext').classList.remove('hidden');
+    document.getElementById('btnNext').onclick = function () {
+      s.i++;
+      if (s.i >= s.rounds.length) {
+        const stars = Math.max(3, Math.round((s.correct / s.rounds.length) * 5));
+        finishMode(stars, { correct: s.correct, total: s.rounds.length });
+      } else {
+        document.getElementById('gameRoundPill').textContent = '填空 ' + (s.i + 1) + '/' + s.rounds.length;
+        setProgress((s.i / s.rounds.length) * 100);
+        renderCloze();
+      }
+    };
+  }
+
+  function onCloze(id, box) {
+    const s = state.session;
+    if (!s || s.answered) return;
+    const w = s.rounds[s.i];
+    const ok = id === w.id;
+    Array.prototype.forEach.call(box.querySelectorAll('.choice'), function (btn) {
+      if (btn.textContent.toLowerCase() === (wordById(id).en || '').toLowerCase() && !ok) btn.classList.add('wrong');
+    });
+    markClozeDone(ok, box);
+  }
+
+  function onClozeTyped(v, box) {
+    const s = state.session;
+    if (!s || s.answered) return;
+    const w = s.rounds[s.i];
+    const ok = v.toLowerCase() === w.en.toLowerCase();
+    markClozeDone(ok, box);
+  }
+
+  /* ===== Quick Quiz ===== */
+  function startQuiz() {
+    const items = buildQuizItems(8);
+    state.session = { type: 'quiz', rounds: items, i: 0, correct: 0 };
+    document.getElementById('gameRoundPill').textContent = '快答 1/' + items.length;
+    document.getElementById('gameScorePill').textContent = '⭐ 0';
+    setProgress(0);
+    renderQuiz();
+  }
+
+  function buildQuizItems(n) {
+    const base = pick(WORDS, n);
+    return base.map(function (w, idx) {
+      const kind = idx % 3;
+      if (kind === 0) {
+        return {
+          wordId: w.id,
+          stem: '「' + w.en + '」最接近的意思是？',
+          choices: shuffle([
+            { t: w.zh, ok: true },
+            { t: pick(WORDS.filter(x => x.id !== w.id), 1)[0].zh, ok: false },
+            { t: pick(WORDS.filter(x => x.id !== w.id), 1)[0].zh, ok: false },
+            { t: pick(WORDS.filter(x => x.id !== w.id), 1)[0].zh, ok: false }
+          ].filter(function (c, i, arr) {
+            return arr.findIndex(x => x.t === c.t) === i;
+          }).concat([{ t: w.gloss, ok: false }]).slice(0, 4)),
+          speak: w.en
+        };
+      }
+      if (kind === 1) {
+        return {
+          wordId: w.id,
+          stem: '哪個英文的意思是「' + w.zh.split('；')[0] + '」？',
+          choices: shuffle([
+            { t: w.en, ok: true }
+          ].concat(pick(WORDS.filter(x => x.id !== w.id), 3).map(x => ({ t: x.en, ok: false })))),
+          speak: null
+        };
+      }
+      return {
+        wordId: w.id,
+        stem: '選出最適合填入句子的字：\n' + blankSentence(w),
+        choices: shuffle([
+          { t: w.en, ok: true }
+        ].concat(pick(WORDS.filter(x => x.id !== w.id), 3).map(x => ({ t: x.en, ok: false })))),
+        speak: null
+      };
+    });
+  }
+
+  function renderQuiz() {
+    const s = state.session;
+    const body = document.getElementById('gameBody');
+    body.innerHTML = '';
+    clearFeedback();
+    document.getElementById('btnNext').classList.add('hidden');
+    const q = s.rounds[s.i];
+    s.answered = false;
+    const stem = el('div', { className: 'card-word' });
+    q.stem.split('\n').forEach(function (line) {
+      stem.appendChild(el('div', { style: 'margin:.2rem 0;font-size:1.05rem;font-weight:700', text: line }));
+    });
+    if (q.speak) {
+      stem.appendChild(el('button', { type: 'button', className: 'btn-speak', style: 'margin-top:.5rem', text: '🔊', onclick: function () { speakEn(q.speak); } }));
+    }
+    body.appendChild(stem);
+    const box = el('div', { className: 'choices' });
+    q.choices.forEach(function (c) {
+      box.appendChild(el('button', {
+        type: 'button',
+        className: 'choice',
+        text: c.t,
+        onclick: function () { onQuiz(c, box); }
+      }));
+    });
+    body.appendChild(box);
+  }
+
+  function onQuiz(choice, box) {
+    const s = state.session;
+    if (!s || s.answered) return;
+    s.answered = true;
+    const q = s.rounds[s.i];
+    Array.prototype.forEach.call(box.querySelectorAll('.choice'), function (btn) {
+      btn.disabled = true;
+      const ch = q.choices.find(x => x.t === btn.textContent);
+      if (ch && ch.ok) btn.classList.add('correct');
+      if (btn.textContent === choice.t && !choice.ok) btn.classList.add('wrong');
+    });
+    if (choice.ok) {
+      s.correct++;
+      setFeedback(true, '答對了！✨');
+    } else {
+      bumpMiss(q.wordId);
+      const right = q.choices.find(x => x.ok);
+      setFeedback(false, '再想一下～正確是：' + (right ? right.t : '') );
+    }
+    document.getElementById('gameScorePill').textContent = '⭐ ' + s.correct;
+    document.getElementById('btnNext').classList.remove('hidden');
+    document.getElementById('btnNext').onclick = function () {
+      s.i++;
+      if (s.i >= s.rounds.length) {
+        const stars = Math.max(3, Math.round((s.correct / s.rounds.length) * 5));
+        finishMode(stars, { correct: s.correct, total: s.rounds.length });
+      } else {
+        document.getElementById('gameRoundPill').textContent = '快答 ' + (s.i + 1) + '/' + s.rounds.length;
+        setProgress((s.i / s.rounds.length) * 100);
+        renderQuiz();
+      }
+    };
+  }
+
+  /* ===== Soft gates ===== */
+  function startSoftItems(id, title, subtitle, tip, items) {
+    state.session = { type: id, items: items, i: 0, correct: 0, answered: false, title: title, subtitle: subtitle, tip: tip };
+    document.getElementById('gameRoundPill').textContent = title + ' 1/' + items.length;
+    document.getElementById('gameScorePill').textContent = title;
+    setProgress(10);
+    renderSoftItems();
+  }
+
+  function renderSoftItems() {
+    const s = state.session;
+    const body = document.getElementById('gameBody');
+    body.innerHTML = '';
+    clearFeedback();
+    document.getElementById('btnNext').classList.add('hidden');
+    document.getElementById('btnFinishMode').classList.add('hidden');
+    const item = s.items[s.i];
+    s.answered = false;
+    body.appendChild(el('div', { className: 'card-word' }, [
+      el('div', { text: s.title }),
+      el('div', { className: 'gloss', text: item.stem || s.subtitle }),
+      el('div', { className: 'tiny', style: 'margin-top:.4rem', text: s.tip })
+    ]));
+    const box = el('div', { className: 'choices' });
+    shuffle(item.choices.slice()).forEach(function (c) {
+      box.appendChild(el('button', {
+        type: 'button',
+        className: 'choice',
+        text: c.t,
+        onclick: function () { onSoftItem(c, box); }
+      }));
+    });
+    body.appendChild(box);
+  }
+
+  function onSoftItem(choice, box) {
+    const s = state.session;
+    if (!s || s.answered) return;
+    s.answered = true;
+    const item = s.items[s.i];
+    const right = item.choices.find(function (x) { return x.ok; });
+    Array.prototype.forEach.call(box.querySelectorAll('.choice'), function (btn) {
+      btn.disabled = true;
+      if (right && btn.textContent === right.t) btn.classList.add('correct');
+      if (btn.textContent === choice.t && !choice.ok) btn.classList.add('wrong');
+    });
+    if (choice.ok) {
+      s.correct++;
+      setFeedback(true, item.okMsg || '答對了！✨');
+    } else {
+      setFeedback(false, item.hint || ('小提示：' + (right ? right.t : '')));
+    }
+    document.getElementById('gameScorePill').textContent = '⭐ ' + s.correct;
+    document.getElementById('btnNext').classList.remove('hidden');
+    document.getElementById('btnNext').onclick = function () {
+      s.i++;
+      if (s.i >= s.items.length) {
+        const stars = s.correct === s.items.length ? 5 : (s.correct >= Math.max(1, s.items.length - 1) ? 4 : 3);
+        finishMode(stars, { correct: s.correct, total: s.items.length });
+      } else {
+        document.getElementById('gameRoundPill').textContent = s.title + ' ' + (s.i + 1) + '/' + s.items.length;
+        setProgress((s.i / s.items.length) * 100);
+        renderSoftItems();
+      }
+    };
+  }
+
+  function startGateTogether() {
+    startSoftItems(
+      'gateTogether',
+      '🤝 好朋友一起走',
+      '兩個名字用 and 連在一起時，動詞不加 s',
+      '魔法口訣：Helen and Miss Sullivan 是一隊，要用 walk。',
+      [
+        {
+          stem: '哪一句最順、也最正確？',
+          choices: [
+            { t: 'Helen and Miss Sullivan walk to the well-house every morning.', ok: true },
+            { t: 'Helen and Miss Sullivan walks to the well-house every morning.', ok: false },
+            { t: 'Helen and Miss Sullivan walking to the well-house every morning.', ok: false },
+            { t: 'Helen and Miss Sullivan walk to the well-house every mornings.', ok: false }
+          ],
+          okMsg: '對了！兩個人用 and 連起來，就像一個小隊伍，動詞用 walk ✨',
+          hint: 'Helen and Miss Sullivan 是兩個人，動詞用 walk，不要加 s。'
+        },
+        {
+          stem: 'Dorothy 和 Toto 一起跑向地窖，哪一句對？',
+          choices: [
+            { t: 'Dorothy and Toto run for the cellar.', ok: true },
+            { t: 'Dorothy and Toto runs for the cellar.', ok: false },
+            { t: 'Dorothy and Toto running for the cellar.', ok: false },
+            { t: 'Dorothy and Toto run for the cellars every mornings.', ok: false }
+          ],
+          okMsg: '隊伍魔法成功！Dorothy and Toto → run ✨',
+          hint: '兩個好朋友在一起，動詞用 run，不是 runs。'
+        }
+      ]
+    );
+  }
+
+  function startGateOne() {
+    startSoftItems(
+      'gateOne',
+      '1️⃣ 一個人的腳步',
+      '只有一個人（或一個角色）當主詞時，動詞常常要加 s',
+      '魔法口訣：一個人 walks；好朋友一起 walk。',
+      [
+        {
+          stem: '稻草人一個人走在黃磚路上，哪一句對？',
+          choices: [
+            { t: 'The Scarecrow walks along the yellow brick road.', ok: true },
+            { t: 'The Scarecrow walk along the yellow brick road.', ok: false },
+            { t: 'The Scarecrow walking along the yellow brick road.', ok: false },
+            { t: 'The Scarecrow walks along the yellow brick roads every mornings.', ok: false }
+          ],
+          okMsg: '對了！只有 The Scarecrow 一個人，動詞用 walks ✨',
+          hint: '一個人當主詞時，現在式動詞常常加 s：walks。'
+        },
+        {
+          stem: '比較一下：哪一句才是「一隊人」的正確說法？',
+          choices: [
+            { t: 'Helen and Miss Sullivan walk to the well-house.', ok: true },
+            { t: 'Helen and Miss Sullivan walks to the well-house.', ok: false },
+            { t: 'Helen walk to the well-house.', ok: false },
+            { t: 'Miss Sullivan walk to the well-house.', ok: false }
+          ],
+          okMsg: '記住囉：一個人 walks，兩個好朋友 walk 🌟',
+          hint: 'Helen and Miss Sullivan 是一隊，用 walk。如果只有 Helen，才用 walks。'
+        }
+      ]
+    );
+  }
+
+  /* ===== Copy score ===== */
+  function buildScoreText() {
+    const lines = [];
+    lines.push(COPY_HEADER);
+    lines.push('日期：' + DATE + '（Asia/Shanghai）');
+    lines.push('學生：Seren · 單字闖關（週日複習）');
+    lines.push('單字庫：' + WORDS.length + ' 詞（查過 prairie / gaunt / orphan / resolved / tedious；其餘為篇章補充字）');
+    lines.push('');
+    lines.push('【模式成績】');
+    MODES.filter(m => m.kind === 'game').forEach(function (m) {
+      const p = state.progress.modes[m.id];
+      if (p && p.completed) {
+        const detail = (p.correct != null) ? (' · ' + p.correct + '/' + (p.total || '?')) : (p.matched != null ? (' · 配對 ' + p.matched) : '');
+        lines.push('- ' + m.name + '：⭐' + (p.stars || 0) + detail);
+      } else {
+        lines.push('- ' + m.name + '：未完成');
+      }
+    });
+    lines.push('');
+    lines.push('【軟挑戰】');
+    const q = state.progress.soft.gateTogether;
+    const t = state.progress.soft.gateOne;
+    lines.push('- 好朋友一起走（and + walk）：' + (q && q.completed ? ('⭐' + q.stars + (q.correct != null ? (' · ' + q.correct + '/' + (q.total || '?')) : '') + ' · ' + (q.result || '')) : '未完成'));
+    lines.push('- 一個人的腳步（單數 + walks）：' + (t && t.completed ? ('⭐' + t.stars + (t.correct != null ? (' · ' + t.correct + '/' + (t.total || '?')) : '') + ' · ' + (t.result || '')) : '未完成'));
+    lines.push('');
+    const missEntries = Object.keys(state.progress.misses)
+      .map(function (id) { return { id: id, n: state.progress.misses[id] }; })
+      .filter(function (x) { return x.n > 0; })
+      .sort(function (a, b) { return b.n - a.n; });
+    lines.push('【仍較生疏的字】');
+    if (!missEntries.length) {
+      lines.push('- （本頁尚未記錄到失誤，或都答對了 🎉）');
+    } else {
+      missEntries.forEach(function (x) {
+        const w = wordById(x.id);
+        lines.push('- ' + (w ? w.en : x.id) + (w ? '（' + w.zh + '）' : '') + ' · 失誤×' + x.n);
+      });
+    }
+    lines.push('');
+    lines.push('總星數：⭐ ' + (state.progress.totalStars || 0));
+    lines.push('localStorage：' + STORAGE_KEY);
+    return lines.join('\n');
+  }
+
+  function copyScore() {
+    const text = buildScoreText();
+    function ok() {
+      const btn = document.getElementById('btnCopyScore');
+      const old = btn.textContent;
+      btn.textContent = '✅ 已複製';
+      setTimeout(function () { btn.textContent = old; }, 1600);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok).catch(function () { fallbackCopy(text); ok(); });
+    } else {
+      fallbackCopy(text);
+      ok();
+    }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  function resetProgress() {
+    if (!confirm('確定要清除本頁闖關進度嗎？')) return;
+    state.progress = defaultProgress();
+    saveProgress();
+    showHub();
+  }
+
+  // init
+  makeStarsBg();
+  renderBank();
+  refreshHub();
+  updateTotalStars();
+  document.getElementById('btnBackHub').onclick = showHub;
+  document.getElementById('btnCopyScore').onclick = copyScore;
+  document.getElementById('btnResetProgress').onclick = resetProgress;
+})();
+</script>
+</body>
+</html>
