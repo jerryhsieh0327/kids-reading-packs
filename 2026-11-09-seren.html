@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Seren Reading · Come Away, Come Away! · 2026-11-09</title>
+<style>
+  :root {
+    --bg: #eef6ff; --card: #fff; --ink: #1a2744; --muted: #4a5d7a;
+    --accent: #2b6cb0; --accent-soft: #dbeafe; --wrong: #b91c1c; --wrong-soft: #fee2e2;
+    --ok: #2e7d32; --ok-soft: #c8e6c9; --border: #90caf9; --shadow: 0 8px 24px rgba(26,39,68,.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(165deg, #eef6ff 0%, #f3e5f5 45%, #fff8e1 100%);
+    color: var(--ink); line-height: 1.65; min-height: 100vh;
+    padding-bottom: 2rem;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.25rem; box-shadow: var(--shadow); margin-bottom: 1rem; border-left: 6px solid var(--accent);
+  }
+  header h1 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .meta a { color: var(--accent); }
+  .tip {
+    margin-top: 0.75rem; padding: 0.65rem 0.8rem; background: var(--accent-soft);
+    border-radius: 8px; font-size: 0.88rem; color: #1e3a5f; border: 1px dashed var(--accent);
+  }
+  .passage {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 1.25rem 1.35rem; box-shadow: var(--shadow); font-size: 1.15rem; line-height: 1.85;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  }
+  .passage p { margin: 0 0 1rem; }
+  .passage p:last-child { margin-bottom: 0; }
+  .passage .word {
+    cursor: pointer; touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(43,108,176,0.25); border-radius: 3px;
+  }
+  .passage .word:hover { background: rgba(43,108,176,0.14); }
+  .passage .word.active { background: var(--accent); color: #fff; }
+  #gloss {
+    display: none; position: fixed; z-index: 100; max-width: min(280px, calc(100vw - 24px));
+    background: #1a2744; color: #fff; border-radius: 10px; padding: 0.7rem 0.85rem;
+    box-shadow: 0 10px 28px rgba(26,39,68,.28); cursor: pointer;
+    pointer-events: auto;
+  }
+  #gloss.show { display: block; }
+  #gloss .g-word { font-size: 1.15rem; font-weight: 700; }
+  #gloss .g-en { opacity: 0.9; font-size: 0.9rem; margin-top: 0.15rem; }
+  #gloss .g-zh { font-size: 1.05rem; margin-top: 0.3rem; color: #ffe082; }
+  #gloss .g-hint { font-size: 0.72rem; opacity: 0.7; margin-top: 0.35rem; }
+  .quiz {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 1.1rem 1.2rem; box-shadow: var(--shadow); margin-top: 1rem;
+  }
+  .quiz h2 { margin: 0 0 0.4rem; font-size: 1.15rem; }
+  .section-note { color: var(--muted); font-size: 0.88rem; margin: 0 0 0.8rem; }
+  .q { margin: 0 0 1.1rem; padding-bottom: 0.9rem; border-bottom: 1px dashed var(--border); }
+  .q:last-child { border-bottom: 0; }
+  .q .stem { font-weight: 600; margin-bottom: 0.45rem; font-size: 1.02rem; }
+  .opt {
+    display: block; padding: 0.55rem 0.7rem; margin: 0.28rem 0; border: 1px solid #cfd8e3;
+    border-radius: 8px; background: #f8fafc; cursor: pointer;
+  }
+  .opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .opt.mark-ok { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.mark-bad { border-color: var(--wrong); background: var(--wrong-soft); }
+  .opt input { margin-right: 0.45rem; }
+  .explain { display: none; margin-top: 0.45rem; padding: 0.5rem 0.65rem; border-radius: 8px; font-size: 0.92rem; }
+  .explain.show-ok { display: block; background: var(--ok-soft); color: #1b5e20; }
+  .explain.show-bad { display: block; background: var(--wrong-soft); color: #7f1d1d; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+  button {
+    font-size: 1rem; padding: 0.65rem 1rem; border: 0; border-radius: 10px;
+    background: var(--accent); color: #fff; cursor: pointer;
+  }
+  #reset { background: #64748b; }
+  #copyBtn { background: #5d4037; color: #fff; display: none; }
+  #copyBtn.show { display: inline-block; }
+  #copyBtn.copied { background: #2e7d32; }
+  #score { margin-top: 0.75rem; font-weight: 700; font-size: 1.05rem; display: none; }
+  #score.show { display: block; }
+  .word-tips { margin-top: 0.8rem; font-size: 0.9rem; }
+  .tip-list { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+  .tip-chip {
+    background: var(--accent-soft); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.2rem 0.65rem; cursor: pointer; font-size: 0.88rem;
+  }
+  .src-line { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>✨🔑 Come Away, Come Away!</h1>
+    <div class="meta">
+      Seren · 來源 <strong>Project Gutenberg</strong>（公版）· 作者 <strong>J. M. Barrie</strong><br />
+      篇名：<em>Peter Pan</em>（<em>Peter and Wendy</em>）第 III 章節選 · 出版 Lexile：<strong>900L</strong>（全書標示；TeachingBooks《Peter Pan and Wendy》另列 920L）· 類型：經典奇幻兒童小說 · 2026-11-09<br />
+      授權：Public Domain（美國）· 原文：<a href="https://www.gutenberg.org/ebooks/16" target="_blank" rel="noopener noreferrer">gutenberg.org/ebooks/16</a><br />
+      預估：約 20–25 分鐘（讀短文＋Reading 5＋Vocab 10）· 約 1495 字
+    </div>
+    <div class="tip">
+      💡 <strong>怎麼做：</strong>先讀下方短文——點或雙點單字，中英文解釋會出現在字旁邊；再點同一字（或點解釋／點別處）就消失。<br/>
+      再做 Reading 5 題＋Vocab 10 題。全部做完按「提交全部答案」，再按「複製成績」貼到微信給爸爸媽媽！點過的字會進成績單。
+    </div>
+    <p class="src-line">本頁完整嵌入公版全文節選，無需翻牆；Lexile 900L 為 <em>Peter Pan (Peter and Wendy)</em> 全書公開標示（Lerner First Avenue Classics 未刪節版 MetaMetrics），TeachingBooks 另列 920L，非本節選另行認證。來源 URL 僅供家長參考。</p>
+  </header>
+
+  <article class="passage" id="passage" aria-label="Reading passage"></article>
+  <div class="word-tips">
+    <strong>提示字（可點讀）</strong>
+    <div class="tip-list" id="tip-words"></div>
+  </div>
+
+  <div id="gloss" role="status" aria-live="polite">
+    <div class="g-word" id="g-word"></div>
+    <div class="g-en" id="g-en"></div>
+    <div class="g-zh" id="g-zh"></div>
+    <div class="g-hint">再點同一字／點這裡／點別處 → 關閉</div>
+  </div>
+
+  <section class="quiz" id="quiz-reading">
+    <h2>Comprehension Check（5 題）</h2>
+    <p class="section-note">根據上方短文 <em>Come Away, Come Away!</em>（Peter Pan / Peter and Wendy 第 III 章節選）作答。</p>
+    <form id="quiz-form-reading"></form>
+  </section>
+
+  <section class="quiz" id="quiz-vocab">
+    <h2>Vocabulary in Context（10）</h2>
+    <p class="section-note">粗體＋底線的字，請選在句子裡最接近的意思。這些字與短文獨立，可複習本週弱項。</p>
+    <form id="quiz-form-vocab"></form>
+    <div class="actions">
+      <button type="button" id="submit">提交全部答案</button>
+      <button type="button" id="copyBtn">複製成績</button>
+      <button type="button" id="reset">重做</button>
+    </div>
+    <div id="score"></div>
+  </section>
+</div>
+
+<script>
+const GLOSSARY = {"a":{"en":"one","zh":"一個"},"about":{"en":"approximately; concerning","zh":"大約；關於"},"accidents":{"en":"unlucky harmful events","zh":"意外"},"after":{"en":"later than","zh":"之後"},"afterward":{"en":"later","zh":"後來"},"again":{"en":"one more time","zh":"再次"},"air":{"en":"gas we breathe; mood","zh":"空氣；氣氛"},"all":{"en":"everything","zh":"全部"},"almost":{"en":"nearly","zh":"幾乎"},"also":{"en":"too","zh":"也"},"although":{"en":"even though","zh":"雖然"},"always":{"en":"at all times","zh":"永遠"},"an":{"en":"one","zh":"一個"},"and":{"en":"plus","zh":"和"},"another":{"en":"one more","zh":"另一個"},"anxiously":{"en":"with worry","zh":"焦急地"},"any":{"en":"even one","zh":"任何"},"anything":{"en":"any thing","zh":"任何事"},"arms":{"en":"upper limbs","zh":"手臂"},"arose":{"en":"came up","zh":"出現"},"as":{"en":"as ... as","zh":"盡可能"},"asleep":{"en":"sleeping","zh":"睡著"},"at":{"en":"in a place/time","zh":"在"},"aunt":{"en":"parent's sister","zh":"阿姨"},"away":{"en":"from home","zh":"離家"},"baby":{"en":"very young child","zh":"嬰兒"},"back":{"en":"rearward","zh":"向後"},"badly":{"en":"severely","zh":"嚴重地"},"baked":{"en":"hardened by heat","zh":"烤乾"},"balloon":{"en":"bag filled with gas","zh":"氣球"},"barking":{"en":"dog sounds","zh":"吠叫"},"be":{"en":"exist","zh":"是"},"beard":{"en":"chin hair","zh":"鬍鬚"},"because":{"en":"for the reason that","zh":"因為"},"become":{"en":"turn into","zh":"變成"},"became":{"en":"turned into","zh":"成為"},"bed":{"en":"furniture for sleep","zh":"床"},"beds":{"en":"sleeping furniture","zh":"床"},"been":{"en":"past of be","zh":"被"},"before":{"en":"earlier than","zh":"在……之前"},"began":{"en":"started","zh":"開始"},"beside":{"en":"next to","zh":"旁邊"},"between":{"en":"in the middle of two","zh":"之間"},"big":{"en":"large","zh":"大的"},"black":{"en":"darkest color","zh":"黑色"},"blades":{"en":"grass leaves","zh":"草葉"},"blistered":{"en":"bubbled from heat","zh":"起泡裂開"},"boots":{"en":"sturdy shoes","zh":"靴子"},"both":{"en":"the two","zh":"兩者"},"bowed":{"en":"bent forward politely","zh":"鞠躬"},"bright":{"en":"full of light","zh":"明亮"},"bring":{"en":"carry toward","zh":"帶來"},"broad":{"en":"wide","zh":"寬闊"},"broke":{"en":"started suddenly; shattered","zh":"爆發"},"build":{"en":"construct","zh":"建造"},"building":{"en":"structure","zh":"建築物"},"burned":{"en":"damaged by heat","zh":"燒焦"},"but":{"en":"except","zh":"除了"},"by":{"en":"near; by means of; before","zh":"藉由；到……時"},"called":{"en":"said someone's name","zh":"呼叫"},"calmly":{"en":"without panic","zh":"平靜地"},"came":{"en":"arrived","zh":"來了"},"can":{"en":"able to","zh":"能夠"},"cannot":{"en":"not able","zh":"無法"},"carried":{"en":"held and took along","zh":"帶著"},"carry":{"en":"take elsewhere","zh":"搬運"},"case":{"en":"situation","zh":"情況"},"catch":{"en":"grab","zh":"抓住"},"caught":{"en":"grabbed","zh":"抓住了"},"cellar":{"en":"underground room","zh":"地窖"},"chairs":{"en":"seats with backs","zh":"椅子"},"changed":{"en":"made different","zh":"改變"},"cheeks":{"en":"sides of face","zh":"臉頰"},"child":{"en":"young person","zh":"孩子"},"closed":{"en":"shut","zh":"關上"},"closing":{"en":"shutting","zh":"關上"},"color":{"en":"hue","zh":"顏色"},"come":{"en":"moved","zh":"掉"},"coming":{"en":"approaching","zh":"到來"},"contained":{"en":"held inside","zh":"裝有"},"cookstove":{"en":"cooking stove","zh":"烹飪爐"},"corner":{"en":"where sides meet","zh":"角落"},"could":{"en":"were able","zh":"能夠"},"country":{"en":"land","zh":"鄉間"},"cows":{"en":"cattle","zh":"乳牛"},"cracks":{"en":"thin breaks","zh":"裂縫"},"cradle":{"en":"baby's rocking bed","zh":"搖籃"},"crawled":{"en":"moved on hands/knees","zh":"爬行"},"crept":{"en":"moved carefully / quietly","zh":"悄悄爬"},"crush":{"en":"smash","zh":"壓碎"},"cupboard":{"en":"cabinet","zh":"碗櫃"},"cyclone":{"en":"violent spinning windstorm","zh":"龍捲風"},"danger":{"en":"chance of harm","zh":"危險"},"dark":{"en":"without light","zh":"黑暗"},"dashed":{"en":"smashed violently","zh":"摔碎"},"day":{"en":"the date","zh":"那一天"},"deaf":{"en":"unable to hear","zh":"聾"},"dearly":{"en":"with great love","zh":"深深地"},"did":{"en":"past of do","zh":"做了"},"directions":{"en":"ways","zh":"方向"},"dishes":{"en":"plates/bowls","zh":"碗盤"},"do":{"en":"perform","zh":"做"},"door":{"en":"entrance","zh":"門"},"doorstep":{"en":"step by door","zh":"門階"},"doorway":{"en":"door opening","zh":"門口"},"dorothy":{"en":"the girl in the story","zh":"桃樂絲"},"down":{"en":"to a lower place","zh":"向下"},"dragged":{"en":"pulled hard","zh":"拖"},"dropped":{"en":"fell; came down","zh":"掉進來；落下"},"dug":{"en":"made a hole","zh":"挖了"},"dull":{"en":"not bright","zh":"暗淡"},"ear":{"en":"hearing organ","zh":"耳朵"},"ears":{"en":"hearing organs","zh":"耳朵"},"easily":{"en":"without difficulty","zh":"輕易地"},"edge":{"en":"outer border","zh":"邊緣"},"else":{"en":"other","zh":"其他"},"em":{"en":"Aunt Em","zh":"愛姆"},"enough":{"en":"as much as needed","zh":"足夠"},"even":{"en":"so much as","zh":"甚至"},"ever":{"en":"at any time","zh":"永遠；曾經"},"everything":{"en":"all things","zh":"每樣東西"},"everywhere":{"en":"all places","zh":"到處"},"exact":{"en":"precise","zh":"精確"},"except":{"en":"not including","zh":"除了"},"eyes":{"en":"seeing organs","zh":"眼睛"},"face":{"en":"front of head","zh":"臉"},"fall":{"en":"drop down","zh":"落下"},"family":{"en":"parents and children","zh":"家人"},"far":{"en":"distant","zh":"遠"},"farmer":{"en":"farm worker","zh":"農夫"},"fast":{"en":"quickly","zh":"快速"},"feather":{"en":"bird covering","zh":"羽毛"},"feet":{"en":"ends of legs","zh":"腳"},"fell":{"en":"dropped; became","zh":"陷入；落下"},"felt":{"en":"sensed","zh":"感覺"},"few":{"en":"not many","zh":"少數"},"find":{"en":"discover","zh":"找到"},"first":{"en":"earliest","zh":"第一個"},"flat":{"en":"level","zh":"平坦"},"floor":{"en":"the bottom of a room","zh":"地板"},"followed":{"en":"went after","zh":"跟著"},"footing":{"en":"secure place for feet","zh":"立足點"},"for":{"en":"intended to; because","zh":"為了"},"four":{"en":"number 4","zh":"四"},"frightened":{"en":"scared","zh":"害怕"},"fright":{"en":"sudden fear","zh":"驚嚇"},"from":{"en":"starting at","zh":"從"},"funny":{"en":"strange or amusing","zh":"奇怪；好笑"},"future":{"en":"time to come","zh":"未來"},"garret":{"en":"attic","zh":"閣樓"},"gaunt":{"en":"very thin and worn-looking","zh":"瘦削憔悴"},"gently":{"en":"softly","zh":"輕輕地"},"get":{"en":"receive","zh":"收到"},"girl":{"en":"young female","zh":"女孩"},"glance":{"en":"quick look","zh":"一瞥"},"go":{"en":"move","zh":"去"},"going":{"en":"moving","zh":"正在走"},"got":{"en":"became; obtained","zh":"變得；得到"},"grass":{"en":"ground plants","zh":"草"},"gray":{"en":"between black and white","zh":"灰色"},"great":{"en":"very large","zh":"巨大"},"green":{"en":"color of grass","zh":"綠色"},"ground":{"en":"earth surface","zh":"地面"},"growing":{"en":"becoming","zh":"變得"},"had":{"en":"past perfect","zh":"已經"},"hair":{"en":"on the head","zh":"頭髮"},"halfway":{"en":"midway","zh":"半途"},"hand":{"en":"end of arm","zh":"手"},"happen":{"en":"take place","zh":"發生"},"happened":{"en":"took place","zh":"發生了"},"hard":{"en":"with effort; firm","zh":"用力；堅硬"},"has":{"en":"owns; present perfect","zh":"有"},"have":{"en":"possess","zh":"有"},"he":{"en":"that male","zh":"他"},"head":{"en":"top of body","zh":"頭"},"heard":{"en":"listened to","zh":"聽見"},"heart":{"en":"organ / feeling center","zh":"心"},"henry":{"en":"Uncle Henry","zh":"亨利"},"her":{"en":"belonging to her / that female","zh":"她的；她"},"here":{"en":"this place","zh":"這裡"},"hid":{"en":"went out of sight","zh":"躲起來"},"higher":{"en":"more high","zh":"更高"},"him":{"en":"that male","zh":"他"},"his":{"en":"belonging to him","zh":"他的"},"hole":{"en":"opening","zh":"洞"},"horribly":{"en":"terribly","zh":"可怕地"},"horses":{"en":"animals to ride","zh":"馬"},"hour":{"en":"60 minutes","zh":"小時"},"hours":{"en":"many hours","zh":"幾小時"},"house":{"en":"home building","zh":"房子"},"howled":{"en":"cried loudly","zh":"呼嘯"},"if":{"en":"as though","zh":"好像"},"in":{"en":"during","zh":"在"},"into":{"en":"to inside","zh":"進入"},"is":{"en":"present of be","zh":"是"},"it":{"en":"the house","zh":"它"},"its":{"en":"belonging to it","zh":"它的"},"jumped":{"en":"leaped","zh":"跳"},"kansas":{"en":"U.S. prairie state","zh":"堪薩斯"},"kept":{"en":"held; continued","zh":"保持"},"know":{"en":"understand","zh":"知道"},"ladder":{"en":"climbing steps","zh":"梯子"},"land":{"en":"ground","zh":"土地"},"last":{"en":"finally; final","zh":"最後"},"later":{"en":"afterward","zh":"後來"},"laugh":{"en":"a happy sound","zh":"笑聲"},"laughter":{"en":"sound of laughing","zh":"笑聲"},"lay":{"en":"rested flat","zh":"躺"},"led":{"en":"guided","zh":"通往"},"left":{"en":"departed","zh":"離開了"},"like":{"en":"similar to","zh":"像"},"lips":{"en":"mouth edges","zh":"嘴唇"},"little":{"en":"small","zh":"小"},"lived":{"en":"had a home","zh":"住"},"lonely":{"en":"feeling alone","zh":"孤獨"},"long":{"en":"having length; for much time","zh":"長；長久"},"look":{"en":"use eyes; search","zh":"看；找"},"looked":{"en":"appeared; used eyes","zh":"看起來；看了"},"lost":{"en":"no longer having","zh":"失去"},"loud":{"en":"strong sound","zh":"大聲"},"loudly":{"en":"with strong sound","zh":"大聲地"},"loved":{"en":"cared deeply","zh":"愛"},"low":{"en":"quiet; not high","zh":"低聲"},"lumber":{"en":"building wood","zh":"木材"},"made":{"en":"caused; created","zh":"使；做成"},"many":{"en":"large number","zh":"許多"},"mass":{"en":"large amount","zh":"一大塊"},"me":{"en":"the speaker","zh":"我"},"meet":{"en":"come to greet","zh":"迎接"},"merry":{"en":"cheerful","zh":"快樂"},"merrily":{"en":"cheerfully","zh":"愉快地"},"met":{"en":"came together","zh":"相遇"},"middle":{"en":"center","zh":"中間"},"midst":{"en":"middle of","zh":"之中"},"mighty":{"en":"very powerful","zh":"強大"},"miles":{"en":"distance units","zh":"英里"},"more":{"en":"increasingly","zh":"更"},"morning":{"en":"early day","zh":"早晨"},"must":{"en":"have to","zh":"必須"},"my":{"en":"belonging to me","zh":"我的"},"nearly":{"en":"almost","zh":"幾乎"},"never":{"en":"not ever","zh":"從不"},"night":{"en":"dark time","zh":"夜晚"},"no":{"en":"not so","zh":"不"},"nor":{"en":"and not","zh":"也沒有"},"north":{"en":"compass direction","zh":"北方"},"nose":{"en":"smell organ","zh":"鼻子"},"not":{"en":"negation","zh":"沒有"},"nothing":{"en":"not anything","zh":"什麼都沒"},"now":{"en":"at this time","zh":"現在"},"of":{"en":"from","zh":"從"},"off":{"en":"away; detached","zh":"脫落"},"on":{"en":"continuing; atop","zh":"繼續；在……上"},"once":{"en":"at one time","zh":"曾經"},"one":{"en":"person","zh":"人"},"only":{"en":"just","zh":"才"},"open":{"en":"not closed","zh":"開著"},"opened":{"en":"made open","zh":"打開"},"or":{"en":"choice","zh":"或"},"orphan":{"en":"child without living parents","zh":"孤兒"},"other":{"en":"different","zh":"其他"},"out":{"en":"outside","zh":"出去"},"over":{"en":"too much; above","zh":"過分；在……之上"},"paint":{"en":"colored coating","zh":"油漆"},"painted":{"en":"covered with paint","zh":"上漆"},"passed":{"en":"went through","zh":"掠過"},"path":{"en":"way to walk","zh":"小路"},"pieces":{"en":"small parts","zh":"碎片"},"played":{"en":"had fun","zh":"玩耍"},"playing":{"en":"having fun","zh":"正在玩"},"plowed":{"en":"turned soil","zh":"犁過"},"prairie":{"en":"flat grassland","zh":"大草原"},"prairies":{"en":"flat grasslands","zh":"大草原"},"press":{"en":"push firmly","zh":"按壓"},"pressure":{"en":"pushing force","zh":"壓力"},"pretty":{"en":"beautiful","zh":"漂亮的"},"quick":{"en":"fast","zh":"快"},"quite":{"en":"rather; fairly","zh":"相當"},"raised":{"en":"lifted","zh":"抬起"},"rains":{"en":"falling water","zh":"雨"},"ran":{"en":"left quickly","zh":"逃走"},"rarely":{"en":"not often","zh":"很少"},"reached":{"en":"arrived at","zh":"到達"},"red":{"en":"color","zh":"紅色"},"remained":{"en":"stayed","zh":"留下"},"resolved":{"en":"decided firmly","zh":"下定決心"},"riding":{"en":"traveling on","zh":"乘坐"},"ripples":{"en":"small waves","zh":"波紋"},"rocked":{"en":"swayed gently","zh":"搖晃"},"roof":{"en":"building top","zh":"屋頂"},"room":{"en":"indoor space","zh":"房間"},"rose":{"en":"stood up","zh":"站起來"},"rough":{"en":"not smooth","zh":"粗糙"},"run":{"en":"move fast","zh":"跑"},"running":{"en":"moving fast","zh":"奔跑"},"rusty":{"en":"covered with rust","zh":"生鏽"},"said":{"en":"spoke","zh":"說"},"same":{"en":"not different","zh":"相同"},"sat":{"en":"rested on a seat","zh":"坐下"},"save":{"en":"rescue","zh":"救"},"saved":{"en":"rescued","zh":"拯救了"},"saw":{"en":"looked at","zh":"看見"},"scream":{"en":"loud fear cry","zh":"尖叫"},"screamed":{"en":"cried out","zh":"尖叫了"},"see":{"en":"you understand","zh":"你瞧"},"seen":{"en":"looked at before","zh":"見過"},"severe":{"en":"very strong","zh":"嚴重"},"she":{"en":"that female","zh":"她"},"sheds":{"en":"small farm buildings","zh":"棚屋"},"shook":{"en":"moved hard","zh":"震動"},"shriek":{"en":"sharp cry","zh":"尖叫聲"},"side":{"en":"direction; edge","zh":"一邊"},"silky":{"en":"smooth like silk","zh":"絲般柔滑"},"sky":{"en":"above earth","zh":"天空"},"slowly":{"en":"not quickly","zh":"慢慢地"},"small":{"en":"little","zh":"小"},"smiled":{"en":"made happy face","zh":"微笑"},"so":{"en":"so much","zh":"如此"},"sober":{"en":"serious","zh":"嚴肅"},"solemn":{"en":"very serious","zh":"莊重"},"soon":{"en":"before long","zh":"很快"},"south":{"en":"compass direction","zh":"南方"},"sparkle":{"en":"bright flash","zh":"光芒"},"spoke":{"en":"said words","zh":"說話"},"spite":{"en":"despite (in spite of)","zh":"儘管"},"started":{"en":"began","zh":"開始"},"startled":{"en":"suddenly surprised","zh":"嚇一跳"},"stern":{"en":"strict","zh":"嚴厲"},"sticking":{"en":"pushing out","zh":"伸出"},"still":{"en":"quiet; not moving; continuing","zh":"靜；仍然"},"stock":{"en":"farm animals","zh":"牲畜"},"stood":{"en":"was upright; remained","zh":"放著；站著"},"stopped":{"en":"ceased","zh":"停止"},"storm":{"en":"bad weather","zh":"暴風雨"},"strange":{"en":"unusual","zh":"奇怪"},"strong":{"en":"powerful","zh":"強"},"suddenly":{"en":"without warning","zh":"突然"},"sun":{"en":"star lighting Earth","zh":"太陽"},"surroundings":{"en":"things around","zh":"周圍環境"},"sweep":{"en":"wide stretch","zh":"綿延"},"swaying":{"en":"moving side to side","zh":"搖晃"},"table":{"en":"flat furniture","zh":"桌子"},"taken":{"en":"become; carried","zh":"得了；帶走"},"terrible":{"en":"very bad","zh":"可怕"},"than":{"en":"comparison","zh":"比"},"that":{"en":"the fact that","zh":"有"},"the":{"en":"specific","zh":"那"},"their":{"en":"belonging to them","zh":"他們的"},"them":{"en":"the servants","zh":"他們"},"then":{"en":"next","zh":"然後"},"there":{"en":"exists","zh":"有"},"these":{"en":"nearby ones","zh":"這些"},"they":{"en":"servants","zh":"他們"},"thin":{"en":"not thick; skinny","zh":"瘦；薄"},"thing":{"en":"action; matter","zh":"事情"},"things":{"en":"events; objects","zh":"事情"},"this":{"en":"this one","zh":"這樣"},"those":{"en":"the ones","zh":"那些"},"three":{"en":"number 3","zh":"三"},"through":{"en":"from end to end; during","zh":"穿過；經過"},"threw":{"en":"flung; put into","zh":"投入；扔"},"tipped":{"en":"leaned","zh":"傾斜"},"to":{"en":"infinitive","zh":"去"},"today":{"en":"this day","zh":"今天"},"too":{"en":"also","zh":"也"},"top":{"en":"highest part","zh":"頂"},"tops":{"en":"highest parts","zh":"頂端"},"toto":{"en":"Dorothy's dog","zh":"多多"},"toward":{"en":"in the direction of","zh":"朝向"},"trap":{"en":"catching door","zh":"活板門"},"tree":{"en":"tall plant","zh":"樹"},"turned":{"en":"changed direction","zh":"轉過"},"twinkled":{"en":"flashed lightly","zh":"閃爍"},"two":{"en":"number 2","zh":"二"},"uncle":{"en":"parent's brother","zh":"叔叔／舅舅"},"under":{"en":"below; working for","zh":"在……之下"},"until":{"en":"up to the time","zh":"直到"},"up":{"en":"awake; higher","zh":"起來"},"upon":{"en":"on","zh":"在……上"},"usual":{"en":"normal","zh":"平常"},"very":{"en":"extremely","zh":"非常"},"voice":{"en":"speaking sound","zh":"聲音"},"wagon":{"en":"wheeled cart","zh":"馬車"},"wail":{"en":"long sad cry","zh":"哀號"},"wailing":{"en":"loud crying of grief","zh":"哀號"},"wait":{"en":"stay until","zh":"等待"},"waited":{"en":"stayed until","zh":"等待了"},"walls":{"en":"room sides","zh":"牆壁"},"was":{"en":"existed","zh":"有"},"washed":{"en":"cleaned with water","zh":"洗了"},"washing":{"en":"cleaning with water","zh":"正在洗"},"waves":{"en":"moving ridges","zh":"波浪"},"way":{"en":"manner","zh":"方式"},"wee":{"en":"very small","zh":"小小的"},"were":{"en":"past of be","zh":"是"},"what":{"en":"asking word","zh":"什麼"},"when":{"en":"at the time","zh":"當"},"where":{"en":"in which place","zh":"哪裡"},"whenever":{"en":"every time that","zh":"每當"},"which":{"en":"that; selecting","zh":"哪個；關係代名詞"},"while":{"en":"during the time; whereas","zh":"當；而"},"whirled":{"en":"spun around","zh":"旋轉"},"whirlwinds":{"en":"spinning windstorms","zh":"旋風"},"whistling":{"en":"high sharp sound","zh":"呼嘯"},"who":{"en":"which people","zh":"那些"},"wife":{"en":"married woman","zh":"妻子"},"will":{"en":"going to","zh":"會"},"wind":{"en":"moving air","zh":"風"},"winds":{"en":"air currents","zh":"風"},"window":{"en":"glass opening in a wall","zh":"窗戶"},"with":{"en":"together with","zh":"和"},"wonder":{"en":"no surprise that","zh":"難怪"},"wondered":{"en":"asked herself; felt curious","zh":"想知道"},"work":{"en":"labor","zh":"工作"},"worked":{"en":"did labor","zh":"工作了"},"worrying":{"en":"feeling anxious","zh":"擔心"},"would":{"en":"past of will","zh":"會"},"young":{"en":"not old","zh":"年輕"},"you":{"en":"person spoken to","zh":"你"},"your":{"en":"belonging to you","zh":"你的"},"trap door":{"en":"a door in a floor","zh":"地板活板門"},"cyclone cellar":{"en":"underground tornado shelter","zh":"龍捲風避難地窖"},"aunt em":{"en":"Dorothy's aunt","zh":"愛姆阿姨"},"uncle henry":{"en":"Dorothy's uncle","zh":"亨利叔叔"},"in spite of":{"en":"even though; despite","zh":"儘管"},"enzyme":{"en":"helper protein that speeds a process","zh":"酵素"},"slipped into":{"en":"moved softly into","zh":"悄悄溜進"},"estimate":{"en":"guess roughly","zh":"估計"},"pigment":{"en":"coloring substance","zh":"顏料／色素"},"monsters":{"en":"imaginary creatures","zh":"怪物"},"straps":{"en":"narrow holding bands","zh":"帶子"},"portable":{"en":"easy to carry","zh":"可攜帶的"},"bioluminescent":{"en":"living thing that makes light","zh":"生物發光的"},"ravine":{"en":"deep narrow valley","zh":"峽谷"},"mottled":{"en":"marked with color patches","zh":"斑駁的"},"lollipop":{"en":"hard candy on a stick","zh":"棒棒糖"},"around":{"en":"on all sides","zh":"周圍"},"along":{"en":"moving forward","zh":"沿著"},"are":{"en":"present of be","zh":"是"},"being":{"en":"since she was","zh":"由於"},"brought":{"en":"carried toward","zh":"帶來了"},"child's":{"en":"belonging to a child","zh":"孩子的"},"dorothy's":{"en":"belonging to Dorothy","zh":"桃樂絲的"},"farmer's":{"en":"belonging to a farmer","zh":"農夫的"},"having":{"en":"owning","zh":"擁有"},"i":{"en":"speaker","zh":"我"},"looking":{"en":"using the eyes","zh":"看著"},"make":{"en":"create","zh":"做"},"making":{"en":"creating","zh":"正在做"},"own":{"en":"belonging to self","zh":"自己的"},"some":{"en":"an amount","zh":"一些"},"such":{"en":"of that kind","zh":"如此"},"take":{"en":"carry","zh":"拿"},"taking":{"en":"carrying","zh":"帶著"},"there's":{"en":"there is","zh":"有"},"time":{"en":"measured period","zh":"時間"},"times":{"en":"occasions","zh":"次"},"us":{"en":"speaker + others","zh":"我們"},"we":{"en":"speaker + others","zh":"我們"},"well":{"en":"healthy; in a good way","zh":"康復；好地"},"went":{"en":"moved","zh":"去"},"whether":{"en":"if","zh":"是否"},"why":{"en":"the reason","zh":"為什麼"},"world":{"en":"the earth","zh":"世界"},"yet":{"en":"up to now","zh":"還"},"yes":{"en":"agreement","zh":"是"},"our":{"en":"belonging to us","zh":"我們的"},"people":{"en":"persons","zh":"人們"},"put":{"en":"place","zh":"放"},"say":{"en":"speak","zh":"說"},"should":{"en":"ought to","zh":"應該"},"tell":{"en":"inform","zh":"告訴"},"think":{"en":"believe","zh":"覺得"},"thought":{"en":"used his mind; an idea","zh":"想；念頭"},"told":{"en":"said to her","zh":"告訴"},"took":{"en":"carried","zh":"拿了"},"use":{"en":"usefulness; purpose","zh":"用處"},"used":{"en":"employed","zh":"用過"},"want":{"en":"wish","zh":"想要"},"wanted":{"en":"wished for","zh":"想要"},"without":{"en":"not having","zh":"沒有"},"how":{"en":"in what way","zh":"多麼；如何"},"may":{"en":"might","zh":"可能"},"might":{"en":"maybe would","zh":"可能"},"shall":{"en":"will","zh":"要不要；將"},"let":{"en":"allow","zh":"讓"},"need":{"en":"require","zh":"需要"},"needed":{"en":"required","zh":"需要"},"new":{"en":"not old","zh":"新的"},"next":{"en":"following","zh":"下一個"},"old":{"en":"age; not new","zh":"歲；舊"},"part":{"en":"a piece","zh":"部分"},"place":{"en":"house","zh":"地方"},"possible":{"en":"able to happen","zh":"可能"},"really":{"en":"truly","zh":"真的"},"right":{"en":"the right-hand side; correct","zh":"右邊；對的"},"safe":{"en":"not in danger","zh":"安全"},"seem":{"en":"appear","zh":"似乎"},"seemed":{"en":"appeared","zh":"似乎"},"set":{"en":"social group; circle","zh":"圈子"},"something":{"en":"some thing","zh":"某事"},"stand":{"en":"be upright","zh":"站"},"standing":{"en":"upright","zh":"站著"},"stay":{"en":"remain","zh":"留下"},"stayed":{"en":"remained","zh":"留下"},"step":{"en":"foot movement","zh":"腳步"},"sure":{"en":"certain","zh":"確定"},"together":{"en":"with each other","zh":"一起"},"try":{"en":"attempt","zh":"嘗試"},"trying":{"en":"attempting","zh":"嘗試"},"turn":{"en":"change direction","zh":"轉"},"watching":{"en":"looking carefully","zh":"看著"},"who'd":{"en":"who would","zh":"誰會"},"done":{"en":"finished; performed","zh":"做完"},"does":{"en":"performs","zh":"做"},"don't":{"en":"do not","zh":"不"},"doesn't":{"en":"does not","zh":"不"},"didn't":{"en":"did not","zh":"沒有"},"can't":{"en":"cannot","zh":"無法"},"couldn't":{"en":"could not","zh":"無法"},"won't":{"en":"will not","zh":"不會"},"wouldn't":{"en":"would not","zh":"不會"},"i'm":{"en":"I am","zh":"我"},"i'll":{"en":"I will","zh":"我會"},"i've":{"en":"I have","zh":"我已經"},"she's":{"en":"she is","zh":"她是"},"he's":{"en":"he is","zh":"他是"},"they're":{"en":"they are","zh":"他們是"},"we're":{"en":"we are","zh":"我們是"},"you're":{"en":"you are","zh":"你"},"you've":{"en":"you have","zh":"你已經"},"you'll":{"en":"you will","zh":"你會"},"you'd":{"en":"you would","zh":"你會"},"we'd":{"en":"we would","zh":"我們會"},"they'd":{"en":"they would","zh":"他們會"},"she'd":{"en":"she would","zh":"她會"},"he'd":{"en":"he would","zh":"他會"},"myself":{"en":"me","zh":"我自己"},"herself":{"en":"Mary","zh":"她自己"},"himself":{"en":"Peter, not anyone else","zh":"他自己"},"itself":{"en":"that thing again","zh":"它自己"},"themselves":{"en":"those people again","zh":"他們自己"},"yourself":{"en":"you again","zh":"你自己"},"everyone":{"en":"all people","zh":"所有人"},"someone":{"en":"some person","zh":"某人"},"anyone":{"en":"any person","zh":"任何人"},"each":{"en":"one and the other","zh":"彼此"},"every":{"en":"each","zh":"每一"},"most":{"en":"greatest","zh":"最"},"much":{"en":"a lot","zh":"很多"},"less":{"en":"not as much","zh":"較少"},"least":{"en":"at the minimum","zh":"至少"},"better":{"en":"more good","zh":"更好"},"best":{"en":"most good","zh":"最好"},"worse":{"en":"more bad","zh":"更糟"},"worst":{"en":"most bad","zh":"最糟"},"larger":{"en":"more large","zh":"更大"},"smaller":{"en":"more small","zh":"更小"},"lower":{"en":"more low","zh":"更低"},"farther":{"en":"more far","zh":"更遠"},"near":{"en":"close to","zh":"靠近"},"nearer":{"en":"closer","zh":"更近"},"inside":{"en":"within","zh":"裡面"},"outside":{"en":"not inside","zh":"外面"},"above":{"en":"higher than","zh":"上面"},"below":{"en":"lower than","zh":"下面"},"against":{"en":"opposing; touching","zh":"對抗；靠著"},"among":{"en":"in the middle of","zh":"在……之中"},"during":{"en":"throughout","zh":"在……期間"},"since":{"en":"because; from then","zh":"因為；自從"},"though":{"en":"even though","zh":"雖然"},"however":{"en":"but","zh":"然而"},"therefore":{"en":"for that reason","zh":"因此"},"instead":{"en":"in place of","zh":"反而"},"perhaps":{"en":"maybe","zh":"也許"},"probably":{"en":"likely","zh":"大概"},"especially":{"en":"more than usually","zh":"尤其"},"finally":{"en":"at last","zh":"終於"},"quickly":{"en":"fast","zh":"快"},"carefully":{"en":"with care","zh":"小心地"},"quietly":{"en":"with little sound","zh":"安靜地"},"softly":{"en":"in a quiet, gentle voice","zh":"輕聲地"},"often":{"en":"many times","zh":"常常"},"sometimes":{"en":"now and then","zh":"有時"},"already":{"en":"before now","zh":"已經"},"twice":{"en":"two times","zh":"兩次"},"different":{"en":"not the same","zh":"不同"},"either":{"en":"one or the other","zh":"任一"},"neither":{"en":"not either","zh":"既沒有"},"none":{"en":"not any","zh":"沒有一個"},"whole":{"en":"overall","zh":"整體來說"},"half":{"en":"one of two parts","zh":"一半"},"full":{"en":"filled","zh":"滿"},"empty":{"en":"with nothing / no one inside","zh":"空的"},"close":{"en":"near; shut","zh":"近；關上"},"true":{"en":"correct","zh":"真的"},"false":{"en":"not true","zh":"假"},"real":{"en":"actual","zh":"真的"},"ready":{"en":"prepared","zh":"準備好"},"able":{"en":"capable","zh":"能夠"},"unable":{"en":"not able","zh":"無法"},"afraid":{"en":"scared","zh":"害怕"},"happy":{"en":"pleasant","zh":"令人高興的"},"sad":{"en":"unhappy","zh":"難過"},"angry":{"en":"mad","zh":"生氣"},"tired":{"en":"needing rest","zh":"疲倦"},"hungry":{"en":"needing food","zh":"餓"},"cold":{"en":"low temperature","zh":"冷"},"hot":{"en":"high temperature","zh":"熱"},"warm":{"en":"pleasantly hot","zh":"溫暖"},"cool":{"en":"pleasantly cold","zh":"涼爽"},"wet":{"en":"with water","zh":"濕"},"dry":{"en":"without water","zh":"乾"},"clean":{"en":"not dirty","zh":"乾淨"},"dirty":{"en":"not clean","zh":"髒"},"good":{"en":"nice","zh":"好"},"bad":{"en":"not good","zh":"糟"},"wrong":{"en":"not correct","zh":"錯"},"easy":{"en":"not hard","zh":"容易"},"early":{"en":"before usual","zh":"早"},"late":{"en":"after usual","zh":"晚"},"tomorrow":{"en":"next day","zh":"明天"},"yesterday":{"en":"day before","zh":"昨天"},"evening":{"en":"late day","zh":"傍晚"},"week":{"en":"seven days","zh":"週"},"year":{"en":"twelve months","zh":"年"},"minute":{"en":"60 seconds","zh":"分鐘"},"second":{"en":"number 2; a short time","zh":"第二"},"moment":{"en":"very short time","zh":"片刻"},"across":{"en":"from one side to the other","zh":"穿過"},"center":{"en":"the middle","zh":"中心"},"climbed":{"en":"went up","zh":"爬上"},"direction":{"en":"the way something faces or moves","zh":"方向"},"dog":{"en":"an animal that barks","zh":"狗"},"follow":{"en":"go after","zh":"跟隨"},"found":{"en":"discovered","zh":"發現"},"generally":{"en":"usually","zh":"通常"},"grayer":{"en":"more gray","zh":"更灰"},"joy":{"en":"great happiness","zh":"喜悅"},"keeping":{"en":"holding; continuing","zh":"保持；飼養"},"laughed":{"en":"made a happy sound","zh":"笑了"},"live":{"en":"have a home","zh":"住"},"ll":{"en":"will (as in I'll)","zh":"會"},"s":{"en":"possessive or is","zh":"的；是"},"sharp":{"en":"sudden and strong","zh":"尖銳的；突然的"},"shrieked":{"en":"cried out sharply","zh":"尖叫了"},"till":{"en":"until","zh":"直到"},"whirls":{"en":"spins around","zh":"旋轉"},"mary":{"en":"the girl in the story","zh":"瑪麗"},"lennox":{"en":"Mary's family name","zh":"列諾克斯（姓）"},"misselthwaite":{"en":"the manor house Mary is sent to","zh":"米塞斯韋特莊園"},"manor":{"en":"a large country house","zh":"莊園大宅"},"ayah":{"en":"Indian nanny / nursemaid","zh":"印度保姆"},"mem sahib":{"en":"title for a European lady in India","zh":"太太／女主人（印度用語）"},"mem":{"en":"short for Mem Sahib","zh":"太太"},"sahib":{"en":"title of respect (India)","zh":"先生／主人（印度用語）"},"missie":{"en":"little miss; young lady","zh":"小姐"},"missie sahib":{"en":"young lady (Mary)","zh":"小姐（瑪麗）"},"barney":{"en":"name of a young officer","zh":"巴尼（軍官名）"},"saidie":{"en":"a servant's name","zh":"賽迪（僕人名）"},"india":{"en":"a country in South Asia","zh":"印度"},"england":{"en":"a country in Europe","zh":"英格蘭"},"english":{"en":"from England","zh":"英國的"},"government":{"en":"ruling system of a country","zh":"政府"},"disagreeable":{"en":"unpleasant; hard to like","zh":"令人討厭的"},"disagreeable-looking":{"en":"looking unpleasant","zh":"樣子討人厭的"},"sour":{"en":"bad-tempered; bitter","zh":"陰鬱的；酸的"},"expression":{"en":"look on the face","zh":"表情"},"yellow":{"en":"color; here pale/sickly","zh":"黃色；病黃"},"beauty":{"en":"a very pretty person","zh":"美人"},"gay":{"en":"cheerful; lively (old meaning)","zh":"快活的（舊義）"},"parties":{"en":"social gatherings","zh":"派對"},"amuse":{"en":"entertain","zh":"娛樂"},"tyrannical":{"en":"cruelly bossy","zh":"專橫的"},"selfish":{"en":"caring only about oneself","zh":"自私的"},"sickly":{"en":"often ill; weak","zh":"體弱多病的"},"fretful":{"en":"easily upset; cranky","zh":"煩躁易怒的"},"ugly":{"en":"not pretty","zh":"醜的"},"toddling":{"en":"walking unsteadily like a toddler","zh":"蹣跚學步的"},"governess":{"en":"woman hired to teach children at home","zh":"家庭女教師"},"governesses":{"en":"women hired to teach at home","zh":"家庭女教師們"},"disliked":{"en":"did not like","zh":"不喜歡"},"letters":{"en":"written messages","zh":"信件"},"frightfully":{"en":"extremely","zh":"非常；可怕地"},"cross":{"en":"angry; annoyed","zh":"生氣的"},"crosser":{"en":"more angry","zh":"更生氣"},"awakened":{"en":"woke up","zh":"醒來"},"bedside":{"en":"side of the bed","zh":"床邊"},"servant":{"en":"person who works in a household","zh":"僕人"},"servants":{"en":"household workers","zh":"僕人們"},"stammered":{"en":"spoke with pauses from fear/nerves","zh":"結結巴巴地說"},"passion":{"en":"strong feeling","zh":"激動；熱情"},"beat":{"en":"hit","zh":"打"},"kicked":{"en":"hit with the foot","zh":"踢"},"mysterious":{"en":"hard to explain; secret-feeling","zh":"神秘的"},"mysteriousness":{"en":"quality of being mysterious","zh":"神秘感"},"regular":{"en":"usual; normal","zh":"平常的"},"order":{"en":"usual arrangement","zh":"秩序"},"native":{"en":"local / Indian (in this story)","zh":"本地的；印度的"},"missing":{"en":"not present","zh":"失踪；不見"},"slunk":{"en":"moved quietly as if ashamed or afraid","zh":"偷偷摸摸地走"},"hurried":{"en":"moved quickly","zh":"匆忙"},"ashy":{"en":"pale gray like ash","zh":"灰白的"},"scared":{"en":"frightened","zh":"害怕的"},"faces":{"en":"fronts of heads","zh":"臉"},"wandered":{"en":"walked without a clear plan","zh":"徘徊；閒逛"},"garden":{"en":"outdoor plant area","zh":"花園"},"veranda":{"en":"open porch along a house","zh":"遊廊／陽台"},"grinding":{"en":"rubbing hard (teeth)","zh":"咬緊（牙）"},"teeth":{"en":"in the mouth for chewing","zh":"牙齒"},"fair":{"en":"light-colored; blond","zh":"膚色淺的；金髮的"},"officer":{"en":"military leader","zh":"軍官"},"stared":{"en":"looked fixedly","zh":"盯著"},"slim":{"en":"thin in a neat way","zh":"苗條"},"lovely":{"en":"beautiful; pleasing","zh":"可愛；漂亮"},"clothes":{"en":"things you wear","zh":"衣服"},"curly":{"en":"in curls","zh":"捲曲的"},"silk":{"en":"smooth shiny cloth","zh":"絲綢"},"delicate":{"en":"fine; gentle","zh":"精緻；纖細"},"disdaining":{"en":"looking down on; scorning","zh":"輕蔑"},"laughing":{"en":"showing amusement","zh":"笑著的"},"floating":{"en":"lightly hanging / drifting","zh":"飄動的"},"lace":{"en":"delicate open fabric","zh":"蕾絲"},"imploringly":{"en":"in a begging, pleading way","zh":"懇求地"},"trembling":{"en":"shaking from fear","zh":"發抖的"},"awfully":{"en":"very badly; extremely","zh":"糟透了；非常"},"ought":{"en":"should","zh":"應該"},"hills":{"en":"raised land; cooler places","zh":"山丘；避暑山地"},"wrung":{"en":"squeezed and twisted (hands)","zh":"扭絞（雙手）"},"silly":{"en":"foolish","zh":"愚蠢的"},"dinner":{"en":"evening meal","zh":"晚餐"},"party":{"en":"social gathering","zh":"派對"},"fool":{"en":"silly person","zh":"傻瓜"},"quarters":{"en":"living area for servants","zh":"僕人住處"},"clutched":{"en":"grabbed tightly","zh":"緊抓"},"shivering":{"en":"shaking from fear or cold","zh":"發抖"},"wilder":{"en":"more wild / intense","zh":"更狂亂"},"gasped":{"en":"breathed in suddenly from shock","zh":"倒抽一口氣"},"died":{"en":"stopped living","zh":"死了"},"broken":{"en":"started / shattered","zh":"爆發；破碎"},"appalling":{"en":"shocking and terrible","zh":"駭人的"},"cholera":{"en":"a deadly infectious disease","zh":"霍亂"},"fatal":{"en":"causing death","zh":"致命的"},"flies":{"en":"flying insects (dying like flies = many die fast)","zh":"蒼蠅（比喻死得快）"},"wailed":{"en":"cried loudly in grief","zh":"哀號了"},"huts":{"en":"small simple houses","zh":"小屋"},"terror":{"en":"extreme fear","zh":"恐懼"},"panic":{"en":"sudden wild fear","zh":"恐慌"},"bungalows":{"en":"single-story houses","zh":"平房"},"bungalow":{"en":"a single-story house","zh":"平房"},"confusion":{"en":"disorder; mixed-up state","zh":"混亂"},"bewilderment":{"en":"total confusion","zh":"困惑迷亂"},"nursery":{"en":"the children's bedroom","zh":"育兒室／孩子的臥房"},"forgotten":{"en":"not remembered","zh":"遺忘"},"alternately":{"en":"taking turns; one then the other","zh":"交替地"},"dining-room":{"en":"room for meals","zh":"飯廳"},"partly":{"en":"not completely","zh":"部分地"},"finished":{"en":"completed","zh":"完成的"},"meal":{"en":"food eaten at one time","zh":"一餐"},"fruit":{"en":"sweet plant food","zh":"水果"},"biscuits":{"en":"cookies / crackers","zh":"餅乾"},"thirsty":{"en":"needing a drink","zh":"口渴"},"drank":{"en":"swallowed liquid","zh":"喝了"},"glass":{"en":"drinking container","zh":"玻璃杯"},"wine":{"en":"alcoholic drink from grapes","zh":"酒"},"filled":{"en":"made full","zh":"裝滿"},"intensely":{"en":"very strongly","zh":"極度地"},"drowsy":{"en":"sleepy","zh":"昏昏欲睡"},"scarcely":{"en":"barely; almost not","zh":"幾乎不"},"wall":{"en":"side of a room","zh":"牆"},"perfectly":{"en":"completely","zh":"非常；完全"},"silent":{"en":"without sound","zh":"寂靜"},"voices":{"en":"speaking sounds","zh":"聲音"},"footsteps":{"en":"sounds of walking","zh":"腳步聲"},"everybody":{"en":"all people","zh":"大家"},"trouble":{"en":"problem; hardship","zh":"麻煩；災禍"},"nurse":{"en":"caregiver for a child","zh":"保姆"},"affectionate":{"en":"showing love and warmth","zh":"溫柔有愛的"},"hurrying":{"en":"moving fast","zh":"匆忙"},"alive":{"en":"living","zh":"活著"},"panic-stricken":{"en":"filled with sudden fear","zh":"驚慌失措的"},"fond":{"en":"liking someone","zh":"喜愛"},"surely":{"en":"certainly; I am sure","zh":"當然；總該"},"remember":{"en":"keep in mind","zh":"記得"},"rustling":{"en":"softly sounding","zh":"沙沙作響的"},"matting":{"en":"floor covering made of woven material","zh":"席子；墊子"},"snake":{"en":"legless reptile","zh":"蛇"},"gliding":{"en":"moving smoothly","zh":"滑行"},"jewels":{"en":"precious stones","zh":"珠寶"},"harmless":{"en":"not dangerous","zh":"無害的"},"hurt":{"en":"cause pain","zh":"疼"},"slipped":{"en":"moved smoothly / quietly","zh":"滑；溜"},"queer":{"en":"strange; odd","zh":"奇怪的"},"quiet":{"en":"silent","zh":"安靜"},"compound":{"en":"enclosed yard around houses","zh":"宅院"},"desolation":{"en":"empty ruin; extreme sadness of a place","zh":"荒涼；廢墟般的淒涼"},"suppose":{"en":"guess","zh":"想必"},"frowning":{"en":"pulling brows together in anger/worry","zh":"皺眉"},"disgracefully":{"en":"in a shamefully bad way","zh":"丟臉地"},"neglected":{"en":"not cared for","zh":"被忽視"},"troubled":{"en":"worried","zh":"煩憂的"},"mercy":{"en":"kindness; cry of shock","zh":"天哪；憐憫"},"drawing":{"en":"part of drawing-room","zh":"客廳的"},"stiffly":{"en":"in a formal, a little awkward way","zh":"生硬地"},"rude":{"en":"impolite","zh":"粗魯"},"wakened":{"en":"woke up","zh":"醒來"},"exclaimed":{"en":"cried out","zh":"喊道"},"companions":{"en":"people with him","zh":"同伴"},"actually":{"en":"in fact","zh":"實際上"},"stamping":{"en":"hitting the floor with the foot","zh":"跺（腳）"},"foot":{"en":"end of leg","zh":"腳"},"sadly":{"en":"in a sad way","zh":"悲傷地"},"wink":{"en":"close one eye briefly; blink away","zh":"眨眼"},"tears":{"en":"drops from crying","zh":"眼淚"},"poor":{"en":"pitiful","zh":"可憐的"},"kid":{"en":"child","zh":"小孩"},"nobody":{"en":"no one","zh":"沒人"},"sudden":{"en":"quick","zh":"突然"},"father":{"en":"male parent","zh":"爸爸"},"mother":{"en":"female parent","zh":"媽媽"},"remembering":{"en":"keeping in mind","zh":"記起"},"sent":{"en":"made to go","zh":"被送"},"body":{"en":"physical form","zh":"身體"},"light":{"en":"pale; not heavy","zh":"淺色；輕"},"born":{"en":"came into the world","zh":"出生"},"ill":{"en":"sick","zh":"生病"},"held":{"en":"kept out","zh":"伸出；握住"},"position":{"en":"job; place","zh":"職位"},"busy":{"en":"having much to do","zh":"忙碌"},"cared":{"en":"was concerned; liked","zh":"在乎"},"handed":{"en":"gave; passed","zh":"交給"},"care":{"en":"looking after","zh":"照顧"},"understand":{"en":"know the meaning","zh":"明白"},"wished":{"en":"wanted","zh":"希望"},"please":{"en":"a polite yes","zh":"請；好的"},"keep":{"en":"continue; hold","zh":"保持"},"sight":{"en":"view; being seen","zh":"視線"},"six":{"en":"number 6","zh":"六"},"years":{"en":"units of age","zh":"年"},"pig":{"en":"farm animal; insult here","zh":"豬（此處為罵人）"},"nine":{"en":"number 9","zh":"九"},"feeling":{"en":"emotion; sense of pride","zh":"感受；面子"},"send":{"en":"make go","zh":"叫……來"},"woman":{"en":"adult female (here: any girl or woman)","zh":"女生／女人"},"repeated":{"en":"said again","zh":"重複說"},"several":{"en":"more than two but not many","zh":"好幾個"},"whom":{"en":"which person (object)","zh":"（關係代名詞）"},"alone":{"en":"by herself","zh":"獨自"},"play":{"en":"have fun","zh":"玩耍"},"saying":{"en":"speaking","zh":"說著"},"words":{"en":"units of language","zh":"話；字"},"talking":{"en":"speaking","zh":"談論"},"knew":{"en":"understood; recognized","zh":"知道"},"boy":{"en":"young male","zh":"男孩"},"just":{"en":"only; recently","zh":"剛剛"},"chance":{"en":"opportunity","zh":"機會"},"call":{"en":"name; shout","zh":"稱呼"},"oftener":{"en":"more often","zh":"更常"},"tall":{"en":"high","zh":"高"},"person":{"en":"a human","zh":"人"},"wore":{"en":"had on (clothes)","zh":"穿著"},"large":{"en":"big","zh":"大"},"lifted":{"en":"raised","zh":"抬起"},"oh":{"en":"an exclamation","zh":"喔"},"man":{"en":"an adult male","zh":"大人；男人"},"answered":{"en":"replied","zh":"回答"},"mrs":{"en":"title for a married woman","zh":"太太"},"gone":{"en":"left; past of go","zh":"去了"},"weeks":{"en":"seven-day periods","zh":"星期"},"ago":{"en":"before now","zh":"以前"},"hands":{"en":"ends of arms","zh":"手"},"cried":{"en":"wept; called out","zh":"哭了；喊道"},"sound":{"en":"noise","zh":"聲音"},"arm":{"en":"upper limb","zh":"手臂"},"grew":{"en":"became","zh":"變得"},"explained":{"en":"made clear","zh":"解釋清楚"},"form":{"en":"kind; shape","zh":"形式"},"dying":{"en":"about to die; dying","zh":"正在死去"},"dead":{"en":"no longer living","zh":"死的"},"others":{"en":"the rest","zh":"其他人"},"ate":{"en":"consumed food","zh":"吃了"},"shut":{"en":"closed in","zh":"關起來"},"sleepy":{"en":"ready to sleep","zh":"睏"},"known":{"en":"been aware","zh":"知道過"},"stories":{"en":"tales","zh":"故事"},"rather":{"en":"somewhat","zh":"相當"},"ones":{"en":"things mentioned","zh":"那些"},"noise":{"en":"loud sound","zh":"嘈雜聲"},"waiting":{"en":"staying until","zh":"等待"},"grow":{"en":"become","zh":"變得"},"watched":{"en":"looked at","zh":"看著"},"sounds":{"en":"noises; seems","zh":"聽起來"},"men":{"en":"adult males","zh":"男人們"},"men's":{"en":"belonging to men","zh":"男人的"},"entered":{"en":"went into","zh":"進入"},"talked":{"en":"spoke","zh":"交談"},"speak":{"en":"talk","zh":"說話"},"doors":{"en":"entrances","zh":"門"},"rooms":{"en":"indoor spaces","zh":"房間"},"minutes":{"en":"short times","zh":"分鐘"},"beginning":{"en":"the start","zh":"起源；開始"},"feel":{"en":"sense","zh":"感覺"},"am":{"en":"present of be (I)","zh":"是"},"turning":{"en":"facing toward","zh":"轉向"},"whose":{"en":"belonging to whom","zh":"誰的"},"name":{"en":"what someone is called","zh":"名字"},"desolate":{"en":"empty and lonely-looking","zh":"荒涼的"},"timid":{"en":"shy and easily frightened","zh":"膽怯的"},"implore":{"en":"beg urgently","zh":"懇求"},"cry":{"en":"shed tears; call out","zh":"哭；喊"},"dining":{"en":"eating a meal","zh":"用餐"},"hurry":{"en":"move or act fast","zh":"匆忙"},"slept":{"en":"was sleeping (past of sleep)","zh":"睡了"},"a moment":{"en":"a very short time later","zh":"過了一會兒"},"fairy":{"en":"a tiny magical being","zh":"仙子／精靈"},"fairies":{"en":"tiny magical beings","zh":"仙子們"},"entrance":{"en":"the act of coming in","zh":"進入"},"fairy's":{"en":"belonging to the fairy","zh":"仙子的"},"blown":{"en":"pushed by wind","zh":"被吹開"},"breathing":{"en":"soft breath; air from lungs","zh":"氣息"},"stars":{"en":"lights in the night sky","zh":"星星"},"peter":{"en":"Peter Pan, the boy who won't grow up","zh":"彼得・潘"},"tinker bell":{"en":"Peter's fairy friend","zh":"小叮噹／叮叮鈴"},"tinker":{"en":"part of the fairy's name","zh":"叮叮（仙子名）"},"bell":{"en":"part of Tinker Bell's name; a ringing object","zh":"鈴；仙子之名"},"tink":{"en":"nickname for Tinker Bell","zh":"叮叮（小仙子）"},"messy":{"en":"dirty or not neat","zh":"髒兮兮的"},"fairy dust":{"en":"magic powder that helps you fly","zh":"仙塵／魔法粉"},"dust":{"en":"fine powder","zh":"粉末；灰塵"},"making sure":{"en":"checking carefully","zh":"確定"},"jug":{"en":"a pitcher for holding liquid","zh":"水罐"},"liking":{"en":"enjoying","zh":"喜歡"},"extremely":{"en":"very much","zh":"極其"},"loveliest":{"en":"most beautiful","zh":"最美的"},"tinkle":{"en":"light ringing sound","zh":"叮鈴聲"},"golden":{"en":"gold-colored","zh":"金色的"},"bells":{"en":"ringing metal cups","zh":"鈴鐺"},"language":{"en":"way of speaking","zh":"語言"},"ordinary":{"en":"normal; regular","zh":"普通的"},"children":{"en":"kids","zh":"孩子們"},"shadow":{"en":"dark shape a body makes in light","zh":"影子"},"chest":{"en":"a box-like piece of furniture","zh":"櫃子；箱子"},"drawers":{"en":"sliding boxes in furniture","zh":"抽屜"},"chest of drawers":{"en":"a piece of furniture with sliding boxes","zh":"五斗櫃／抽屜櫃"},"scattering":{"en":"throwing about in different directions","zh":"撒得滿地都是"},"contents":{"en":"things inside","zh":"裡面的東西"},"toss":{"en":"throw lightly","zh":"拋擲"},"ha'pence":{"en":"old British halfpenny coins","zh":"半便士硬幣（舊幣）"},"crowd":{"en":"many people together","zh":"人群"},"recovered":{"en":"got back something that was lost","zh":"找回"},"delight":{"en":"great joy","zh":"喜悅"},"forgot":{"en":"did not remember","zh":"忘記"},"believe":{"en":"think something is true","zh":"相信"},"join":{"en":"come together as one","zh":"接合；連在一起"},"drops":{"en":"small bits of liquid","zh":"水滴"},"water":{"en":"clear liquid we drink","zh":"水"},"appalled":{"en":"shocked and dismayed","zh":"震驚駭然"},"tried":{"en":"attempted","zh":"嘗試"},"stick":{"en":"make something stay attached","zh":"黏上"},"soap":{"en":"something used for washing","zh":"肥皂"},"bathroom":{"en":"room with a bath or sink","zh":"浴室"},"failed":{"en":"did not succeed","zh":"沒成功"},"shudder":{"en":"a sudden shake from fear or shock","zh":"戰慄"},"sobs":{"en":"uneven breaths while crying","zh":"啜泣聲"},"woke":{"en":"caused to stop sleeping","zh":"吵醒"},"wendy":{"en":"the girl in the story","zh":"溫蒂"},"alarmed":{"en":"frightened or worried","zh":"驚慌"},"stranger":{"en":"someone she does not know","zh":"陌生人"},"crying":{"en":"shedding tears","zh":"哭泣"},"pleasantly":{"en":"in a nice, happy way","zh":"愉快地"},"interested":{"en":"curious; wanting to know more","zh":"感興趣"},"courteously":{"en":"politely","zh":"有禮貌地"},"exceeding":{"en":"very; extremely","zh":"非常"},"polite":{"en":"having good manners","zh":"有禮貌的"},"learned":{"en":"was taught","zh":"學會了"},"grand":{"en":"impressive; fancy","zh":"隆重的；高貴的"},"manner":{"en":"way of behaving","zh":"舉止；禮貌"},"ceremonies":{"en":"formal special events","zh":"典禮"},"beautifully":{"en":"in a lovely way","zh":"優美地"},"pleased":{"en":"happy with","zh":"滿意"},"asked":{"en":"said a question","zh":"問"},"moira":{"en":"Wendy's middle name","zh":"莫伊拉（名字）"},"angela":{"en":"Wendy's middle name","zh":"安琪拉（名字）"},"darling":{"en":"the family's last name","zh":"達林（姓）"},"replied":{"en":"answered","zh":"回答"},"satisfaction":{"en":"a pleased, proud feeling","zh":"得意；滿足"},"comparatively":{"en":"when compared; relatively","zh":"相對地"},"short":{"en":"not long","zh":"短的"},"shortish":{"en":"rather short","zh":"有點短"},"sharply":{"en":"in a slightly annoyed or quick way","zh":"尖聲地；不悅地"},"sorry":{"en":"feeling regret","zh":"抱歉"},"matter":{"en":"be important","zh":"要緊"},"gulped":{"en":"swallowed hard (from feeling)","zh":"咽了一下"},"straight":{"en":"without turning","zh":"一直走"},"address":{"en":"where someone lives","zh":"地址"},"sinking":{"en":"a sudden dropping, uneasy feeling","zh":"心往下一沉"},"isn't":{"en":"is not","zh":"不是"},"mean":{"en":"intend to say","zh":"意思是"},"nicely":{"en":"in a kind, polite way","zh":"好好地；客氣地"},"hostess":{"en":"a girl or woman who welcomes guests","zh":"女主人"},"mentioned":{"en":"spoke about","zh":"提到"},"contemptuously":{"en":"as if looking down on something","zh":"輕蔑地"},"mothers":{"en":"female parents","zh":"媽媽們"},"slightest":{"en":"smallest possible","zh":"絲毫的"},"desire":{"en":"a wish for something","zh":"渴望"},"over-rated":{"en":"praised more than they deserve","zh":"被高估的"},"persons":{"en":"people","zh":"人們"},"presence":{"en":"being there with someone","zh":"面前；在場"},"tragedy":{"en":"something very sad","zh":"悲劇"},"indignantly":{"en":"with angry pride","zh":"憤憤地"},"besides":{"en":"also; anyway","zh":"況且"},"wasn't":{"en":"was not","zh":"並沒有"},"draggled":{"en":"wet, limp, and messy-looking","zh":"濕搭搭、邋遢的"},"awful":{"en":"terrible","zh":"糟糕；可怕"},"smiling":{"en":"making a happy face","zh":"微笑"},"exactly":{"en":"precisely; just","zh":"正是；完全"},"fortunately":{"en":"luckily","zh":"幸好"},"sewn":{"en":"attached with needle and thread","zh":"縫上"},"sew":{"en":"attach with needle and thread","zh":"縫"},"sewed":{"en":"attached with needle and thread","zh":"縫上了"},"patronisingly":{"en":"in a slightly superior, know-it-all way","zh":"帶點屈尊／以為對方不懂地"},"dreadfully":{"en":"very; terribly","zh":"非常"},"ignorant":{"en":"not knowing something","zh":"無知的"},"ignorance":{"en":"not knowing something","zh":"無知"},"exulting":{"en":"feeling joyful pride","zh":"得意洋洋"},"housewife":{"en":"a small sewing kit (old meaning)","zh":"針線包（舊義，不是「家庭主婦」）"},"daresay":{"en":"I suppose; I guess","zh":"我想大概"},"warned":{"en":"told him about a possible problem","zh":"提醒；警告"},"shan't":{"en":"shall not; will not","zh":"不會"},"opinion":{"en":"what he thinks","zh":"看法"},"clenched":{"en":"squeezed tightly together","zh":"咬緊"},"behaving":{"en":"acting","zh":"表現"},"properly":{"en":"in the right way","zh":"好好地；正常地"},"creased":{"en":"wrinkled; folded","zh":"有皺褶的"},"ironed":{"en":"smoothed with a hot iron","zh":"熨平"},"thoughtfully":{"en":"in a thinking way","zh":"若有所思地"},"boylike":{"en":"in the way a boy often acts","zh":"像男孩子那樣"},"indifferent":{"en":"not caring much","zh":"不在乎"},"appearances":{"en":"how something looks","zh":"外表"},"jumping":{"en":"leaping","zh":"跳來跳去"},"wildest":{"en":"most excited and unconstrained","zh":"最狂喜的"},"glee":{"en":"great happy excitement","zh":"歡喜若狂"},"alas":{"en":"sadly; unfortunately","zh":"可惜；唉"},"owed":{"en":"should thank someone for","zh":"歸功於；虧欠"},"bliss":{"en":"perfect happiness","zh":"極樂；幸福"},"attached":{"en":"fastened on","zh":"接上"},"clever":{"en":"smart","zh":"聰明"},"crowed":{"en":"cried out proudly","zh":"得意地喊"},"crowing":{"en":"boasting happily","zh":"得意地誇耀"},"rapturously":{"en":"with wild delight","zh":"狂喜地"},"cleverness":{"en":"being smart","zh":"聰明"},"humiliating":{"en":"making one feel ashamed","zh":"令人難堪的"},"confess":{"en":"admit","zh":"承認"},"conceit":{"en":"being too proud of yourself","zh":"自負"},"fascinating":{"en":"very interesting; charming","zh":"迷人的"},"qualities":{"en":"traits of a person","zh":"特質"},"brutal":{"en":"harshly honest","zh":"毫不留情的"},"frankness":{"en":"honest speaking","zh":"坦白"},"cockier":{"en":"more proudly sure of himself","zh":"更驕傲自大"},"cocky":{"en":"proudly sure of himself","zh":"自負的"},"shocked":{"en":"very surprised in an upset way","zh":"震驚"},"frightful":{"en":"extreme; terrible","zh":"極度的"},"sarcasm":{"en":"saying the opposite to mock someone","zh":"諷刺"},"course":{"en":"of course = naturally","zh":"當然"},"carelessly":{"en":"without much thought or care","zh":"滿不在乎地"},"continued":{"en":"kept on","zh":"繼續"},"dance":{"en":"move to a happy rhythm","zh":"跳舞"},"hauteur":{"en":"proud, lofty manner","zh":"高傲的態度"},"withdraw":{"en":"leave; pull away","zh":"退下；抽身離開"},"sprang":{"en":"jumped quickly","zh":"跳進"},"dignified":{"en":"calm and proud","zh":"莊重的"},"covered":{"en":"hid under","zh":"蓋住"},"blankets":{"en":"warm bed covers","zh":"毯子"},"induce":{"en":"persuade; get someone to","zh":"促使；誘使"},"pretended":{"en":"acted as if","zh":"假裝"},"tapped":{"en":"touched lightly","zh":"輕拍"},"help":{"en":"stop myself from","zh":"忍不住"},"listening":{"en":"paying attention to sound","zh":"聽著"},"eagerly":{"en":"with keen interest","zh":"熱切地"},"resist":{"en":"refuse; stand against","zh":"抗拒"},"twenty":{"en":"number 20","zh":"二十"},"boys":{"en":"young males","zh":"男孩們"},"inch":{"en":"a small unit of length; every bit","zh":"每一寸；完全"},"inches":{"en":"small units of length","zh":"英寸"},"peeped":{"en":"looked out secretly or shyly","zh":"偷偷往外看"},"bed-clothes":{"en":"sheets and blankets","zh":"被褥"},"sweet":{"en":"kind and lovely","zh":"貼心；甜蜜"},"declared":{"en":"said firmly","zh":"宣布；說道"},"kiss":{"en":"a touch with the lips to show care","zh":"吻"},"liked":{"en":"was fond of","zh":"喜歡"},"meant":{"en":"intended","zh":"意思"},"expectantly":{"en":"waiting for something to happen","zh":"期待地"},"aghast":{"en":"shocked with surprise","zh":"大吃一驚"},"thimble":{"en":"a small cap worn to push a needle","zh":"頂針"},"slight":{"en":"small; a little","zh":"輕微的"},"primness":{"en":"very proper, slightly formal manners","zh":"拘謹"},"cheap":{"en":"here: a bit too eager (old-fashioned judgment)","zh":"（此處舊用法）顯得太主動"},"inclining":{"en":"tilting; leaning","zh":"把……湊近"},"merely":{"en":"only; just","zh":"只不過"},"acorn":{"en":"the nut of an oak tree","zh":"橡實"},"button":{"en":"a small fastener; here an acorn cap","zh":"鈕扣；橡實帽"},"acorn button":{"en":"a small acorn used like a button/kiss-gift","zh":"橡實鈕扣"},"returned":{"en":"moved back","zh":"收回"},"wear":{"en":"have on","zh":"戴著"},"chain":{"en":"a necklace of linked metal","zh":"項鏈"},"neck":{"en":"between head and shoulders","zh":"脖子"},"lucky":{"en":"fortunate","zh":"幸運"},"afterwards":{"en":"later","zh":"後來"},"life":{"en":"being alive","zh":"性命"},"introduced":{"en":"told each other's names","zh":"介紹認識"},"customary":{"en":"usual; traditional","zh":"慣例的"},"other's":{"en":"belonging to the other","zh":"對方的"},"age":{"en":"how many years old","zh":"年齡"},"correct":{"en":"proper; right","zh":"正確得體的"},"question":{"en":"something you ask","zh":"問題"},"examination":{"en":"a test","zh":"考試"},"paper":{"en":"a written test","zh":"考卷"},"examination paper":{"en":"a written test","zh":"考卷"},"grammar":{"en":"rules of language","zh":"文法"},"kings":{"en":"male rulers","zh":"國王們"},"uneasily":{"en":"in a worried, uncomfortable way","zh":"不安地"},"suspicions":{"en":"guesses without proof","zh":"懷疑；隱約的感覺"},"venture":{"en":"a guess he dared to try","zh":"大膽地說；冒險一試"},"at a venture":{"en":"as a guess; daringly","zh":"隨口猜著說"},"surprised":{"en":"amazed","zh":"驚訝"},"indicated":{"en":"showed","zh":"示意"},"charming":{"en":"delightfully polite","zh":"迷人有禮的"},"drawing-room":{"en":"a formal sitting room","zh":"客廳（舊時會客廳）"},"touch":{"en":"a light contact","zh":"輕碰"},"night-gown":{"en":"a loose dress worn to bed","zh":"睡衣"},"gown":{"en":"a long dress","zh":"長袍；睡衣"},"extraordinarily":{"en":"extremely; unusually","zh":"異常地"},"agitated":{"en":"upset and restless","zh":"激動不安"},"fun":{"en":"enjoyment; play","zh":"玩耍；樂趣"},"kensington":{"en":"a place in London","zh":"肯辛頓（倫敦地名）"},"gardens":{"en":"park-like outdoor grounds","zh":"花園"},"kensington gardens":{"en":"a famous park in London","zh":"肯辛頓花園"},"intense":{"en":"very strong","zh":"強烈的"},"admiration":{"en":"a feeling of wonder and respect","zh":"欽佩；羨慕"},"home":{"en":"family house","zh":"家"},"struck":{"en":"seemed to her","zh":"讓她覺得"},"delightful":{"en":"giving great pleasure","zh":"令人欣喜的"},"poured":{"en":"asked many, one after another","zh":"連珠炮似地問"},"questions":{"en":"things she asked","zh":"問題"},"surprise":{"en":"a feeling of being unexpected","zh":"驚訝"},"nuisance":{"en":"something a bit annoying","zh":"麻煩；討厭鬼"},"getting":{"en":"coming","zh":"擋"},"hiding":{"en":"old phrase: a scolding or spanking","zh":"責備／打一頓（舊說法）"},"a hiding":{"en":"an old phrase for a scolding or spanking","zh":"一頓責打（舊說法）"},"thousand":{"en":"1,000","zh":"一千"},"skipping":{"en":"hopping lightly","zh":"蹦蹦跳跳"},"pan":{"en":"Peter's last name","zh":"潘（姓）"},"what's":{"en":"what is","zh":"什麼是"},"o":{"en":"oh","zh":"喔"},"ask":{"en":"put a question","zh":"問"},"asks":{"en":"puts a question","zh":"問"},"box":{"en":"a container; here the chest of drawers","zh":"箱子；此處指抽屜櫃"},"drawer":{"en":"a sliding box in furniture","zh":"抽屜"},"end":{"en":"the far part","zh":"末端"},"gave":{"en":"handed over","zh":"給了"},"give":{"en":"hand over","zh":"給"},"hear":{"en":"sense sound","zh":"聽見"},"indeed":{"en":"in fact; truly","zh":"的確"},"rated":{"en":"part of over-rated: valued too highly","zh":"評價（over-rated＝被高估）"}};
+
+const TIP_WORDS = ["Tinker Bell", "shadow", "appalled", "courteously", "housewife", "conceit", "thimble", "Kensington Gardens"];
+const PASSAGE_PARAS = ["A moment after the fairy's entrance the window was blown open by the breathing of the little stars, and Peter dropped in. He had carried Tinker Bell part of the way, and his hand was still messy with the fairy dust.", "\"Tinker Bell,\" he called softly, after making sure that the children were asleep, \"Tink, where are you?\" She was in a jug for the moment, and liking it extremely; she had never been in a jug before.", "\"Oh, do come out of that jug, and tell me, do you know where they put my shadow?\"", "The loveliest tinkle as of golden bells answered him. It is the fairy language. You ordinary children can never hear it, but if you were to hear it you would know that you had heard it once before.", "Tink said that the shadow was in the big box. She meant the chest of drawers, and Peter jumped at the drawers, scattering their contents to the floor with both hands, as kings toss ha'pence to the crowd. In a moment he had recovered his shadow, and in his delight he forgot that he had shut Tinker Bell up in the drawer.", "If he thought at all, but I don't believe he ever thought, it was that he and his shadow, when brought near each other, would join like drops of water, and when they did not he was appalled. He tried to stick it on with soap from the bathroom, but that also failed. A shudder passed through Peter, and he sat on the floor and cried.", "His sobs woke Wendy, and she sat up in bed. She was not alarmed to see a stranger crying on the nursery floor; she was only pleasantly interested.", "\"Boy,\" she said courteously, \"why are you crying?\"", "Peter could be exceeding polite also, having learned the grand manner at fairy ceremonies, and he rose and bowed to her beautifully. She was much pleased, and bowed beautifully to him from the bed.", "\"What's your name?\" he asked.", "\"Wendy Moira Angela Darling,\" she replied with some satisfaction. \"What is your name?\"", "\"Peter Pan.\"", "She was already sure that he must be Peter, but it did seem a comparatively short name.", "\"Is that all?\"", "\"Yes,\" he said rather sharply. He felt for the first time that it was a shortish name.", "\"I'm so sorry,\" said Wendy Moira Angela.", "\"It doesn't matter,\" Peter gulped.", "She asked where he lived.", "\"Second to the right,\" said Peter, \"and then straight on till morning.\"", "\"What a funny address!\"", "Peter had a sinking. For the first time he felt that perhaps it was a funny address.", "\"No, it isn't,\" he said.", "\"I mean,\" Wendy said nicely, remembering that she was hostess, \"is that what they put on the letters?\"", "He wished she had not mentioned letters.", "\"Don't get any letters,\" he said contemptuously.", "\"But your mother gets letters?\"", "\"Don't have a mother,\" he said. Not only had he no mother, but he had not the slightest desire to have one. He thought them very over-rated persons. Wendy, however, felt at once that she was in the presence of a tragedy.", "\"O Peter, no wonder you were crying,\" she said, and got out of bed and ran to him.", "\"I wasn't crying about mothers,\" he said rather indignantly. \"I was crying because I can't get my shadow to stick on. Besides, I wasn't crying.\"", "\"It has come off?\"", "\"Yes.\"", "Then Wendy saw the shadow on the floor, looking so draggled, and she was frightfully sorry for Peter. \"How awful!\" she said, but she could not help smiling when she saw that he had been trying to stick it on with soap. How exactly like a boy!", "Fortunately she knew at once what to do. \"It must be sewn on,\" she said, just a little patronisingly.", "\"What's sewn?\" he asked.", "\"You're dreadfully ignorant.\"", "\"No, I'm not.\"", "But she was exulting in his ignorance. \"I shall sew it on for you, my little man,\" she said, though he was tall as herself, and she got out her housewife, and sewed the shadow on to Peter's foot.", "\"I daresay it will hurt a little,\" she warned him.", "\"Oh, I shan't cry,\" said Peter, who was already of the opinion that he had never cried in his life. And he clenched his teeth and did not cry, and soon his shadow was behaving properly, though still a little creased.", "\"Perhaps I should have ironed it,\" Wendy said thoughtfully, but Peter, boylike, was indifferent to appearances, and he was now jumping about in the wildest glee. Alas, he had already forgotten that he owed his bliss to Wendy. He thought he had attached the shadow himself. \"How clever I am!\" he crowed rapturously, \"oh, the cleverness of me!\"", "It is humiliating to have to confess that this conceit of Peter was one of his most fascinating qualities. To put it with brutal frankness, there never was a cockier boy.", "But for the moment Wendy was shocked. \"You conceit,\" she exclaimed, with frightful sarcasm; \"of course I did nothing!\"", "\"You did a little,\" Peter said carelessly, and continued to dance.", "\"A little!\" she replied with hauteur; \"if I am no use I can at least withdraw,\" and she sprang in the most dignified way into bed and covered her face with the blankets.", "To induce her to look up he pretended to be going away, and when this failed he sat on the end of the bed and tapped her gently with his foot. \"Wendy,\" he said, \"don't withdraw. I can't help crowing, Wendy, when I'm pleased with myself.\" Still she would not look up, though she was listening eagerly. \"Wendy,\" he continued, in a voice that no woman has ever yet been able to resist, \"Wendy, one girl is more use than twenty boys.\"", "Now Wendy was every inch a woman, though there were not very many inches, and she peeped out of the bed-clothes.", "\"Do you really think so, Peter?\"", "\"Yes, I do.\"", "\"I think it's perfectly sweet of you,\" she declared, \"and I'll get up again,\" and she sat with him on the side of the bed. She also said she would give him a kiss if he liked, but Peter did not know what she meant, and he held out his hand expectantly.", "\"Surely you know what a kiss is?\" she asked, aghast.", "\"I shall know when you give it to me,\" he replied stiffly, and not to hurt his feeling she gave him a thimble.", "\"Now,\" said he, \"shall I give you a kiss?\" and she replied with a slight primness, \"If you please.\" She made herself rather cheap by inclining her face toward him, but he merely dropped an acorn button into her hand, so she slowly returned her face to where it had been before, and said nicely that she would wear his kiss on the chain around her neck. It was lucky that she did put it on that chain, for it was afterwards to save her life.", "When people in our set are introduced, it is customary for them to ask each other's age, and so Wendy, who always liked to do the correct thing, asked Peter how old he was. It was not really a happy question to ask him; it was like an examination paper that asks grammar, when what you want to be asked is Kings of England.", "\"I don't know,\" he replied uneasily, \"but I am quite young.\" He really knew nothing about it, he had merely suspicions, but he said at a venture, \"Wendy, I ran away the day I was born.\"", "Wendy was quite surprised, but interested; and she indicated in the charming drawing-room manner, by a touch on her night-gown, that he could sit nearer her.", "\"It was because I heard father and mother,\" he explained in a low voice, \"talking about what I was to be when I became a man.\" He was extraordinarily agitated now. \"I don't want ever to be a man,\" he said with passion. \"I want always to be a little boy and to have fun. So I ran away to Kensington Gardens and lived a long long time among the fairies.\"", "She gave him a look of the most intense admiration, and he thought it was because he had run away, but it was really because he knew fairies. Wendy had lived such a home life that to know fairies struck her as quite delightful. She poured out questions about them, to his surprise, for they were rather a nuisance to him, getting in his way and so on, and indeed he sometimes had to give them a hiding. Still, he liked them on the whole, and he told her about the beginning of fairies.", "\"You see, Wendy, when the first baby laughed for the first time, its laugh broke into a thousand pieces, and they all went skipping about, and that was the beginning of fairies.\""];
+const QUESTIONS = [{"stem": "1. Why does Peter come into the nursery with Tinker Bell?", "choices": ["To bring Wendy a letter from her mother.", "To find his shadow, which Tink says is in the big box.", "To take Nana for a walk in Kensington Gardens.", "To hide from the stars outside the window."], "answer": 1, "explain": "Peter 要 Tink 告訴他影子放在哪裡；Tink 說影子在 the big box（其實是 chest of drawers），他立刻找回自己的影子。"}, {"stem": "2. Why does Peter sit on the floor and cry?", "choices": ["Wendy will not tell him her name.", "Tinker Bell has flown back to the stars.", "His shadow will not join to him, even when he tries soap.", "He has lost the fairy dust on his hands."], "answer": 2, "explain": "他以為影子會像水滴一樣自己接上去，卻接不上；用浴室的肥皂也失敗，於是坐在地上哭。"}, {"stem": "3. How does Wendy fix Peter’s shadow?", "choices": ["She irons it and hangs it in the window.", "She sticks it on with more soap from the bathroom.", "She sews it onto Peter’s foot.", "She hides it again in the chest of drawers."], "answer": 2, "explain": "Wendy 說 It must be sewn on，拿出針線包（housewife），把影子縫在 Peter 的腳上。"}, {"stem": "4. After the shadow is on, what does Peter do that shocks Wendy?", "choices": ["He thanks her again and again.", "He crows that he is clever and forgets she helped him.", "He runs straight back to Kensington Gardens.", "He sews the shadow onto her foot as well."], "answer": 1, "explain": "他忘了幸福是 Wendy 給的，還得意地喊 How clever I am! oh, the cleverness of me! 這種 conceit 讓 Wendy 生氣。"}, {"stem": "5. According to Peter, how did fairies begin?", "choices": ["They grew from acorn buttons on a chain.", "Kings tossed them like ha'pence to the crowd.", "When the first baby laughed for the first time, the laugh broke into a thousand pieces.", "Mrs. Darling drew them when she should have been adding numbers."], "answer": 2, "explain": "Peter 說：when the first baby laughed for the first time, its laugh broke into a thousand pieces… and that was the beginning of fairies。"}];
+const VOCAB_QUESTIONS = [{"stem": "The librarian <u><b>recovered</b></u> the missing book from behind a shelf.", "choices": ["painted with bright colors", "got back something that was lost", "forgot on purpose", "tore into a thousand pieces"], "answer": 1, "explain": "recovered＝找回失去的東西。"}, {"stem": "Mia was <u><b>appalled</b></u> when she saw the smashed birthday cake on the floor.", "choices": ["delighted and proud", "slightly bored", "shocked and dismayed", "quietly sleepy"], "answer": 2, "explain": "appalled＝震驚、駭然。"}, {"stem": "The boy spoke <u><b>courteously</b></u> and bowed before he asked her name.", "choices": ["rudely and loudly", "politely", "without any words", "in a frightened whisper"], "answer": 1, "explain": "courteously＝有禮貌地。"}, {"stem": "The wind was <u><b>scattering</b></u> the papers across the yard.", "choices": ["folding them neatly into a drawer", "hiding them under a blanket", "throwing them about in different directions", "sewing them onto a shadow"], "answer": 2, "explain": "scattering＝撒得四散、弄得滿地都是。"}, {"stem": "She clapped her hands in <u><b>delight</b></u> when the puppy ran toward her.", "choices": ["great joy", "sudden fear", "deep anger", "quiet boredom"], "answer": 0, "explain": "delight＝極大的喜悅。"}, {"stem": "He <u><b>clenched</b></u> his teeth and did not cry, even though it hurt a little.", "choices": ["opened them wide", "squeezed them tightly together", "painted them gold", "forgot they were there"], "answer": 1, "explain": "clenched＝咬緊、握緊。"}, {"stem": "“How clever I am!” he <u><b>crowed</b></u> after finishing the puzzle alone.", "choices": ["whispered sadly", "cried out proudly", "asked politely", "read the rules silently"], "answer": 1, "explain": "crowed＝得意地喊出來（像公雞報喜）。"}, {"stem": "His <u><b>conceit</b></u> made him forget who had actually helped him.", "choices": ["kindness to others", "being too proud of himself", "fear of the dark", "a kind of fairy language"], "answer": 1, "explain": "conceit＝自負、太驕傲。"}, {"stem": "Before buying tickets, Dad tried to <u><b>estimate</b></u> the total cost.", "choices": ["guess roughly based on information", "sew with a needle and thread", "shout at a moving shadow", "hide a fairy in a drawer"], "answer": 0, "explain": "estimate＝估計（本週延續複習）。"}, {"stem": "The shy puppy <u><b>slipped into</b></u> its crate when guests arrived.", "choices": ["jumped over", "moved softly into", "tore apart", "counted carefully"], "answer": 1, "explain": "slipped into＝悄悄溜進（本週延續複習）。"}];
+
+const PACK_META = {"child": "Seren", "date": "2026-11-09", "title": "Come Away, Come Away! (Peter Pan / Peter and Wendy, Ch. III excerpt)", "type": "Reading + Vocab", "level": "900L (Peter Pan / Peter and Wendy book Lexile) · PD", "source": "Project Gutenberg #16 · J. M. Barrie · Public Domain"};
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function tokenize(text) {
+  return text.split(/(\s+|—|–)/).filter(Boolean);
+}
+function wrapTokens(text) {
+  return tokenize(text).map(tok => {
+    if (/^\s+$/.test(tok) || tok === "—" || tok === "–") return tok;
+    const m = tok.match(/^(["'“‘(\[]*)(.*?)(["'”’)\],.;:!?]*)$/);
+    if (!m) return escapeHtml(tok);
+    const [, pre, core, post] = m;
+    if (!core || !/[A-Za-z]/.test(core)) return escapeHtml(tok);
+    return escapeHtml(pre) + `<span class="word" data-word="${escapeHtml(core)}">${escapeHtml(core)}</span>` + escapeHtml(post);
+  }).join("");
+}
+function renderPassage() {
+  const el = document.getElementById("passage");
+  el.innerHTML = PASSAGE_PARAS.map(p => `<p>${wrapTokens(p)}</p>`).join("");
+}
+function renderTipWords() {
+  const box = document.getElementById("tip-words");
+  box.innerHTML = TIP_WORDS.map(w => `<span class="tip-chip word" data-word="${escapeHtml(w)}">${escapeHtml(w)}</span>`).join("");
+}
+function findEntry(raw) {
+  const w = String(raw).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z' -]/g, "").trim().replace(/\s+/g, " ");
+  if (!w) return { w, entry: null };
+  if (GLOSSARY[w]) return { w, entry: GLOSSARY[w] };
+  const c = [w.replace(/'s$/,""), w.replace(/ies$/,"y"), w.replace(/es$/,""), w.replace(/s$/,""),
+    w.replace(/ied$/,"y"), w.replace(/ed$/,""), w.replace(/d$/,""), w.replace(/ing$/,""),
+    w.replace(/ing$/,"e"), w.replace(/ly$/,"")];
+  for (const k of c) { if (k && GLOSSARY[k]) return { w, entry: GLOSSARY[k], base: k }; }
+  // multiword
+  if (GLOSSARY["done up"] && w.includes("done") ) { /* handled by phrase below */ }
+  return { w, entry: null };
+}
+function renderQuizForm(formId, questions, namePrefix) {
+  const form = document.getElementById(formId);
+  form.innerHTML = questions.map((q, qi) => {
+    const opts = q.choices.map((c, ci) => `
+      <label class="opt"><input type="radio" name="${namePrefix}${qi}" value="${ci}" />
+      <span class="choice-text">${wrapTokens(c)}</span></label>`).join("");
+    return `<div class="q" data-qi="${qi}">
+      <div class="stem">${wrapTokens(q.stem.replace(/<u><b>/g,"⟦").replace(/<\/b><\/u>/g,"⟧"))
+        .replace(/⟦/g,"<u><b>").replace(/⟧/g,"</b></u>")}</div>
+      ${opts}
+      <div class="explain" id="ex-${namePrefix}${qi}"></div>
+    </div>`;
+  }).join("");
+}
+
+const LOOKUP_KEY = `readingLookups:${PACK_META.child}:${PACK_META.date}`;
+let lookups = {};
+try { lookups = JSON.parse(localStorage.getItem(LOOKUP_KEY) || "{}") || {}; } catch (e) { lookups = {}; }
+
+function recordLookup(label, entry) {
+  const w = String(label).toLowerCase().trim();
+  if (!w) return;
+  const rec = lookups[w] || { count: 0, inGlossary: !!entry, zh: entry ? entry.zh : "", source: "tap" };
+  rec.count += 1;
+  rec.inGlossary = !!entry;
+  rec.zh = entry ? entry.zh : "";
+  rec.source = "tap";
+  lookups[w] = rec;
+  try { localStorage.setItem(LOOKUP_KEY, JSON.stringify(lookups)); } catch (e) {}
+}
+function lookupStats() {
+  const words = Object.keys(lookups);
+  const total = words.reduce((n, w) => n + lookups[w].count, 0);
+  return { words, total };
+}
+function lookupReportLines() {
+  const tap = lookupStats();
+  if (!tap.words.length) return ["查詢單字（點讀）：無"];
+  return [`查詢單字（點讀，共 ${tap.total} 次，${tap.words.length} 個字）：`,
+    ...tap.words.map(w => `- ${w} ×${lookups[w].count}｜${lookups[w].inGlossary ? lookups[w].zh : "（未收錄）"}`)];
+}
+
+function gradeSet(questions, namePrefix) {
+  let correct = 0;
+  questions.forEach((q, qi) => {
+    const picked = document.querySelector(`input[name="${namePrefix}${qi}"]:checked`);
+    const ex = document.getElementById(`ex-${namePrefix}${qi}`);
+    const labels = document.querySelectorAll(`input[name="${namePrefix}${qi}"]`);
+    labels.forEach(inp => {
+      inp.disabled = true;
+      const lab = inp.closest(".opt");
+      lab.classList.remove("mark-ok", "mark-bad");
+      if (+inp.value === q.answer) lab.classList.add("mark-ok");
+      if (picked && inp === picked && +picked.value !== q.answer) lab.classList.add("mark-bad");
+    });
+    if (picked && +picked.value === q.answer) {
+      correct++;
+      ex.className = "explain show-ok";
+      ex.textContent = "✓ " + q.explain;
+    } else {
+      ex.className = "explain show-bad";
+      ex.textContent = "✗ " + q.explain;
+    }
+  });
+  return correct;
+}
+
+let lastReport = null;
+function grade() {
+  const r = gradeSet(QUESTIONS, "r");
+  const v = gradeSet(VOCAB_QUESTIONS, "v");
+  const total = QUESTIONS.length + VOCAB_QUESTIONS.length;
+  const correct = r + v;
+  const score = document.getElementById("score");
+  score.classList.add("show");
+  score.textContent = `得分：${correct} / ${total}（Reading ${r}/${QUESTIONS.length} · Vocab ${v}/${VOCAB_QUESTIONS.length}）` +
+    (correct === total ? " · 太棒了！" : " · 看完講解再重做一次也可以");
+  document.getElementById("submit").disabled = true;
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.add("show");
+  lastReport = [
+    `【Reading成績回報 → English Tutor】`,
+    `孩子：${PACK_META.child}`,
+    `日期：${PACK_META.date}`,
+    `篇名：${PACK_META.title}`,
+    `類型：${PACK_META.type}`,
+    `程度：${PACK_META.level}`,
+    `來源：${PACK_META.source}`,
+    `Reading：${r}/${QUESTIONS.length}`,
+    `Vocab：${v}/${VOCAB_QUESTIONS.length}`,
+    `合計：${correct}/${total}`,
+    ...lookupReportLines(),
+  ].join("\n");
+}
+
+async function copyResults() {
+  if (!lastReport) { alert("請先提交答案。"); return; }
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(lastReport);
+    btn.classList.add("copied");
+    btn.textContent = "已複製！";
+    setTimeout(() => { btn.classList.remove("copied"); btn.textContent = "複製成績"; }, 1600);
+  } catch (e) {
+    prompt("請手動複製：", lastReport);
+  }
+}
+function resetQuiz() {
+  document.getElementById("quiz-form-reading").reset();
+  document.getElementById("quiz-form-vocab").reset();
+  document.querySelectorAll(".explain").forEach(ex => { ex.className = "explain"; ex.innerHTML = ""; });
+  document.querySelectorAll(".opt").forEach(lab => lab.classList.remove("mark-ok", "mark-bad"));
+  document.querySelectorAll('#quiz-form-reading input[type="radio"], #quiz-form-vocab input[type="radio"]').forEach(i => { i.disabled = false; });
+  document.getElementById("submit").disabled = false;
+  document.getElementById("score").classList.remove("show");
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.classList.remove("show", "copied");
+  copyBtn.textContent = "複製成績";
+  lastReport = null;
+}
+
+renderPassage();
+renderTipWords();
+renderQuizForm("quiz-form-reading", QUESTIONS, "r");
+renderQuizForm("quiz-form-vocab", VOCAB_QUESTIONS, "v");
+
+let activeEl = null;
+let lastTapEl = null, lastTapTime = 0;
+
+function positionGlossNear(wordEl) {
+  const g = document.getElementById("gloss");
+  const rect = wordEl.getBoundingClientRect();
+  const pad = 8;
+  // Temporarily show to measure
+  const wasHidden = !g.classList.contains("show");
+  if (wasHidden) {
+    g.style.visibility = "hidden";
+    g.classList.add("show");
+  }
+  const gw = g.offsetWidth || 220;
+  const gh = g.offsetHeight || 100;
+  if (wasHidden) {
+    g.classList.remove("show");
+    g.style.visibility = "";
+  }
+  let top = rect.bottom + pad;
+  let left = rect.left;
+  // Prefer below; if not enough room, place above
+  if (top + gh > window.innerHeight - pad) {
+    top = Math.max(pad, rect.top - gh - pad);
+  }
+  // Keep horizontally in viewport
+  if (left + gw > window.innerWidth - pad) {
+    left = Math.max(pad, window.innerWidth - gw - pad);
+  }
+  if (left < pad) left = pad;
+  g.style.top = Math.round(top) + "px";
+  g.style.left = Math.round(left) + "px";
+}
+
+function hideGloss() {
+  document.getElementById("gloss").classList.remove("show");
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+  activeEl = null;
+}
+
+function showGloss(wordEl) {
+  const key = (wordEl.dataset.word || wordEl.textContent || "").toLowerCase().replace(/[’']/g,"'");
+  let entry = null, label = key;
+  const prev = wordEl.previousElementSibling;
+  const next = wordEl.nextElementSibling;
+  if (prev && prev.classList && prev.classList.contains("word")) {
+    const phrase = (prev.dataset.word + " " + key).toLowerCase();
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
+  }
+  if (!entry && next && next.classList && next.classList.contains("word")) {
+    const phrase = (key + " " + next.dataset.word).toLowerCase();
+    if (GLOSSARY[phrase]) { entry = GLOSSARY[phrase]; label = phrase; }
+  }
+  if (!entry) {
+    const r = findEntry(key);
+    entry = r.entry; label = r.w;
+  }
+
+  // Toggle close if same word already open
+  if (activeEl === wordEl && document.getElementById("gloss").classList.contains("show")) {
+    hideGloss();
+    return;
+  }
+
+  document.querySelectorAll(".word.active").forEach(w => w.classList.remove("active"));
+  wordEl.classList.add("active");
+  activeEl = wordEl;
+  document.getElementById("g-word").textContent = label;
+  if (entry) {
+    document.getElementById("g-en").textContent = entry.en;
+    document.getElementById("g-zh").textContent = entry.zh;
+  } else {
+    document.getElementById("g-en").textContent = "(not in glossary)";
+    document.getElementById("g-zh").textContent = "這個字還沒收錄";
+  }
+  positionGlossNear(wordEl);
+  document.getElementById("gloss").classList.add("show");
+  recordLookup(label, entry);
+}
+
+document.addEventListener("click", (e) => {
+  const gloss = document.getElementById("gloss");
+  const t = e.target.closest(".word");
+  if (t) {
+    const now = Date.now();
+    // Ignore the 2nd click of a physical double-click so it doesn't toggle-close
+    if (t === lastTapEl && now - lastTapTime < 350) return;
+    lastTapEl = t; lastTapTime = now;
+    showGloss(t);
+    e.stopPropagation();
+    return;
+  }
+  if (e.target.closest("#gloss")) {
+    hideGloss();
+    e.stopPropagation();
+    return;
+  }
+  if (gloss.classList.contains("show")) hideGloss();
+}, true);
+
+document.addEventListener("dblclick", (e) => {
+  const t = e.target.closest(".word");
+  if (!t) return;
+  e.preventDefault();
+  if (activeEl !== t) showGloss(t);
+});
+
+window.addEventListener("scroll", () => {
+  if (activeEl && document.getElementById("gloss").classList.contains("show")) {
+    positionGlossNear(activeEl);
+  }
+}, { passive: true });
+window.addEventListener("resize", () => {
+  if (activeEl && document.getElementById("gloss").classList.contains("show")) {
+    positionGlossNear(activeEl);
+  }
+});
+
+document.getElementById("submit").addEventListener("click", grade);
+document.getElementById("copyBtn").addEventListener("click", copyResults);
+document.getElementById("reset").addEventListener("click", resetQuiz);
+
+</script>
+</body>
+</html>
