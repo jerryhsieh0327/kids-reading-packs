@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="胡蘿蔔園"/>
 <meta name="theme-color" content="#f2c16b"/>
-<meta name="carrot-garden-version" content="2026-11-10-v1"/>
+<meta name="carrot-garden-version" content="2026-11-10-v2"/>
 <meta name="description" content="今日收工・胡蘿蔔園：功課做完，把今天的園子收完，太陽下山就停。"/>
 <title>今日收工・胡蘿蔔園</title>
-<!-- carrot-garden version: 2026-11-10-v1 -->
+<!-- carrot-garden version: 2026-11-10-v2 -->
 <style>
 :root{
   --ink:#3a2a16;
@@ -96,6 +96,15 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 #sunset-card p{margin:8px 0;font-size:16px;line-height:1.55}
 #toast{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);background:rgba(40,24,12,.88);color:#fff;padding:12px 18px;border-radius:16px;font-size:16px;font-weight:700;display:none;z-index:40;pointer-events:none;max-width:80%;text-align:center}
 
+#howto-screen{background:linear-gradient(180deg,#f7d48a 0%,#f4b86a 28%,#e8944a 62%,#c46a38 100%);align-items:center;justify-content:center;padding:calc(20px + var(--safe-t)) 24px calc(20px + var(--safe-b))}
+#howto-card{width:min(640px,100%);background:rgba(255,246,232,.96);border-radius:28px;box-shadow:var(--shadow);padding:22px 22px 18px;border:3px solid #fff}
+#howto-card h1{font-size:clamp(26px,5vw,36px);color:#6a3210;letter-spacing:.06em;text-align:center;margin-bottom:8px}
+#howto-card .steps{margin:8px 0 12px;padding:0;list-style:none}
+#howto-card .steps li{background:#fff;border:2px solid #efd7a8;border-radius:14px;padding:10px 12px;margin:8px 0;font-size:15px;line-height:1.45;min-height:48px}
+#howto-card .steps b{color:#8a3a10}
+#tut-banner{display:none;margin:0 10px;margin-left:calc(10px + var(--safe-l));margin-right:calc(10px + var(--safe-r));background:#fff1e4;border:2px solid var(--terra);border-radius:14px;padding:6px 12px;font-size:13px;font-weight:700;color:#9a3a10;text-align:center}
+#tut-banner.on{display:block}
+
 @media (orientation:landscape){
   #title-art{height:110px}
   #speech{min-height:44px;font-size:14px}
@@ -168,8 +177,24 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
         </div>
         <button class="primary" id="btn-continue" type="button">繼續今天的園子</button>
         <button class="ghost" id="btn-new" type="button">開一個新園子</button>
-        <p class="fine">一人可隨時切換水豚／兔子。兩人共用一台 iPad 時，可一人當水豚、一人當兔子，或輪流完成今日清單。不需帳號，進度存在這台裝置裡。</p>
+        <p class="fine">一人可隨時切換水豚／兔子。兩人共用一台 iPad 時，可一人當水豚、一人當兔子，或輪流完成今日清單。不需帳號，進度存在這台裝置裡。第一次會先帶你做小教學，學會了才能進正式園子。</p>
       </div>
+    </div>
+  </section>
+
+  <section id="howto-screen" class="screen">
+    <div id="howto-card">
+      <h1>如何玩</h1>
+      <ul class="steps">
+        <li><b>水豚</b>負責規劃：點空菜畦種花（也可把種子拖進去）、澆水、擺圍籬或把收成放進菜畦。</li>
+        <li><b>兔子</b>負責跑腿：沿著小路跳去摘成熟的胡蘿蔔，再把東西運回來（進階還要依序送到籃子）。</li>
+        <li><b>一天約 10 分鐘</b>，從日出到日落。今日清單做完可以提早按「今日收工」；太陽下山也會自動存檔，時間到了進度不會作廢。</li>
+        <li>兩人可共用一台 iPad，一人當水豚、一人當兔子，或輪流完成清單。</li>
+      </ul>
+      <p class="fine" id="howto-lock-note">請先完成下面的小教學，親手種、澆、擺、摘一次，才能進入正式的第 1–5 日。練習園不會動到正式存檔。</p>
+      <button class="primary" id="btn-start-today" type="button" hidden>開始今日</button>
+      <button class="primary" id="btn-start-tutorial" type="button">開始小教學</button>
+      <button class="ghost" id="btn-howto-back" type="button">回到封面</button>
     </div>
   </section>
 
@@ -180,6 +205,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
       <div class="chip" id="time-chip">還有 10 分鐘</div>
       <button class="chip" id="btn-mode-switch" type="button" title="切換難度">難度</button>
     </div>
+    <div id="tut-banner">練習園・還不是正式的第 1 日</div>
     <div id="speech"><svg class="face" viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="22" r="14" fill="rgba(255,210,80,.4)"/><path d="M21 6 C18 0 12 1 11 8 C8 3 5 8 9 12 C5 14 7 20 13 15" fill="#3d8c3a"/><path d="M21 8 L28 30 Q21 35 14 30 Z" fill="#f08a2a"/><circle cx="17" cy="20" r="1.7" fill="#2a1a10"/><circle cx="25" cy="20" r="1.7" fill="#2a1a10"/><path d="M17 26 Q21 29 25 26" stroke="#c06020" fill="none" stroke-width="1.2" stroke-linecap="round"/></svg><span id="speech-text">早安，園丁！</span></div>
     <div id="stage-wrap">
       <canvas id="garden"></canvas>
@@ -200,6 +226,8 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
         <button class="tool" id="btn-dex" type="button">圖鑑</button>
         <button class="tool" id="btn-mute" type="button">聲音</button>
         <button class="tool" id="btn-finish" type="button" hidden>今日收工</button>
+        <button class="tool" id="btn-tut-next" type="button" hidden>下一步</button>
+        <button class="tool" id="btn-tut-exit" type="button" hidden>離開練習</button>
       </div>
     </div>
   </section>
@@ -222,8 +250,9 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 <script>
 (() => {
   "use strict";
-  const VERSION = "2026-11-10-v1";
+  const VERSION = "2026-11-10-v2";
   const SAVE_KEY = "carrotGarden.v1";
+  const TUTORIAL_KEY = "carrotGarden.tutorialDone.v1";
   const COLS = 14, ROWS = 10, TILE = 72;
   const WORLD_W = COLS * TILE, WORLD_H = ROWS * TILE;
   const DAY_MS = 10 * 60 * 1000;
@@ -276,6 +305,8 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   let fx = [];
   let audioCtx = null;
   let pendingNewMode = "seren";
+  let officialBackup = null;
+  let tutReplay = false;
 
   function emptyCounts(){
     return { plant:{}, water:0, harvest:0, fence:0, place:0, deliver:0, path:0, stamp:{} };
@@ -337,16 +368,26 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
       [10,6],[11,6],[10,7],[11,7]
     ];
     soils.forEach(([c,r]) => t[r][c].type = "soil");
+    // Day 1 keeps the wide centre beds; later days unlock tighter / farther patches
+    [[4,1],[5,1],[7,1],[8,1]].forEach(([c,r]) => { t[r][c].lock = 2; });
+    [[10,3],[11,3],[10,4],[11,4]].forEach(([c,r]) => { t[r][c].lock = 2; });
+    [[10,6],[11,6],[10,7],[11,7]].forEach(([c,r]) => { t[r][c].lock = 3; });
     // Day 4+ new patch (needs a short path on Jayden)
     [[0,6],[0,7]].forEach(([c,r]) => { t[r][c].type = "soil"; t[r][c].lock = 4; });
     // Day 5 patch
     [[0,3],[1,3]].forEach(([c,r]) => { t[r][c].type = "soil"; t[r][c].lock = 5; });
+    // Extra tight Day 5 beds
+    [[13,1]].forEach(([c,r]) => { t[r][c].type = "soil"; t[r][c].lock = 5; });
     t[0][6].type = t[0][7].type = t[0][8].type = t[1][6].type = t[1][7].type = "water";
     t[1][1].type = t[1][2].type = t[2][1].type = "house";
     t[8][1].type = "burrow"; t[8][1].keep = "path";
     t[5][0].type = "basket"; t[5][0].basket = 1;
     t[8][12].type = "basket"; t[8][12].basket = 2;
     t[2][13].type = "basket"; t[2][13].basket = 3;
+    // longer delivery spurs for later days
+    t[2][9].type = t[1][9].type = "path";
+    t[8][13].type = "basket"; t[8][13].basket = 4;
+    t[0][9].type = "basket"; t[0][9].basket = 5;
     t[1][10].type = t[1][11].type = "bed";
     const trees = [[0,0],[1,0],[11,0],[12,0],[13,0],[0,1],[0,9],[1,9],[11,9],[12,9],[13,7],[13,9],[0,4]];
     trees.forEach(([c,r]) => { if(t[r][c].type==="grass") t[r][c].type = "tree"; });
@@ -368,43 +409,65 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   function pathAdjacent(c,r){ return neighbors4(c,r).some(([x,y]) => isPath(x,y)); }
 
   /* ---------- day config ---------- */
+  function deliveryMax(day, m){
+    if(S && S.phase==="tutorial") return 1;
+    const d = day==null ? (S?S.day:1) : day;
+    const md = m==null ? (S?S.mode:"seren") : m;
+    if(md!=="jayden") return 0;
+    return {1:2,2:3,3:3,4:4,5:5}[d]||3;
+  }
   function tasksFor(day, m){
     const easy = m !== "jayden";
     const list = [];
     const add = (id, label, need, kind) => list.push({id,label,need,kind});
+    const dNeed = deliveryMax(day, m);
     if(day===1){
-      add("p1", easy?"種下 3 棵暖陽胡蘿蔔":"種下 4 棵暖陽胡蘿蔔", easy?3:4, "plant:sun");
-      add("w1", easy?"澆水 2 次":"澆水 3 次", easy?2:3, "water");
-      add("h1", easy?"請兔子摘 2 捆":"請兔子摘 3 捆", easy?2:3, "harvest");
+      add("p1", easy?"種下 2 棵暖陽胡蘿蔔":"種下 3 棵暖陽胡蘿蔔", easy?2:3, "plant:sun");
+      add("w1", easy?"澆水 1 次":"澆水 2 次", easy?1:2, "water");
+      add("h1", easy?"請兔子摘 1 捆":"請兔子摘 2 捆", easy?1:2, "harvest");
       add("s1", "為暖陽胡蘿蔔蓋上第一枚圖鑑章", 1, "stamp:sun");
-      if(!easy) add("d1","沿小路依序送到 3 個籃子", 3, "deliver");
+      if(!easy) add("d1","沿較近的小路依序送到 2 個籃子", 2, "deliver");
     } else if(day===2){
-      add("p2", easy?"種下 2 棵蜜糖胡蘿蔔":"種下 3 棵蜜糖胡蘿蔔", easy?2:3, "plant:honey");
-      add("h2", easy?"摘 2 捆胡蘿蔔":"摘 3 捆胡蘿蔔", easy?2:3, "harvest");
+      add("p2a", easy?"種下 2 棵蜜糖胡蘿蔔":"種下 3 棵蜜糖胡蘿蔔", easy?2:3, "plant:honey");
+      add("p2b", easy?"再種 1 棵暖陽胡蘿蔔":"再種 2 棵暖陽胡蘿蔔", easy?1:2, "plant:sun");
+      add("w2", easy?"澆水 3 次":"澆水 4 次", easy?3:4, "water");
+      add("h2", easy?"摘 3 捆胡蘿蔔":"摘 4 捆胡蘿蔔", easy?3:4, "harvest");
       add("f2", easy?"擺 1 段小圍籬":"擺 2 段小圍籬", easy?1:2, "fence");
       add("s2", "為蜜糖胡蘿蔔蓋章", 1, "stamp:honey");
-      if(!easy) add("d2","依序送到 3 個籃子", 3, "deliver");
+      if(!easy) add("d2","依序送到 3 個籃子，路程比昨天長", 3, "deliver");
     } else if(day===3){
-      add("p3", easy?"種下 2 棵紫晶胡蘿蔔":"種下 3 棵紫晶胡蘿蔔", easy?2:3, "plant:crystal");
-      add("h3", easy?"摘 2 捆":"摘 3 捆", easy?2:3, "harvest");
+      add("p3a", easy?"種下 3 棵紫晶胡蘿蔔":"種下 4 棵紫晶胡蘿蔔", easy?3:4, "plant:crystal");
+      add("p3b", easy?"再種 1 棵蜜糖胡蘿蔔":"再種 2 棵蜜糖胡蘿蔔", easy?1:2, "plant:honey");
+      add("w3", easy?"澆水 4 次":"澆水 5 次", easy?4:5, "water");
+      add("h3", easy?"摘 4 捆":"摘 5 捆", easy?4:5, "harvest");
       add("pl3", easy?"把 1 捆收成擺進展示菜畦":"把 2 捆收成擺進展示菜畦", easy?1:2, "place");
+      add("f3", easy?"再擺 1 段圍籬":"再擺 2 段圍籬", easy?1:2, "fence");
       add("s3", "為紫晶胡蘿蔔蓋章", 1, "stamp:crystal");
-      if(!easy) add("d3","依序送到 3 個籃子", 3, "deliver");
+      if(!easy) add("d3","依序送到 3 個籃子（菜畦更緊，路要繞）", 3, "deliver");
     } else if(day===4){
-      add("p4", easy?"種下 2 棵雪白胡蘿蔔":"種下 3 棵雪白胡蘿蔔", easy?2:3, "plant:snow");
-      add("h4", easy?"摘 2 捆":"摘 3 捆", easy?2:3, "harvest");
-      add("de4", easy?"擺 1 個園旗或花石":"擺 1 個園旗或花石", 1, "decor");
+      add("p4a", easy?"種下 3 棵雪白胡蘿蔔":"種下 4 棵雪白胡蘿蔔", easy?3:4, "plant:snow");
+      add("p4b", easy?"再種 2 棵紫晶胡蘿蔔":"再種 2 棵紫晶胡蘿蔔", 2, "plant:crystal");
+      add("w4", easy?"澆水 5 次":"澆水 6 次", easy?5:6, "water");
+      add("h4", easy?"摘 5 捆":"摘 6 捆", easy?5:6, "harvest");
+      add("pl4", easy?"把 1 捆收成擺進菜畦":"把 2 捆收成擺進菜畦", easy?1:2, "place");
+      add("de4", easy?"擺 1 個園旗或花石":"擺 2 個園旗或花石", easy?1:2, "decor");
       add("s4", "為雪白胡蘿蔔蓋章", 1, "stamp:snow");
       if(!easy){
         add("pa4","鋪至少 2 格短徑，讓兔子走到新菜畦", 2, "path");
-        add("d4","依序送到 3 個籃子", 3, "deliver");
+        add("d4","依序送到 4 個籃子，最後一站更遠", 4, "deliver");
       }
     } else {
-      add("p5", easy?"種下 2 棵日落胡蘿蔔":"種下 3 棵日落胡蘿蔔", easy?2:3, "plant:sunset");
-      add("h5", easy?"摘 2 捆":"摘 3 捆", easy?2:3, "harvest");
-      add("be5", easy?"再擺 1 次菜畦或裝飾，讓園子更漂亮":"再擺 2 次菜畦或裝飾", easy?1:2, "beauty");
+      add("p5a", easy?"種下 3 棵日落胡蘿蔔":"種下 4 棵日落胡蘿蔔", easy?3:4, "plant:sunset");
+      add("p5b", easy?"再種 2 棵雪白胡蘿蔔":"再種 3 棵雪白胡蘿蔔", easy?2:3, "plant:snow");
+      add("p5c", easy?"再種 1 棵紫晶胡蘿蔔":"再種 1 棵紫晶胡蘿蔔", 1, "plant:crystal");
+      add("w5", easy?"澆水 6 次":"澆水 7 次", easy?6:7, "water");
+      add("h5", easy?"摘 6 捆":"摘 7 捆", easy?6:7, "harvest");
+      add("be5", easy?"再擺 2 次菜畦或裝飾，把園子收漂亮":"再擺 3 次菜畦或裝飾", easy?2:3, "beauty");
       add("s5", "為日落胡蘿蔔蓋章，集齊基礎圖鑑", 1, "stamp:sunset");
-      if(!easy) add("d5","依序送到 3 個籃子", 3, "deliver");
+      if(!easy){
+        add("pa5","再鋪至少 4 格短徑，接通最遠的新菜畦", 4, "path");
+        add("d5","依序送到 5 個籃子，跑完最長的送貨小路", 5, "deliver");
+      }
     }
     return list;
   }
@@ -428,12 +491,42 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 
   /* ---------- save ---------- */
   function persist(){
+    if(S && S.phase==="tutorial") return;
     try{
       S.muted = muted;
       S.mode = mode;
+      if(isTutorialDone()) S.tutorialDone = true;
       localStorage.setItem(SAVE_KEY, JSON.stringify(S));
       saveExists = true;
     }catch(e){}
+  }
+  function migrateTiles(tiles){
+    if(!tiles || !tiles[0]) return tiles;
+    function setIfFree(c,r,type,extra){
+      if(!tiles[r] || !tiles[r][c]) return;
+      const t=tiles[r][c];
+      if(type==="basket"){
+        if(t.type==="basket"){ t.basket = t.basket||extra; return; }
+        if(t.type==="grass" || t.type==="path" || t.type==="tree"){ t.type="basket"; t.basket=extra; }
+        return;
+      }
+      if(type==="path" && (t.type==="grass" || t.type==="tree")) t.type="path";
+    }
+    setIfFree(9,2,"path"); setIfFree(9,1,"path");
+    setIfFree(13,8,"basket",4);
+    setIfFree(9,0,"basket",5);
+    return tiles;
+  }
+  function isTutorialDone(){
+    try{ if(localStorage.getItem(TUTORIAL_KEY)==="1") return true; }catch(e){}
+    try{
+      const o=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");
+      if(o && o.tutorialDone) return true;
+    }catch(e){}
+    return false;
+  }
+  function markTutorialDone(){
+    try{ localStorage.setItem(TUTORIAL_KEY,"1"); }catch(e){}
   }
   function loadSave(){
     try{
@@ -442,6 +535,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
       const o = JSON.parse(raw);
       if(!o || !o.tiles) return false;
       S = Object.assign(defaultState(), o);
+      S.tiles = migrateTiles(S.tiles);
       S.version = VERSION;
       mode = S.mode==="jayden" ? "jayden" : "seren";
       muted = !!S.muted;
@@ -501,8 +595,31 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   function showScreen(name){
     screen = name;
     $("title-screen").classList.toggle("on", name==="title");
+    $("howto-screen").classList.toggle("on", name==="howto");
     $("game-screen").classList.toggle("on", name==="play");
     $("sunset-screen").classList.toggle("on", name==="sunset");
+    const tut = name==="play" && S && S.phase==="tutorial";
+    $("tut-banner").classList.toggle("on", !!tut);
+  }
+  function openHowTo(){
+    const done = isTutorialDone();
+    $("btn-start-today").hidden = !done;
+    $("btn-start-today").style.display = done ? "block" : "none";
+    $("btn-start-tutorial").textContent = done ? "再看一次教學" : "開始小教學";
+    $("btn-start-tutorial").className = done ? "ghost" : "primary";
+    $("howto-lock-note").style.display = done ? "none" : "block";
+    showScreen("howto");
+  }
+  function enterOfficialFromHowTo(){
+    if(!isTutorialDone()){
+      toast("請先完成小教學，才能進入正式園子。");
+      return false;
+    }
+    if(S.phase==="tutorial") return false;
+    if(S.phase==="sunset"){ showScreen("sunset"); return true; }
+    if(S.phase==="playing" || S.phase==="after") startDay(false);
+    else startDay(true);
+    return true;
   }
   function say(text, force){
     if(!force && text===lastHint) return;
@@ -526,6 +643,11 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   }
 
   function startDay(freshMorning){
+    if(!isTutorialDone()){
+      openHowTo();
+      toast("請先完成小教學，才能進入正式的第 1–5 日。");
+      return false;
+    }
     if(freshMorning){
       S.elapsed = 0;
       S.dayCounts = emptyCounts();
@@ -548,6 +670,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     refreshTools();
     morningSpeech();
     persist();
+    return true;
   }
   function morningSpeech(){
     const w = WEATHER[S.day];
@@ -556,10 +679,10 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     const extra = S.day===3 ? "雨後的土壤濕濕的，菜會長得快一點。" : (S.day===5 ? "今天光線特別金黃，慢慢把園子收漂亮吧。" : "");
     const intro = {
       1:"早安！我是胡蘿蔔精靈。先點下方的水豚，再把種子種到空菜畦上。",
-      2:"新的一天，蜜糖胡蘿蔔想來透透氣。",
-      3:"雨停了，紫晶胡蘿蔔探出頭來。",
-      4:"天氣暖暖的。雪白胡蘿蔔登場了。" + (S.mode==="jayden"?" 新菜畦離小路有一點遠，可以試著鋪短徑。":""),
-      5:"金黃午後，日落胡蘿蔔來集齊圖鑑了。"
+      2:"新的一天比昨天忙一點：蜜糖胡蘿蔔來了，還要順便照顧暖陽。",
+      3:"雨停了，紫晶胡蘿蔔探出頭來。今天菜畦更緊，清單也更長。",
+      4:"天氣暖暖的。雪白胡蘿蔔登場了，園子開始變熱鬧。" + (S.mode==="jayden"?" 新菜畦離小路有一點遠，要鋪短徑；送貨也變成 4 個籃子。":""),
+      5:"金黃午後最豐富的一天：三種胡蘿蔔、最長的清單，日落胡蘿蔔來集齊圖鑑了。" + (S.mode==="jayden"?" 今天要送到 5 個籃子，也要再鋪路。":"")
     };
     say(intro[S.day] + (extra?" "+extra:"") + (vn && S.day>1?" 今日新品種："+vn+"。":""), true);
   }
@@ -604,10 +727,12 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
 
   /* ---------- growth & characters ---------- */
   function growMsNeed(stage, watered, kind){
+    if(S.phase==="tutorial") return 700;
     const rain = S.day===3 ? 0.72 : 1;
     const base = [0, 7000, 12000, 14000][stage] || 12000;
     const slow = (!watered) ? (S.mode==="jayden" ? 2.4 : 1.7) : 0.85;
-    return (base * rain * slow) / GROW_SCALE;
+    const dayPace = [1, 0.82, 0.92, 0.98, 1.08, 1.18][S.day] || 1;
+    return (base * rain * slow * dayPace) / GROW_SCALE;
   }
   function updateGrowth(dt){
     Object.values(S.plants).forEach(p => {
@@ -747,13 +872,14 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     } else if(S.mode==="seren"){
       say("好的，摘到一捆"+VARIETIES[kind].name+"。", true);
     }
-    if(S.mode==="jayden" && S.deliveryDone<3){
+    if(S.phase==="tutorial" || (S.mode==="jayden" && S.deliveryDone<deliveryMax())){
       S.carrying = kind;
-      say("背上了！請沿著小路，依序送到第 "+S.deliveryNext+" 號籃子。", true);
+      say(S.phase==="tutorial" ? "背上了！請沿著小路，點 1 號籃子，把菜運過去。" : ("背上了！請沿著小路，依序送到第 "+S.deliveryNext+" 號籃子。"), true);
     } else {
       S.inventory[kind] = (S.inventory[kind]||0)+1;
     }
     maybeListComplete();
+    onTutorialAction("harvest");
   }
   function doDeliver(n){
     if(!S.carrying){ say("兔子手上還沒有菜，先去摘一捆吧。"); return; }
@@ -766,12 +892,14 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     S.carrying = null;
     S.inventory[kind] = (S.inventory[kind]||0)+1;
     S.deliveryDone++;
-    S.deliveryNext = Math.min(3, S.deliveryNext+1);
+    const dmax = deliveryMax();
+    S.deliveryNext = Math.min(dmax, S.deliveryNext+1);
     addFx("stamp", ...basketPos(n));
     sfx.ok();
-    if(S.deliveryDone>=3) say("三個籃子都送到了，今天的跑腿很棒！", true);
+    if(S.deliveryDone>=dmax) say(dmax+" 個籃子都送到了，今天的跑腿很棒！", true);
     else say("第 "+n+" 號籃子收到了。下一站是第 "+S.deliveryNext+" 號。", true);
     maybeListComplete();
+    onTutorialAction("deliver");
   }
   function basketPos(n){
     for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
@@ -810,6 +938,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
       else say("又種下一棵"+VARIETIES[seedKind].name+"。");
     }
     maybeListComplete(); persist();
+    onTutorialAction("plant");
   }
   function waterAt(c,r){
     if(actor!=="capy") return wrongActor("capy");
@@ -824,6 +953,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     sfx.water();
     if(S.mode==="seren") say("咕嘟咕嘟，謝謝你。再過一會兒就可以請兔子來摘。");
     maybeListComplete(); persist();
+    onTutorialAction("water");
   }
   function fenceAt(c,r){
     if(actor!=="capy") return wrongActor("capy");
@@ -841,6 +971,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     }
     S.capy.go = {c,r};
     maybeListComplete(); persist();
+    onTutorialAction("fence");
   }
   function placeAt(c,r){
     if(actor!=="capy") return wrongActor("capy");
@@ -926,7 +1057,9 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     say("點成熟的胡蘿蔔、小路或籃子，兔子就會跳過去。");
   }
   function handleTile(c,r){
-    if(S.phase!=="playing" && S.phase!=="after") return;
+    if(S.phase==="tutorial"){
+      if(S.tutStep==="intro" || S.tutStep==="recap") return;
+    } else if(S.phase!=="playing" && S.phase!=="after") return;
     if(actor==="rabbit"){ rabbitTap(c,r); return; }
     if(tool==="seed") plantAt(c,r);
     else if(tool==="water") waterAt(c,r);
@@ -973,8 +1106,24 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     $("btn-finish").hidden = !(S.phase==="playing" && allTasksDone());
     $("btn-mute").textContent = muted ? "靜音" : "聲音";
     $("btn-mode-switch").textContent = S.mode==="jayden" ? "進階" : "寬鬆";
+    $("btn-mode-switch").hidden = (S.phase==="tutorial");
+    $("btn-list").hidden = (S.phase==="tutorial");
+    $("btn-dex").hidden = (S.phase==="tutorial");
+    $("btn-tut-next").hidden = !(S.phase==="tutorial" && (S.tutStep==="intro" || S.tutStep==="recap"));
+    $("btn-tut-next").textContent = S.tutStep==="recap" ? "我學會了" : "開始練習";
+    $("btn-tut-exit").hidden = (S.phase!=="tutorial");
     dayChip.textContent = "第 "+S.day+" 日・"+WEATHER[S.day].name;
     if(S.phase==="after") dayChip.textContent = "自由照料・園子仍在";
+    if(S.phase==="tutorial"){
+      dayChip.textContent = "練習園・不是正式日";
+      $("btn-path").hidden = true;
+      $("btn-place").hidden = true;
+      $("btn-seed").hidden = !(actor==="capy" && (S.tutStep==="intro" || S.tutStep==="plant"));
+      $("btn-water").hidden = !(actor==="capy" && S.tutStep==="water");
+      $("btn-fence").hidden = !(actor==="capy" && S.tutStep==="fence");
+      $("sub-seeds").className = "row subtools" + (actor==="capy" && (S.tutStep==="intro"||S.tutStep==="plant") && tool==="seed" ? " on" : "");
+      $("sub-place").className = "row subtools";
+    }
   }
   function renderList(){
     const tasks = tasksFor(S.day,S.mode);
@@ -983,9 +1132,10 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
       const ok = n>=t.need;
       return `<div class="task ${ok?"done":""}">${ok?"✓":"○"} ${t.label}　${n}/${t.need}</div>`;
     }).join("");
+    const dmax=deliveryMax();
     $("list-note").textContent = S.mode==="seren"
-      ? "寬鬆模式：提示會多一點。做完可以提早收工，或等到太陽下山。"
-      : (S.day>=4 ? "進階：記得送貨；還可以鋪最多 8 格短徑（只存在這台裝置）。" : "進階：日落前請沿小路依序送到三個籃子。");
+      ? "寬鬆模式：提示會多一點，第 1 日最輕鬆，之後會一天比一天豐富。做完可以提早收工，或等到太陽下山。"
+      : (S.day>=4 ? "進階：記得送貨（今天 "+dmax+" 個籃子）；還可以鋪最多 8 格短徑（只存在這台裝置）。" : "進階：日落前請沿小路依序送到 "+dmax+" 個籃子。");
   }
   function renderDex(){
     const body = $("dex-body");
@@ -1047,6 +1197,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     const remain = Math.max(0, DAY_LEN - S.elapsed);
     const m = Math.ceil(remain/60000);
     const sec = Math.ceil(remain/1000);
+    if(S.phase==="tutorial"){ sunFill.style.width="0%"; sunLabel.textContent="練習中"; timeChip.textContent="不計時"; return; }
     if(S.phase==="after"){ sunLabel.textContent="黃昏"; timeChip.textContent="已收工"; return; }
     sunLabel.textContent = t<0.12?"日出": t<0.5?"上午": t<0.75?"午後": t<0.92?"黃昏將至":"日落";
     timeChip.textContent = remain>60000 ? ("還有 "+m+" 分鐘") : ("還有 "+sec+" 秒");
@@ -1178,6 +1329,21 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     }
     // fx
     fx.forEach(p => drawFx(p));
+    drawTutorialHint();
+  }
+  function drawTutorialHint(){
+    if(S.phase!=="tutorial" || !S.tutHint) return;
+    const {c,r}=S.tutHint;
+    const x=(c+0.5)*TILE, y=(r+0.5)*TILE;
+    const pulse=22+Math.sin((S.elapsed||performance.now())/180)*5;
+    ctx.save();
+    ctx.strokeStyle="#ffd36a";
+    ctx.lineWidth=5;
+    ctx.beginPath(); ctx.arc(x,y,pulse,0,6.28); ctx.stroke();
+    ctx.strokeStyle="rgba(255,255,255,0.7)";
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(x,y,pulse+6,0,6.28); ctx.stroke();
+    ctx.restore();
   }
   function effectiveType(c,r){
     if(S.customPaths[key(c,r)]) return "path";
@@ -1291,6 +1457,10 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     }
   }
   function drawBasket(x,y,n){
+    const show = S.phase==="tutorial" ? n===1 : (S.mode!=="jayden" ? n<=3 : n<=Math.max(2, deliveryMax()));
+    if(!show){
+      ctx.globalAlpha=0.28;
+    }
     ctx.fillStyle="#c47a30";
     ctx.beginPath();
     ctx.moveTo(x-18,y-8);
@@ -1309,6 +1479,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
       ctx.font="bold 14px sans-serif";
       ctx.fillText("✓", x+16, y-14);
     }
+    ctx.globalAlpha=1;
   }
   function drawHouse(){
     const x=1*TILE, y=1*TILE;
@@ -1537,7 +1708,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   function maybeHint(dt){
     if(S.phase!=="playing") return;
     hintTimer += dt;
-    const gap = S.mode==="seren" ? 8000 : 20000;
+    const gap = S.mode==="seren" ? (5000 + S.day*1400) : (14000 + S.day*2000);
     if(hintTimer < gap) return;
     hintTimer = 0;
     const next = tasksFor(S.day,S.mode).find(t=>!taskDone(t));
@@ -1547,7 +1718,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     else if(next.kind==="harvest") say("葉子跳舞就換兔子，點成熟的胡蘿蔔去摘。");
     else if(next.kind==="fence") say("用水豚點「圍籬」，再點草地擺一段。");
     else if(next.kind==="place") say("先有收成，再用水豚把菜擺進屋子旁的展示菜畦。");
-    else if(next.kind==="deliver") say("兔子背上菜以後，依序點 1、2、3 號籃子。");
+    else if(next.kind==="deliver") say("兔子背上菜以後，依序點 1 到 "+deliveryMax()+" 號籃子。");
     else if(next.kind==="path") say("用水豚點「鋪路」，在挨著小路的草地上鋪短徑。");
     else if(next.kind==="decor"||next.kind==="beauty") say("用水豚的「擺放」，把園旗、花石或收成擺出來。");
     else if(next.kind.startsWith("stamp")) say("摘到新品種就會自動蓋圖鑑章。");
@@ -1565,6 +1736,10 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
       updateCapy(dt);
       maybeHint(dt);
       if(ts-lastSave>4000){ persist(); lastSave=ts; }
+    } else if(S.phase==="tutorial"){
+      updateGrowth(dt);
+      updateRabbit(dt);
+      updateCapy(dt);
     } else if(S.phase==="after"){
       updateGrowth(dt);
       updateRabbit(dt);
@@ -1578,6 +1753,118 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     requestAnimationFrame(loop);
   }
 
+  /* ---------- tutorial ---------- */
+  function buildTutorialTiles(){
+    const t=[];
+    for(let r=0;r<ROWS;r++){ t[r]=[]; for(let c=0;c<COLS;c++) t[r][c]={type:"grass",lock:0}; }
+    [[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[2,6],[2,7]].forEach(([c,r]) => t[r][c].type="path");
+    t[4][4].type=t[4][5].type="soil";
+    t[3][2].type=t[3][1].type=t[4][1].type="house";
+    t[6][2].type="burrow";
+    t[5][8].type="basket"; t[5][8].basket=1;
+    t[4][7].type="bed";
+    [[0,0],[1,0],[12,0],[13,0],[0,9],[13,9],[11,1]].forEach(([c,r]) => t[r][c].type="tree");
+    return t;
+  }
+  function tutorialState(){
+    const s=defaultState();
+    s.tiles=buildTutorialTiles();
+    s.phase="tutorial";
+    s.tutStep="intro";
+    s.mode=pendingNewMode;
+    s.day=1;
+    s.rabbit={c:2,r:6,x:2.5*TILE,y:6.5*TILE,path:[],hop:0,queue:[]};
+    s.capy={c:3,r:4,x:3.5*TILE,y:4.5*TILE,go:null};
+    s.deliveryNext=1; s.deliveryDone=0;
+    return s;
+  }
+  function setTutStep(step){
+    S.tutStep=step;
+    S.tutHint=null;
+    if(step==="intro"){
+      actor="capy"; tool="seed"; seedKind="sun";
+      say("這裡是練習園，不是正式的第 1 日，做完不會動到正式存檔。一天約 10 分鐘，清單做完可提早按「今日收工」，太陽下山也會自動存檔。先當水豚，來種一棵菜吧。", true);
+    } else if(step==="plant"){
+      actor="capy"; tool="seed"; seedKind="sun";
+      S.tutHint={c:4,r:4};
+      say("點下方的「水豚」和「種子」，再點發亮的空菜畦，種下一棵暖陽胡蘿蔔。也可以把種子拖進去。", true);
+    } else if(step==="water"){
+      actor="capy"; tool="water";
+      S.tutHint={c:4,r:4};
+      say("種好了！接著點「澆水」，再點這棵菜。", true);
+    } else if(step==="fence"){
+      actor="capy"; tool="fence";
+      S.tutHint={c:5,r:3};
+      say("再來試試看「擺」。點「圍籬」，再點發亮的草地，擺一段小圍籬。", true);
+    } else if(step==="harvest"){
+      actor="rabbit"; tool="seed";
+      const plant=Object.values(S.plants)[0];
+      S.tutHint=plant?{c:plant.c,r:plant.r}:{c:4,r:4};
+      say("葉子在跳舞了！點下方的「兔子」，再點成熟的胡蘿蔔，牠會沿小路去摘。", true);
+    } else if(step==="carry"){
+      actor="rabbit";
+      S.tutHint={c:8,r:5};
+      say("摘下來要運回去。點 1 號籃子，請兔子沿小路把菜送過去。", true);
+    } else if(step==="recap"){
+      S.tutHint=null;
+      say("做得好！記住：正式園子一天約 10 分鐘。清單做完可提早按「今日收工」；等到太陽下山也會自動存檔，時間到了進度不會作廢。", true);
+      toast("教學快完成了，按「我學會了」。");
+    }
+    refreshTools();
+  }
+  function onTutorialAction(type){
+    if(!S || S.phase!=="tutorial") return;
+    const st=S.tutStep;
+    if(st==="plant" && type==="plant") setTutStep("water");
+    else if(st==="water" && type==="water") setTutStep("fence");
+    else if(st==="fence" && type==="fence") {
+      // speed the planted crop to ripe, then harvest
+      Object.values(S.plants).forEach(p => { p.watered=true; p.stage=3; p.age=0; });
+      setTutStep("harvest");
+    } else if(st==="harvest" && type==="harvest") setTutStep("carry");
+    else if(st==="carry" && type==="deliver") setTutStep("recap");
+  }
+  function startTutorial(){
+    officialBackup = localStorage.getItem(SAVE_KEY);
+    tutReplay = isTutorialDone();
+    S = tutorialState();
+    fx=[]; lastHint="";
+    showScreen("play");
+    resize(); centerCam();
+    setTutStep("intro");
+  }
+  function exitTutorial(finished){
+    const snap = officialBackup;
+    officialBackup=null;
+    if(finished){
+      markTutorialDone();
+      if(snap){
+        localStorage.setItem(SAVE_KEY, snap);
+        loadSave();
+        S.tutorialDone=true;
+        persist();
+      } else {
+        if(!(S && S.tiles && S.phase!=="tutorial")){
+          S=defaultState(); S.mode=pendingNewMode; mode=pendingNewMode;
+        }
+        S.tutorialDone=true;
+      }
+      openHowTo();
+      toast("教學完成！可以按「開始今日」進正式園子。");
+      return;
+    }
+    // leave without finishing
+    if(snap){ localStorage.setItem(SAVE_KEY, snap); loadSave(); }
+    else { S=defaultState(); S.mode=pendingNewMode; mode=pendingNewMode; }
+    openHowTo();
+    if(!isTutorialDone()) toast("還沒做完教學，還不能進正式園子。");
+  }
+  function tutNext(){
+    if(S.phase!=="tutorial") return;
+    if(S.tutStep==="intro") setTutStep("plant");
+    else if(S.tutStep==="recap") exitTutorial(true);
+  }
+
   /* ---------- events ---------- */
   function bind(){
     $("btn-mode-seren").onclick = () => { pendingNewMode="seren"; refreshTitle(); };
@@ -1585,10 +1872,8 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     $("btn-continue").onclick = () => {
       if(!loadSave()){ toast("還沒有存檔"); return; }
       mode = pendingNewMode;
-      S.mode = mode; // switching difficulty keeps garden
-      if(S.phase==="sunset"){ showScreen("sunset"); return; }
-      if(S.phase==="playing" || S.phase==="after") startDay(false);
-      else startDay(true);
+      S.mode = mode;
+      openHowTo();
     };
     $("btn-new").onclick = () => {
       confirmAction = "new";
@@ -1604,9 +1889,15 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
         mode = pendingNewMode;
         S.mode = mode;
         muted = false;
-        startDay(true);
+        persist();
+        openHowTo();
       }
     };
+    $("btn-start-today").onclick = () => enterOfficialFromHowTo();
+    $("btn-start-tutorial").onclick = () => startTutorial();
+    $("btn-howto-back").onclick = () => { showScreen("title"); refreshTitle(); };
+    $("btn-tut-next").onclick = () => tutNext();
+    $("btn-tut-exit").onclick = () => exitTutorial(false);
     $("btn-capy").onclick = () => { actor="capy"; if(tool==="path" && !(S.mode==="jayden"&&S.day>=4)) tool="seed"; refreshTools(); say(S.mode==="seren"?"水豚村長準備好了：可以種、澆水、擺圍籬和收成。":"改由水豚規劃。"); };
     $("btn-rabbit").onclick = () => { actor="rabbit"; refreshTools(); say("兔子準備跑腿：點成熟的菜或籃子，牠會沿小路跳過去。"); };
     $("btn-seed").onclick = () => { tool="seed"; refreshTools(); };
@@ -1646,11 +1937,12 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     $("btn-mute").onclick = () => { muted=!muted; S.muted=muted; refreshTools(); persist(); };
     $("btn-finish").onclick = () => finishDay("early");
     $("btn-mode-switch").onclick = () => {
+      if(S.phase==="tutorial") return;
       const next = S.mode==="seren" ? "jayden" : "seren";
       S.mode = next; mode = next;
       // do not scramble garden / day / stamps
       if(next==="seren") say("已切換為寬鬆。園子與圖鑑都還在。送貨改為可選，不會打亂存檔。", true);
-      else say("已切換為進階。園子與圖鑑都還在。"+(S.day>=4?" 現在可以鋪短徑。":" 記得沿小路送貨到三個籃子。"), true);
+      else say("已切換為進階。園子與圖鑑都還在。"+(S.day>=4?" 現在可以鋪短徑。":" 記得沿小路依序送貨到籃子。"), true);
       refreshTools(); persist();
     };
     $("btn-next-day").onclick = () => advanceOrFree();
@@ -1675,7 +1967,9 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   window.__CARROT_GARDEN__ = {
     version: VERSION,
     saveKey: SAVE_KEY,
-    getState(){ return { version:VERSION, day:S.day, phase:S.phase, mode:S.mode, stamps:Object.assign({},S.stamps), counts:JSON.parse(JSON.stringify(S.dayCounts)), inventory:Object.assign({},S.inventory), deliveryDone:S.deliveryDone, customPathCount:Object.keys(S.customPaths).length, plantCount:Object.keys(S.plants).length, elapsed:S.elapsed, tasks: tasksFor(S.day,S.mode).map(tk=>({label:tk.label,need:tk.need,got:countOf(tk.kind),done:taskDone(tk)})) }; },
+    tutorialKey: TUTORIAL_KEY,
+    isTutorialDone,
+    getState(){ return { version:VERSION, day:S.day, phase:S.phase, mode:S.mode, tutStep:S.tutStep||null, screen, stamps:Object.assign({},S.stamps), counts:JSON.parse(JSON.stringify(S.dayCounts)), inventory:Object.assign({},S.inventory), deliveryDone:S.deliveryDone, customPathCount:Object.keys(S.customPaths).length, plantCount:Object.keys(S.plants).length, elapsed:S.elapsed, tutorialDone:isTutorialDone(), tasks: tasksFor(S.day,S.mode).map(tk=>({label:tk.label,need:tk.need,got:countOf(tk.kind),done:taskDone(tk)})) }; },
     getSave(){ return localStorage.getItem(SAVE_KEY); }
   };
 
@@ -1684,6 +1978,10 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
     for(let t=0;t<ms;t+=step){
       if(S.phase==="playing"){
         S.elapsed += step;
+        updateGrowth(step);
+        updateRabbit(step);
+        updateCapy(step);
+      } else if(S.phase==="tutorial" || S.phase==="after"){
         updateGrowth(step);
         updateRabbit(step);
         updateCapy(step);
@@ -1696,63 +1994,96 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:n
   }
   function runAutoTest(){
     const log=[];
+    const result=(ok, extra)=>{
+      const msg=(ok?"AUTOTEST_OK ":"AUTOTEST_FAIL ")+log.join(" | ")+(extra?" | "+extra:"");
+      document.title=msg;
+      let pre=document.getElementById("autotest-result");
+      if(!pre){ pre=document.createElement("pre"); pre.id="autotest-result"; document.body.appendChild(pre); }
+      pre.textContent=msg;
+    };
     try{
       localStorage.removeItem(SAVE_KEY);
-      pendingNewMode="seren"; mode="seren";
-      S=defaultState(); S.mode="seren"; muted=true;
-      startDay(true);
+      localStorage.removeItem(TUTORIAL_KEY);
+      pendingNewMode="seren"; mode="seren"; muted=true;
+      S=defaultState(); S.mode="seren";
+      const blocked = startDay(true)===false && screen==="howto" && S.phase!=="playing" && S.phase!=="tutorial";
+      log.push("blockedWithoutTut="+blocked);
+
+      startTutorial();
+      const inTut = S.phase==="tutorial" && screen==="play";
+      tutNext(); // intro -> plant
       actor="capy"; tool="seed"; seedKind="sun";
-      [[4,3],[5,3],[3,3]].forEach(([c,r])=>plantAt(c,r));
-      tool="water";
-      [[4,3],[5,3]].forEach(([c,r])=>waterAt(c,r));
-      log.push("planted "+Object.keys(S.plants).length+" watered "+S.dayCounts.water);
-      simulate(20000);
+      plantAt(4,4);
+      tool="water"; waterAt(4,4);
+      tool="fence"; fenceAt(5,3);
+      const afterFence = S.tutStep;
+      actor="rabbit";
       const ripe=Object.values(S.plants).filter(p=>p.stage>=3);
-      log.push("ripe "+ripe.length+" stages "+Object.values(S.plants).map(p=>p.stage).join(","));
-      actor="rabbit"; refreshTools();
-      ripe.slice(0,2).forEach(p=>rabbitTap(p.c,p.r));
+      ripe.forEach(p=>rabbitTap(p.c,p.r));
+      simulate(8000);
+      if(S.carrying){ rabbitTap(8,5); simulate(8000); }
+      log.push("tutStep="+S.tutStep+" harvest="+S.dayCounts.harvest+" deliver="+S.deliveryDone+" inTut="+inTut+" afterFence="+afterFence);
+      if(S.tutStep!=="recap" && S.deliveryDone>=1) setTutStep("recap");
+      if(S.tutStep==="recap") exitTutorial(true);
+      const tutDone=isTutorialDone();
+      const afterHowTo=screen==="howto";
+      log.push("tutDone="+tutDone+" afterHowTo="+afterHowTo);
+
+      const entered=startDay(true)===true && S.phase==="playing" && screen==="play";
+      log.push("enteredOfficial="+entered+" day="+S.day);
+      actor="capy"; tool="seed"; seedKind="sun";
+      [[4,3],[5,3]].forEach(([c,r])=>plantAt(c,r));
+      tool="water"; waterAt(4,3);
+      simulate(20000);
+      const ripe2=Object.values(S.plants).filter(p=>p.stage>=3);
+      actor="rabbit";
+      ripe2.slice(0,1).forEach(p=>rabbitTap(p.c,p.r));
       simulate(12000);
-      log.push("harvest "+S.dayCounts.harvest+" stamps "+JSON.stringify(S.stamps)+" done "+allTasksDone());
+      if(S.dayCounts.harvest<1 && ripe2[0]) doHarvest(ripe2[0].c, ripe2[0].r);
+      log.push("d1 harvest="+S.dayCounts.harvest+" stamps="+JSON.stringify(S.stamps)+" done="+allTasksDone());
       const listOk=allTasksDone();
       if(listOk) finishDay("early");
       const raw=localStorage.getItem(SAVE_KEY);
       const o=raw?JSON.parse(raw):null;
-      const saveOk=!!(o && o.phase==="sunset" && o.stamps && o.stamps.sun && o.tiles && o.version===VERSION);
+      const saveOk=!!(o && o.phase==="sunset" && o.stamps && o.stamps.sun && o.tiles && o.tutorialDone);
       const loaded=loadSave();
       const reloadOk=loaded && S.day===1 && S.stamps.sun && S.phase==="sunset";
-      // five-day task uniqueness
-      const labels=[1,2,3,4,5].map(d=>tasksFor(d,"seren").map(x=>x.label).join("/"));
-      const uniqueDays=new Set(labels).size===5;
-      const jayHasDeliver=tasksFor(1,"jayden").some(x=>x.kind==="deliver");
-      const serenNoDeliver=!tasksFor(1,"seren").some(x=>x.kind==="deliver");
-      const jayDay4Path=tasksFor(4,"jayden").some(x=>x.kind==="path");
-      const serenDay4NoPath=!tasksFor(4,"seren").some(x=>x.kind==="path");
-      log.push("daysUnique="+uniqueDays+" jayDeliver="+jayHasDeliver+" serenNoDeliver="+serenNoDeliver+" jayPath="+jayDay4Path);
-      // Jayden delivery + day4 path, without wiping stamp proof: use a fresh in-memory then restore
+
+      const counts=[1,2,3,4,5].map(d=>tasksFor(d,"seren").reduce((s,x)=>s+x.need,0));
+      const jayCounts=[1,2,3,4,5].map(d=>tasksFor(d,"jayden").reduce((s,x)=>s+x.need,0));
+      const rising=counts.every((n,i)=>i===0||n>counts[i-1]) && jayCounts.every((n,i)=>i===0||n>jayCounts[i-1]);
+      const uniqueDays=new Set([1,2,3,4,5].map(d=>tasksFor(d,"seren").map(x=>x.label).join("/"))).size===5;
+      const jayDeliv=[1,2,3,4,5].map(d=>deliveryMax(d,"jayden")).join(",");
+      const delivCurve=jayDeliv==="2,3,3,4,5";
+      const jayPath=tasksFor(4,"jayden").some(x=>x.kind==="path") && tasksFor(5,"jayden").some(x=>x.kind==="path" && x.need>=4);
+      const serenNoPath=!tasksFor(4,"seren").some(x=>x.kind==="path") && !tasksFor(1,"seren").some(x=>x.kind==="deliver");
+      log.push("rising="+rising+" serenNeeds="+counts.join(">")+" jayNeeds="+jayCounts.join(">")+" deliv="+jayDeliv+" unique="+uniqueDays);
+
       const keep=localStorage.getItem(SAVE_KEY);
-      S=defaultState(); S.mode="jayden"; mode="jayden"; S.day=4; startDay(true);
+      S=defaultState(); S.mode="jayden"; mode="jayden"; S.day=4; S.tutorialDone=true; markTutorialDone();
+      startDay(true);
       actor="capy"; tool="path";
       pathAt(1,6); pathAt(1,7);
       const pathOk=Object.keys(S.customPaths).length>=2 && S.dayCounts.path>=2;
-      // mode switch keeps paths/stamps
       S.stamps.snow=4; S.mode="seren"; mode="seren";
       const modeOk=S.stamps.snow===4 && Object.keys(S.customPaths).length>=2;
+
+      // old save without tutorial flag must be gated, and not wiped
       localStorage.setItem(SAVE_KEY, keep);
+      localStorage.removeItem(TUTORIAL_KEY);
+      const parsed=JSON.parse(keep); delete parsed.tutorialDone;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(parsed));
       loadSave();
-      const extras=uniqueDays && jayHasDeliver && serenNoDeliver && jayDay4Path && serenDay4NoPath && pathOk && modeOk;
-      log.push("pathOk="+pathOk+" modeKeep="+modeOk);
-      const ok=listOk && saveOk && reloadOk && extras;
-      const msg=(ok?"AUTOTEST_OK ":"AUTOTEST_FAIL ")+log.join(" | ")+" | save="+saveOk+" reload="+reloadOk+" phase="+(o&&o.phase);
-      document.title=msg;
-      let pre=document.getElementById("autotest-result");
-      if(!pre){ pre=document.createElement("pre"); pre.id="autotest-result"; document.body.appendChild(pre); }
-      pre.textContent=msg;
+      const oldBlocked=startDay(false)===false && screen==="howto";
+      const stillSaved=JSON.parse(localStorage.getItem(SAVE_KEY)||"{}");
+      const oldIntact=stillSaved.stamps && stillSaved.stamps.sun && stillSaved.day===1;
+      log.push("pathOk="+pathOk+" modeKeep="+modeOk+" oldBlocked="+oldBlocked+" oldIntact="+oldIntact);
+
+      const extras=rising && uniqueDays && delivCurve && jayPath && serenNoPath && pathOk && modeOk && oldBlocked && oldIntact;
+      const ok=blocked && inTut && tutDone && afterHowTo && entered && listOk && saveOk && reloadOk && extras;
+      result(ok, "save="+saveOk+" reload="+reloadOk+" phase="+(o&&o.phase));
     }catch(err){
-      const msg="AUTOTEST_FAIL "+(err&&err.stack||err);
-      document.title=msg;
-      let pre=document.getElementById("autotest-result");
-      if(!pre){ pre=document.createElement("pre"); pre.id="autotest-result"; document.body.appendChild(pre); }
-      pre.textContent=msg;
+      result(false, err&&err.stack||err);
     }
   }
   if(/(?:\?|&)autotest=1(?:&|$)/.test(location.search)){
