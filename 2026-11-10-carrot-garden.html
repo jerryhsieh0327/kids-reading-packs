@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="胡蘿蔔園"/>
+<meta name="theme-color" content="#f2c16b"/>
+<meta name="carrot-garden-version" content="2026-11-10-v1"/>
+<meta name="description" content="今日收工・胡蘿蔔園：功課做完，把今天的園子收完，太陽下山就停。"/>
+<title>今日收工・胡蘿蔔園</title>
+<!-- carrot-garden version: 2026-11-10-v1 -->
+<style>
+:root{
+  --ink:#3a2a16;
+  --ink-soft:#6a5340;
+  --cream:#fff6e8;
+  --cream-2:#ffe9c8;
+  --wood:#8b542e;
+  --leaf:#3c8d45;
+  --leaf-d:#2c6a34;
+  --terra:#d5753a;
+  --sky:#87c6e8;
+  --shadow:0 10px 28px rgba(80,40,10,.18);
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);
+  --safe-r:env(safe-area-inset-right,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a120b;font-family:"PingFang TC","Noto Sans TC","Heiti TC","LiHei Pro","Microsoft JhengHei",sans-serif;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+
+/* Title */
+#title-screen{background:linear-gradient(180deg,#f7d48a 0%,#f4b86a 28%,#e8944a 62%,#c46a38 100%);align-items:center;justify-content:center;padding:calc(20px + var(--safe-t)) 24px calc(20px + var(--safe-b))}
+#title-card{width:min(640px,100%);background:rgba(255,246,232,.94);border-radius:28px;box-shadow:var(--shadow);padding:22px 22px 18px;text-align:center;border:3px solid #fff}
+#title-card h1{font-size:clamp(28px,5.4vw,42px);letter-spacing:.06em;line-height:1.2;color:#6a3210}
+#title-card .tag{margin:8px 0 4px;font-size:clamp(14px,2.4vw,18px);color:var(--ink-soft);line-height:1.5}
+#title-art{width:100%;height:150px;margin:6px 0 10px;display:block}
+.mode-row{display:flex;gap:10px;margin:14px 0 10px}
+.mode-btn{flex:1;min-height:72px;border-radius:18px;border:3px solid #e6d0b0;background:#fff;padding:10px 8px;font-size:16px;font-weight:700;box-shadow:0 3px 0 #e6d0b0}
+.mode-btn small{display:block;font-weight:500;font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.35}
+.mode-btn.on{border-color:var(--leaf);box-shadow:0 3px 0 var(--leaf-d);background:#eef8e8;color:var(--leaf-d)}
+.primary,.ghost{min-height:56px;border-radius:16px;padding:0 18px;font-size:18px;font-weight:700;width:100%;margin-top:8px}
+.primary{background:var(--leaf);color:#fff;box-shadow:0 4px 0 var(--leaf-d)}
+.primary:active{transform:translateY(2px);box-shadow:0 2px 0 var(--leaf-d)}
+.ghost{background:#fff;border:2px solid #e6d0b0;color:var(--ink)}
+.ghost:disabled{opacity:.4}
+.fine{font-size:12px;color:var(--ink-soft);margin-top:10px;line-height:1.45}
+
+/* Game */
+#game-screen{background:#1a120b}
+#topbar{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:calc(6px + var(--safe-t)) 10px 6px;padding-left:calc(10px + var(--safe-l));padding-right:calc(10px + var(--safe-r));background:linear-gradient(180deg,#fff3d8,#f6dfb0);border-bottom:2px solid #e8c888;z-index:5}
+.chip{background:#fff;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:700;white-space:nowrap;border:2px solid #efd7a8;min-height:36px;display:flex;align-items:center}
+#sun-wrap{flex:1;height:22px;background:#f3d9a6;border-radius:999px;position:relative;overflow:hidden;border:2px solid #e0b86a;min-width:80px}
+#sun-fill{position:absolute;inset:0 auto 0 0;width:0%;background:linear-gradient(90deg,#ffe28a,#ffb35a 60%,#e07040);border-radius:999px}
+#sun-wrap span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5a3a14;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+#speech{margin:0 10px;margin-left:calc(10px + var(--safe-l));margin-right:calc(10px + var(--safe-r));background:rgba(255,248,236,.95);border:2px solid #e8c888;border-radius:16px;padding:8px 12px 8px 54px;min-height:52px;position:relative;font-size:15px;line-height:1.45;color:var(--ink);z-index:4;box-shadow:var(--shadow)}
+#speech .face{position:absolute;left:6px;top:50%;transform:translateY(-50%);width:42px;height:42px}
+#stage-wrap{flex:1;position:relative;overflow:hidden;touch-action:none;background:#6aa85a}
+#garden{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#toolbar{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;padding:6px 8px calc(8px + var(--safe-b));padding-left:calc(8px + var(--safe-l));padding-right:calc(8px + var(--safe-r));background:linear-gradient(180deg,#f6dfb0,#e8c888);border-top:2px solid #d4b070;z-index:5}
+.row{display:flex;gap:6px;align-items:stretch}
+.tool{flex:1;min-height:54px;min-width:52px;border-radius:14px;background:#fff;border:2px solid #efd7a8;font-size:13px;font-weight:700;padding:4px 4px;line-height:1.2;box-shadow:0 2px 0 #e0c090}
+.tool.on{border-color:var(--terra);background:#fff1e4;box-shadow:0 2px 0 #c06030;color:#9a3a10}
+.tool.char.on{border-color:#6a4a28;background:#f3e0c8}
+.tool small{display:block;font-weight:600;font-size:10px;color:var(--ink-soft)}
+.subtools{display:none;gap:6px;flex-wrap:wrap}
+.subtools.on{display:flex}
+.pill{min-height:44px;padding:0 12px;border-radius:12px;background:#fff8ee;border:2px solid #efd7a8;font-size:13px;font-weight:700}
+.pill.on{border-color:var(--leaf);background:#eef8e8}
+.pill .n{display:inline-block;min-width:18px;margin-left:4px;color:var(--terra)}
+
+/* Overlays */
+.overlay{position:absolute;inset:0;background:rgba(30,16,8,.45);display:none;align-items:flex-end;justify-content:center;z-index:20;padding:var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l)}
+.overlay.on{display:flex}
+.sheet{width:min(640px,100%);max-height:80%;overflow:auto;background:var(--cream);border-radius:24px 24px 0 0;padding:16px 16px 24px;box-shadow:var(--shadow);-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.sheet h2{font-size:20px;margin-bottom:8px}
+.sheet .close{float:right;min-width:48px;min-height:48px;border-radius:14px;background:#fff;border:2px solid #efd7a8;font-size:18px;font-weight:700}
+.task{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:10px 12px;margin:8px 0;border:2px solid #efe0c4;font-size:15px;min-height:48px}
+.task.done{border-color:#9dcc90;background:#eef8e8;color:#2c6a34}
+.stamp{display:inline-flex;flex-direction:column;align-items:center;width:28%;min-width:90px;margin:1%;padding:10px 6px;background:#fff;border-radius:16px;border:2px dashed #e0c9a0}
+.stamp.got{border-style:solid;border-color:#d5753a;background:#fff7ef}
+.stamp canvas{width:64px;height:64px}
+.stamp b{font-size:13px;margin-top:4px;text-align:center}
+.stamp em{font-size:11px;color:var(--ink-soft);font-style:normal;text-align:center}
+
+#sunset-screen{background:linear-gradient(180deg,#4a2a4a,#e07040 40%,#f2c16b 70%,#3a1e10);align-items:center;justify-content:center;padding:calc(20px + var(--safe-t)) 20px calc(20px + var(--safe-b))}
+#sunset-card{width:min(640px,100%);background:rgba(255,246,232,.95);border-radius:28px;padding:22px;text-align:center;box-shadow:var(--shadow);border:3px solid #fff}
+#sunset-card h1{font-size:clamp(28px,5vw,40px);color:#8a2e10;letter-spacing:.08em}
+#sunset-card p{margin:8px 0;font-size:16px;line-height:1.55}
+#toast{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);background:rgba(40,24,12,.88);color:#fff;padding:12px 18px;border-radius:16px;font-size:16px;font-weight:700;display:none;z-index:40;pointer-events:none;max-width:80%;text-align:center}
+
+@media (orientation:landscape){
+  #title-art{height:110px}
+  #speech{min-height:44px;font-size:14px}
+  .tool{min-height:48px;font-size:12px}
+  #title-card{display:grid;grid-template-columns:1fr 1.1fr;gap:8px 16px;text-align:left;align-items:center}
+  #title-card h1,#title-card .tag,#title-art{grid-column:1}
+  #title-actions{grid-column:2;grid-row:1 / span 4}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="title-screen" class="screen on">
+    <div id="title-card">
+      <h1>今日收工・胡蘿蔔園</h1>
+      <p class="tag">功課做完，把今天的園子收完，太陽下山就停。</p>
+      <svg id="title-art" viewBox="0 0 480 160" aria-hidden="true">
+        <ellipse cx="240" cy="142" rx="200" ry="14" fill="rgba(120,60,20,.18)"/>
+        <g transform="translate(70,20)">
+          <ellipse cx="70" cy="108" rx="54" ry="18" fill="rgba(80,40,20,.15)"/>
+          <ellipse cx="70" cy="88" rx="58" ry="32" fill="#c4956a"/>
+          <ellipse cx="70" cy="96" rx="42" ry="20" fill="#d8b08a"/>
+          <rect x="28" y="70" width="18" height="16" rx="6" fill="#b07d54"/>
+          <rect x="94" y="70" width="18" height="16" rx="6" fill="#b07d54"/>
+          <ellipse cx="40" cy="78" rx="10" ry="8" fill="#a07050"/>
+          <ellipse cx="100" cy="78" rx="10" ry="8" fill="#a07050"/>
+          <ellipse cx="70" cy="86" rx="28" ry="18" fill="#d2a074"/>
+          <ellipse cx="70" cy="90" rx="20" ry="12" fill="#e4c09a"/>
+          <circle cx="58" cy="82" r="3.2" fill="#2a1a10"/>
+          <circle cx="82" cy="82" r="3.2" fill="#2a1a10"/>
+          <ellipse cx="70" cy="94" rx="7" ry="4" fill="#8a5a3a"/>
+          <circle cx="66" cy="94" r="1.2" fill="#3a2010"/>
+          <circle cx="74" cy="94" r="1.2" fill="#3a2010"/>
+          <ellipse cx="52" cy="118" rx="10" ry="8" fill="#a07050"/>
+          <ellipse cx="88" cy="118" rx="10" ry="8" fill="#a07050"/>
+        </g>
+        <g transform="translate(200,8)">
+          <ellipse cx="60" cy="128" rx="36" ry="12" fill="rgba(80,40,20,.12)"/>
+          <ellipse cx="28" cy="28" rx="10" ry="32" fill="#f4f0e8" transform="rotate(-18 28 28)"/>
+          <ellipse cx="28" cy="28" rx="5" ry="22" fill="#f5b7c5" transform="rotate(-18 28 28)"/>
+          <ellipse cx="90" cy="24" rx="10" ry="34" fill="#f4f0e8" transform="rotate(16 90 24)"/>
+          <ellipse cx="90" cy="24" rx="5" ry="24" fill="#f5b7c5" transform="rotate(16 90 24)"/>
+          <ellipse cx="60" cy="92" rx="36" ry="40" fill="#f7f3ec"/>
+          <ellipse cx="60" cy="100" rx="22" ry="16" fill="#efe6d8"/>
+          <circle cx="48" cy="86" r="4" fill="#2a1a10"/>
+          <circle cx="74" cy="86" r="4" fill="#2a1a10"/>
+          <ellipse cx="60" cy="98" rx="5" ry="3.4" fill="#f3a0b0"/>
+          <path d="M48 108 Q60 116 74 108" stroke="#c09090" fill="none" stroke-width="2" stroke-linecap="round"/>
+          <ellipse cx="44" cy="128" rx="9" ry="7" fill="#f0d8c0"/>
+          <ellipse cx="76" cy="128" rx="9" ry="7" fill="#f0d8c0"/>
+          <circle cx="86" cy="116" r="10" fill="#fff"/>
+        </g>
+        <g transform="translate(340,36)">
+          <circle cx="40" cy="50" r="28" fill="rgba(255,210,80,.35)"/>
+          <path d="M40 18 C34 4 22 2 20 16 C14 6 8 16 16 26 C8 28 12 42 24 32" fill="#3d8c3a"/>
+          <path d="M40 18 C46 2 60 6 56 18 C66 8 70 22 58 28 C70 34 62 44 50 32" fill="#4fa34a"/>
+          <path d="M40 28 L54 88 Q40 100 26 88 Z" fill="#f08a2a"/>
+          <path d="M40 40 L46 80 Q40 86 36 78 Z" fill="#ffb45a"/>
+          <circle cx="32" cy="52" r="3.5" fill="#2a1a10"/>
+          <circle cx="48" cy="52" r="3.5" fill="#2a1a10"/>
+          <circle cx="33" cy="51" r="1.1" fill="#fff"/>
+          <circle cx="49" cy="51" r="1.1" fill="#fff"/>
+          <path d="M34 64 Q40 70 46 64" stroke="#c06020" fill="none" stroke-width="2" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <div id="title-actions">
+        <div class="mode-row">
+          <button class="mode-btn on" id="btn-mode-seren" type="button">Seren 寬鬆<small>約 9 歲・提示較勤、清單較短。建議先選這個。</small></button>
+          <button class="mode-btn" id="btn-mode-jayden" type="button">Jayden 進階<small>約 11 歲・送貨小路；第 4 日起可鋪短徑。</small></button>
+        </div>
+        <button class="primary" id="btn-continue" type="button">繼續今天的園子</button>
+        <button class="ghost" id="btn-new" type="button">開一個新園子</button>
+        <p class="fine">一人可隨時切換水豚／兔子。兩人共用一台 iPad 時，可一人當水豚、一人當兔子，或輪流完成今日清單。不需帳號，進度存在這台裝置裡。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="game-screen" class="screen">
+    <div id="topbar">
+      <div class="chip" id="day-chip">第 1 日・晴朗</div>
+      <div id="sun-wrap" aria-label="今天的太陽"><div id="sun-fill"></div><span id="sun-label">日出</span></div>
+      <div class="chip" id="time-chip">還有 10 分鐘</div>
+      <button class="chip" id="btn-mode-switch" type="button" title="切換難度">難度</button>
+    </div>
+    <div id="speech"><svg class="face" viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="22" r="14" fill="rgba(255,210,80,.4)"/><path d="M21 6 C18 0 12 1 11 8 C8 3 5 8 9 12 C5 14 7 20 13 15" fill="#3d8c3a"/><path d="M21 8 L28 30 Q21 35 14 30 Z" fill="#f08a2a"/><circle cx="17" cy="20" r="1.7" fill="#2a1a10"/><circle cx="25" cy="20" r="1.7" fill="#2a1a10"/><path d="M17 26 Q21 29 25 26" stroke="#c06020" fill="none" stroke-width="1.2" stroke-linecap="round"/></svg><span id="speech-text">早安，園丁！</span></div>
+    <div id="stage-wrap">
+      <canvas id="garden"></canvas>
+      <div id="toast"></div>
+    </div>
+    <div id="toolbar">
+      <div class="row subtools" id="sub-seeds"></div>
+      <div class="row subtools" id="sub-place"></div>
+      <div class="row">
+        <button class="tool char on" id="btn-capy" type="button">水豚<small>規劃・種／澆／擺</small></button>
+        <button class="tool char" id="btn-rabbit" type="button">兔子<small>跑腿・摘／運</small></button>
+        <button class="tool" id="btn-seed" type="button">種子</button>
+        <button class="tool" id="btn-water" type="button">澆水</button>
+        <button class="tool" id="btn-fence" type="button">圍籬</button>
+        <button class="tool" id="btn-place" type="button">擺放</button>
+        <button class="tool" id="btn-path" type="button" hidden>鋪路</button>
+        <button class="tool" id="btn-list" type="button">清單</button>
+        <button class="tool" id="btn-dex" type="button">圖鑑</button>
+        <button class="tool" id="btn-mute" type="button">聲音</button>
+        <button class="tool" id="btn-finish" type="button" hidden>今日收工</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="overlay" id="ov-list"><div class="sheet"><button class="close" id="list-close" type="button">關閉</button><h2>今日清單</h2><div id="list-body"></div><p class="fine" id="list-note"></p></div></div>
+  <div class="overlay" id="ov-dex"><div class="sheet"><button class="close" id="dex-close" type="button">關閉</button><h2>胡蘿蔔圖鑑</h2><div id="dex-body"></div><p class="fine">摘到新品種時會蓋上一枚章，章只存在這台裝置。</p></div></div>
+  <div class="overlay" id="ov-confirm"><div class="sheet" style="border-radius:24px;margin:auto;align-self:center"><h2 id="cf-title">開一個新園子？</h2><p id="cf-body" class="tag" style="margin:8px 0 12px">現在的園子與圖鑑會被清掉，而且只存在這台裝置，無法復原。</p><button class="primary" id="cf-yes" type="button">確定</button><button class="ghost" id="cf-no" type="button">先不要</button></div></div>
+
+  <section id="sunset-screen" class="screen">
+    <div id="sunset-card">
+      <h1>今日收工</h1>
+      <p id="sunset-summary">園子已好好收好，進度存在這台裝置。</p>
+      <p id="sunset-tomorrow"></p>
+      <div id="sunset-stamps"></div>
+      <button class="primary" id="btn-next-day" type="button">開始明天</button>
+      <button class="ghost" id="btn-to-title" type="button">先回到封面</button>
+    </div>
+  </section>
+</div>
+<script>
+(() => {
+  "use strict";
+  const VERSION = "2026-11-10-v1";
+  const SAVE_KEY = "carrotGarden.v1";
+  const COLS = 14, ROWS = 10, TILE = 72;
+  const WORLD_W = COLS * TILE, WORLD_H = ROWS * TILE;
+  const DAY_MS = 10 * 60 * 1000;
+  const FAST = /(?:\?|&)fast=1(?:&|$)/.test(location.search);
+  const DAY_LEN = FAST ? 50 * 1000 : DAY_MS;
+  const GROW_SCALE = FAST ? 3 : 1;
+
+  const VARIETIES = {
+    sun:     { id:"sun",     name:"暖陽胡蘿蔔", color:"#f08a2a", leaf:"#3d8c3a", light:"#ffb45a", unlockDay:1, blurb:"圓滾滾的橘色，像早上的太陽。" },
+    honey:   { id:"honey",   name:"蜜糖胡蘿蔔", color:"#e8b83a", leaf:"#4fa34a", light:"#ffe28a", unlockDay:2, blurb:"金黃色，聞起來有一點甜。" },
+    crystal: { id:"crystal", name:"紫晶胡蘿蔔", color:"#8a5ad1", leaf:"#3d8c5a", light:"#c9a6f0", unlockDay:3, blurb:"雨後才肯露臉的紫色小精靈。" },
+    snow:    { id:"snow",    name:"雪白胡蘿蔔", color:"#f6efe4", leaf:"#6aa85a", light:"#ffffff", unlockDay:4, blurb:"淺淺的乳白色，摸起來涼涼的。", stroke:"#c9b89a" },
+    sunset:  { id:"sunset",  name:"日落胡蘿蔔", color:"#e45a3c", leaf:"#2f6b38", light:"#ff8a60", unlockDay:5, blurb:"像傍晚天空一樣暖的珊瑚紅。" }
+  };
+  const VAR_ORDER = ["sun","honey","crystal","snow","sunset"];
+  const WEATHER = {
+    1: { id:"sunny",  name:"晴朗",     tomorrow:"明天多雲微風，園裡可能出現蜜糖胡蘿蔔。" },
+    2: { id:"cloudy", name:"多雲微風", tomorrow:"明天雨後放晴，土壤會很濕潤，紫晶胡蘿蔔要發芽了。" },
+    3: { id:"afterRain", name:"雨後放晴", tomorrow:"明天天氣溫暖，雪白胡蘿蔔會登場；進階還可以試著鋪一小段路。" },
+    4: { id:"warm",   name:"溫暖晴朗", tomorrow:"明天是金黃午後，日落胡蘿蔔會來作客。" },
+    5: { id:"golden", name:"金黃午後", tomorrow:"這一季先收到這裡。園子會好好保存，之後還可以回來照料。" }
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const canvas = $("garden");
+  const ctx = canvas.getContext("2d");
+  const sunFill = $("sun-fill"), sunLabel = $("sun-label"), timeChip = $("time-chip");
+  const dayChip = $("day-chip"), speechEl = $("speech-text"), toastEl = $("toast");
+
+  let mode = "seren";
+  let actor = "capy"; // capy | rabbit
+  let tool = "seed";
+  let seedKind = "sun";
+  let placeKind = "sun";
+  let screen = "title";
+  let muted = false;
+  let saveExists = false;
+  let confirmAction = null;
+  let toastTimer = 0;
+  let hintTimer = 0;
+  let lastHint = "";
+  let lastTs = 0;
+  let lastSave = 0;
+  let dpr = 1;
+  let viewW = 0, viewH = 0;
+  let cam = { x: 0, y: 0, z: 1 };
+  let pointers = new Map();
+  let pinch = null;
+  let drag = null;
+  let fx = [];
+  let audioCtx = null;
+  let pendingNewMode = "seren";
+
+  function emptyCounts(){
+    return { plant:{}, water:0, harvest:0, fence:0, place:0, deliver:0, path:0, stamp:{} };
+  }
+  function defaultState(){
+    return {
+      version: VERSION,
+      mode: "seren",
+      day: 1,
+      phase: "idle", // idle | playing | sunset | after
+      elapsed: 0,
+      tiles: buildTiles(),
+      plants: {},
+      fences: {},
+      decor: {},
+      displays: {},
+      customPaths: {},
+      inventory: { sun:0, honey:0, crystal:0, snow:0, sunset:0 },
+      stamps: {},
+      carrying: null,
+      deliveryNext: 1,
+      deliveryDone: 0,
+      dayCounts: emptyCounts(),
+      daysDone: {},
+      rabbit: { c:1, r:8, x:1.5*TILE, y:8.5*TILE, path:[], hop:0, queue:[] },
+      capy: { c:3, r:2, x:3.5*TILE, y:2.5*TILE, go:null },
+      unlockedSoil: 1,
+      muted: false,
+      firsts: {}
+    };
+  }
+  let S = defaultState();
+
+  /* ---------- map ---------- */
+  function buildTiles(){
+    const t = [];
+    for(let r=0;r<ROWS;r++){
+      t[r] = [];
+      for(let c=0;c<COLS;c++) t[r][c] = { type:"grass", lock:0 };
+    }
+    const path = [
+      [3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[1,2],[2,2],[1,5],[0,5],
+      [2,3],[2,4],[2,5],[2,6],[2,7],[2,8],
+      [3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5],[12,5],
+      [6,3],[6,4],[6,6],[6,7],
+      [9,3],[9,4],[9,6],[9,7],[9,8],
+      [3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[10,8],[11,8],[12,8],
+      [12,3],[12,4],[12,6],[12,7],
+      [13,2],[13,3]
+    ];
+    path.forEach(([c,r]) => t[r][c].type = "path");
+    const soils = [
+      [4,1],[5,1],[7,1],[8,1],
+      [3,3],[4,3],[5,3],[7,3],[8,3],
+      [3,4],[4,4],[5,4],[7,4],[8,4],
+      [3,6],[4,6],[5,6],[7,6],[8,6],
+      [3,7],[4,7],[5,7],[7,7],[8,7],
+      [10,3],[11,3],[10,4],[11,4],
+      [10,6],[11,6],[10,7],[11,7]
+    ];
+    soils.forEach(([c,r]) => t[r][c].type = "soil");
+    // Day 4+ new patch (needs a short path on Jayden)
+    [[0,6],[0,7]].forEach(([c,r]) => { t[r][c].type = "soil"; t[r][c].lock = 4; });
+    // Day 5 patch
+    [[0,3],[1,3]].forEach(([c,r]) => { t[r][c].type = "soil"; t[r][c].lock = 5; });
+    t[0][6].type = t[0][7].type = t[0][8].type = t[1][6].type = t[1][7].type = "water";
+    t[1][1].type = t[1][2].type = t[2][1].type = "house";
+    t[8][1].type = "burrow"; t[8][1].keep = "path";
+    t[5][0].type = "basket"; t[5][0].basket = 1;
+    t[8][12].type = "basket"; t[8][12].basket = 2;
+    t[2][13].type = "basket"; t[2][13].basket = 3;
+    t[1][10].type = t[1][11].type = "bed";
+    const trees = [[0,0],[1,0],[11,0],[12,0],[13,0],[0,1],[0,9],[1,9],[11,9],[12,9],[13,7],[13,9],[0,4]];
+    trees.forEach(([c,r]) => { if(t[r][c].type==="grass") t[r][c].type = "tree"; });
+    return t;
+  }
+  function tile(c,r){ return (c>=0&&r>=0&&c<COLS&&r<ROWS) ? S.tiles[r][c] : null; }
+  function key(c,r){ return c+","+r; }
+  function isPath(c,r){
+    const t = tile(c,r);
+    if(!t) return false;
+    if(t.type==="path" || t.type==="burrow" || t.type==="basket") return true;
+    return !!S.customPaths[key(c,r)];
+  }
+  function isSoilOpen(c,r){
+    const t = tile(c,r);
+    return t && t.type==="soil" && (t.lock||0) <= S.day;
+  }
+  function neighbors4(c,r){ return [[c+1,r],[c-1,r],[c,r+1],[c,r-1]]; }
+  function pathAdjacent(c,r){ return neighbors4(c,r).some(([x,y]) => isPath(x,y)); }
+
+  /* ---------- day config ---------- */
+  function tasksFor(day, m){
+    const easy = m !== "jayden";
+    const list = [];
+    const add = (id, label, need, kind) => list.push({id,label,need,kind});
+    if(day===1){
+      add("p1", easy?"種下 3 棵暖陽胡蘿蔔":"種下 4 棵暖陽胡蘿蔔", easy?3:4, "plant:sun");
+      add("w1", easy?"澆水 2 次":"澆水 3 次", easy?2:3, "water");
+      add("h1", easy?"請兔子摘 2 捆":"請兔子摘 3 捆", easy?2:3, "harvest");
+      add("s1", "為暖陽胡蘿蔔蓋上第一枚圖鑑章", 1, "stamp:sun");
+      if(!easy) add("d1","沿小路依序送到 3 個籃子", 3, "deliver");
+    } else if(day===2){
+      add("p2", easy?"種下 2 棵蜜糖胡蘿蔔":"種下 3 棵蜜糖胡蘿蔔", easy?2:3, "plant:honey");
+      add("h2", easy?"摘 2 捆胡蘿蔔":"摘 3 捆胡蘿蔔", easy?2:3, "harvest");
+      add("f2", easy?"擺 1 段小圍籬":"擺 2 段小圍籬", easy?1:2, "fence");
+      add("s2", "為蜜糖胡蘿蔔蓋章", 1, "stamp:honey");
+      if(!easy) add("d2","依序送到 3 個籃子", 3, "deliver");
+    } else if(day===3){
+      add("p3", easy?"種下 2 棵紫晶胡蘿蔔":"種下 3 棵紫晶胡蘿蔔", easy?2:3, "plant:crystal");
+      add("h3", easy?"摘 2 捆":"摘 3 捆", easy?2:3, "harvest");
+      add("pl3", easy?"把 1 捆收成擺進展示菜畦":"把 2 捆收成擺進展示菜畦", easy?1:2, "place");
+      add("s3", "為紫晶胡蘿蔔蓋章", 1, "stamp:crystal");
+      if(!easy) add("d3","依序送到 3 個籃子", 3, "deliver");
+    } else if(day===4){
+      add("p4", easy?"種下 2 棵雪白胡蘿蔔":"種下 3 棵雪白胡蘿蔔", easy?2:3, "plant:snow");
+      add("h4", easy?"摘 2 捆":"摘 3 捆", easy?2:3, "harvest");
+      add("de4", easy?"擺 1 個園旗或花石":"擺 1 個園旗或花石", 1, "decor");
+      add("s4", "為雪白胡蘿蔔蓋章", 1, "stamp:snow");
+      if(!easy){
+        add("pa4","鋪至少 2 格短徑，讓兔子走到新菜畦", 2, "path");
+        add("d4","依序送到 3 個籃子", 3, "deliver");
+      }
+    } else {
+      add("p5", easy?"種下 2 棵日落胡蘿蔔":"種下 3 棵日落胡蘿蔔", easy?2:3, "plant:sunset");
+      add("h5", easy?"摘 2 捆":"摘 3 捆", easy?2:3, "harvest");
+      add("be5", easy?"再擺 1 次菜畦或裝飾，讓園子更漂亮":"再擺 2 次菜畦或裝飾", easy?1:2, "beauty");
+      add("s5", "為日落胡蘿蔔蓋章，集齊基礎圖鑑", 1, "stamp:sunset");
+      if(!easy) add("d5","依序送到 3 個籃子", 3, "deliver");
+    }
+    return list;
+  }
+  function countOf(kind){
+    const C = S.dayCounts;
+    if(kind.startsWith("plant:")) return C.plant[kind.slice(6)]||0;
+    if(kind==="water") return C.water;
+    if(kind==="harvest") return C.harvest;
+    if(kind==="fence") return C.fence;
+    if(kind==="place") return C.place;
+    if(kind==="deliver") return S.deliveryDone;
+    if(kind==="path") return C.path;
+    if(kind==="decor") return C.decor||0;
+    if(kind==="beauty") return (C.place||0)+(C.decor||0)+(C.fence||0);
+    if(kind.startsWith("stamp:")) return S.stamps[kind.slice(6)] ? 1 : 0;
+    return 0;
+  }
+  function taskDone(t){ return countOf(t.kind) >= t.need; }
+  function allTasksDone(){ return tasksFor(S.day, S.mode).every(taskDone); }
+  function unlockedVars(){ return VAR_ORDER.filter(id => VARIETIES[id].unlockDay <= S.day); }
+
+  /* ---------- save ---------- */
+  function persist(){
+    try{
+      S.muted = muted;
+      S.mode = mode;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+      saveExists = true;
+    }catch(e){}
+  }
+  function loadSave(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(!raw) return false;
+      const o = JSON.parse(raw);
+      if(!o || !o.tiles) return false;
+      S = Object.assign(defaultState(), o);
+      S.version = VERSION;
+      mode = S.mode==="jayden" ? "jayden" : "seren";
+      muted = !!S.muted;
+      saveExists = true;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  /* ---------- audio ---------- */
+  function ensureAudio(){
+    if(muted) return null;
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state==="suspended") audioCtx.resume();
+    return audioCtx;
+  }
+  function tone(freq, dur, type, gain, at){
+    const ac = ensureAudio(); if(!ac) return;
+    const t0 = ac.currentTime + (at||0);
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type||"sine";
+    o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain||0.08, t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }
+  function noiseBurst(dur, gain){
+    const ac = ensureAudio(); if(!ac) return;
+    const n = ac.createBuffer(1, ac.sampleRate*dur, ac.sampleRate);
+    const d = n.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * (1-i/d.length);
+    const src = ac.createBufferSource(); src.buffer = n;
+    const f = ac.createBiquadFilter(); f.type="lowpass"; f.frequency.value=900;
+    const g = ac.createGain(); g.gain.value = gain||0.05;
+    src.connect(f); f.connect(g); g.connect(ac.destination);
+    src.start();
+  }
+  const sfx = {
+    plant(){ tone(180,.12,"sine",.07); tone(260,.1,"triangle",.04,.05); },
+    water(){ noiseBurst(.18,.06); tone(520,.08,"sine",.03); },
+    harvest(){ tone(440,.1,"triangle",.07); tone(660,.14,"sine",.06,.08); },
+    stamp(){ tone(392,.16,"triangle",.08); tone(523,.2,"sine",.07,.1); tone(784,.28,"sine",.05,.2); },
+    hop(){ tone(380,.05,"sine",.03); },
+    ok(){ tone(620,.06,"sine",.04); },
+    no(){ tone(160,.12,"sine",.05); },
+    sunset(){ [392,349,330,294].forEach((f,i)=>tone(f,.4,"sine",.06,i*.28)); },
+    place(){ tone(240,.1,"triangle",.06); tone(300,.12,"sine",.04,.06); }
+  };
+
+  /* ---------- ui helpers ---------- */
+  function showScreen(name){
+    screen = name;
+    $("title-screen").classList.toggle("on", name==="title");
+    $("game-screen").classList.toggle("on", name==="play");
+    $("sunset-screen").classList.toggle("on", name==="sunset");
+  }
+  function say(text, force){
+    if(!force && text===lastHint) return;
+    lastHint = text;
+    speechEl.textContent = text;
+    hintTimer = 0;
+  }
+  function toast(text){
+    toastEl.textContent = text;
+    toastEl.style.display = "block";
+    toastTimer = 1800;
+  }
+  function refreshTitle(){
+    const has = loadSave() || saveExists || !!localStorage.getItem(SAVE_KEY);
+    saveExists = has;
+    $("btn-continue").disabled = !has;
+    $("btn-continue").textContent = has ? ("繼續園子・第 " + (JSON.parse(localStorage.getItem(SAVE_KEY)||"{}").day||1) + " 日") : "還沒有存檔";
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("on"));
+    $("btn-mode-"+pendingNewMode).classList.add("on");
+    $("btn-mute").textContent = muted ? "靜音" : "聲音";
+  }
+
+  function startDay(freshMorning){
+    if(freshMorning){
+      S.elapsed = 0;
+      S.dayCounts = emptyCounts();
+      S.dayCounts.decor = 0;
+      S.carrying = null;
+      S.deliveryNext = 1;
+      S.deliveryDone = 0;
+      S.phase = "playing";
+      // keep plants? Mid-season garden persists; overnight, unripe plants stay, ripe stay until harvested.
+    }
+    S.phase = "playing";
+    mode = S.mode;
+    actor = "capy";
+    tool = "seed";
+    seedKind = unlockedVars()[unlockedVars().length-1] || "sun";
+    placeKind = "sun";
+    showScreen("play");
+    resize();
+    centerCam();
+    refreshTools();
+    morningSpeech();
+    persist();
+  }
+  function morningSpeech(){
+    const w = WEATHER[S.day];
+    const v = VAR_ORDER.find(id => VARIETIES[id].unlockDay===S.day);
+    const vn = v ? VARIETIES[v].name : "";
+    const extra = S.day===3 ? "雨後的土壤濕濕的，菜會長得快一點。" : (S.day===5 ? "今天光線特別金黃，慢慢把園子收漂亮吧。" : "");
+    const intro = {
+      1:"早安！我是胡蘿蔔精靈。先點下方的水豚，再把種子種到空菜畦上。",
+      2:"新的一天，蜜糖胡蘿蔔想來透透氣。",
+      3:"雨停了，紫晶胡蘿蔔探出頭來。",
+      4:"天氣暖暖的。雪白胡蘿蔔登場了。" + (S.mode==="jayden"?" 新菜畦離小路有一點遠，可以試著鋪短徑。":""),
+      5:"金黃午後，日落胡蘿蔔來集齊圖鑑了。"
+    };
+    say(intro[S.day] + (extra?" "+extra:"") + (vn && S.day>1?" 今日新品種："+vn+"。":""), true);
+  }
+
+  function finishDay(reason){
+    if(S.phase!=="playing") return;
+    S.phase = "sunset";
+    S.daysDone[S.day] = { complete: allTasksDone(), reason };
+    persist();
+    sfx.sunset();
+    const done = allTasksDone();
+    const miss = tasksFor(S.day,S.mode).filter(t=>!taskDone(t));
+    let sum = "園子已經自動存檔，進度不會因為時間到了而作廢。";
+    if(done) sum = "今日清單都做完了，園子看起來更漂亮。進度已存在這台裝置。";
+    else sum = "太陽下山了。沒做完也沒關係，明天再試一次？園子已存檔。" + (miss[0] ? "（還沒完成："+miss[0].label+"）" : "");
+    $("sunset-summary").textContent = sum;
+    $("sunset-tomorrow").textContent = WEATHER[S.day].tomorrow;
+    const earned = VAR_ORDER.filter(id => S.stamps[id] && VARIETIES[id].unlockDay<=S.day);
+    $("sunset-stamps").innerHTML = earned.length ? ("已蓋章：" + earned.map(id=>VARIETIES[id].name).join("、")) : "圖鑑章還在等你明天再來蓋。";
+    const more = S.day < 5;
+    $("btn-next-day").style.display = more ? "block" : "none";
+    $("btn-next-day").textContent = more ? "開始明天（第 "+(S.day+1)+" 日）" : "這一季先到這裡";
+    if(!more){
+      $("btn-next-day").style.display = "block";
+      $("btn-next-day").textContent = "回到園子看看（自由照料）";
+    }
+    showScreen("sunset");
+  }
+  function advanceOrFree(){
+    if(S.day < 5){
+      S.day += 1;
+      S.phase = "playing";
+      startDay(true);
+    } else {
+      S.phase = "after";
+      S.elapsed = DAY_LEN; // stay dusk-ish but allow tending? use a frozen golden hour
+      showScreen("play");
+      say("這一季的五日先到這裡。園子還在，可以慢慢照料，進度都留著。", true);
+      refreshTools();
+    }
+  }
+
+  /* ---------- growth & characters ---------- */
+  function growMsNeed(stage, watered, kind){
+    const rain = S.day===3 ? 0.72 : 1;
+    const base = [0, 7000, 12000, 14000][stage] || 12000;
+    const slow = (!watered) ? (S.mode==="jayden" ? 2.4 : 1.7) : 0.85;
+    return (base * rain * slow) / GROW_SCALE;
+  }
+  function updateGrowth(dt){
+    Object.values(S.plants).forEach(p => {
+      if(p.stage>=3) return;
+      if(S.mode==="jayden" && !p.watered && p.stage>=1){
+        p.age += dt * 0.25;
+      } else p.age += dt;
+      const need = growMsNeed(p.stage+1, p.watered, p.kind);
+      if(p.age >= need){
+        p.age = 0;
+        p.stage += 1;
+        if(p.stage===3){
+          addFx("spark", (p.c+0.5)*TILE, (p.r+0.3)*TILE);
+          if(S.mode==="seren") say("葉子在跳舞了！點下方的兔子，再點成熟的胡蘿蔔去摘。");
+        }
+      }
+    });
+  }
+  function bfsPath(sc,sr,tc,tr){
+    if(!isPath(sc,sr) || !isPath(tc,tr)) return null;
+    const q=[[sc,sr]], seen={[key(sc,sr)]:null};
+    while(q.length){
+      const [c,r]=q.shift();
+      if(c===tc&&r===tr){
+        const pts=[]; let k=key(c,r);
+        while(k){ const [x,y]=k.split(",").map(Number); pts.push([x,y]); k=seen[k]; }
+        pts.reverse();
+        return pts;
+      }
+      for(const [nc,nr] of neighbors4(c,r)){
+        const k=key(nc,nr);
+        if(seen[k]!==undefined || !isPath(nc,nr)) continue;
+        seen[k]=key(c,r);
+        q.push([nc,nr]);
+      }
+    }
+    return null;
+  }
+  function nearestPathTo(c,r){
+    if(isPath(c,r)) return [c,r];
+    let best=null, bd=99;
+    for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
+      if(!isPath(x,y)) continue;
+      const d=Math.abs(x-c)+Math.abs(y-r);
+      if(d<bd){ bd=d; best=[x,y]; }
+    }
+    return best;
+  }
+  function rabbitBusy(){
+    const R=S.rabbit;
+    return (R.path && R.path.length) || !!R.job;
+  }
+  function startRabbitTrip(tc,tr,job){
+    const start = nearestPathTo(Math.round(S.rabbit.x/TILE-0.5), Math.round(S.rabbit.y/TILE-0.5)) || [1,8];
+    const dest = isPath(tc,tr) ? [tc,tr] : nearestPathTo(tc,tr);
+    if(!dest){ say("兔子走小路才到得了，換個靠近路的地方吧。"); sfx.no(); return false; }
+    const pts = bfsPath(start[0], start[1], dest[0], dest[1]);
+    if(!pts){ say("這條路好像走不通。第 4 日以後，進階可以自己鋪一小段路。"); sfx.no(); return false; }
+    S.rabbit.path = pts.slice(1);
+    S.rabbit.job = job;
+    return true;
+  }
+  function sendRabbit(tc,tr,job){
+    S.rabbit.queue = S.rabbit.queue || [];
+    if(rabbitBusy()){
+      S.rabbit.queue.push({tc,tr,job});
+      if(S.mode==="seren") say("好，兔子會一件一件做完。");
+      return;
+    }
+    startRabbitTrip(tc,tr,job);
+  }
+  function finishRabbitJob(){
+    const R=S.rabbit;
+    if(R.job && R.job.type==="harvest"){
+      doHarvest(R.job.c, R.job.r);
+      R.job = null;
+    } else if(R.job && R.job.type==="deliver"){
+      doDeliver(R.job.n);
+      R.job = null;
+    } else if(R.job && R.job.type==="store"){
+      if(S.carrying){
+        S.inventory[S.carrying] = (S.inventory[S.carrying]||0)+1;
+        toast("收到一捆"+VARIETIES[S.carrying].name);
+        S.carrying = null;
+      }
+      R.job = null;
+    }
+    if(!rabbitBusy() && R.queue && R.queue.length){
+      const n=R.queue.shift();
+      startRabbitTrip(n.tc,n.tr,n.job);
+    }
+  }
+  function updateRabbit(dt){
+    const R = S.rabbit;
+    R.queue = R.queue || [];
+    if(!R.path || !R.path.length){
+      finishRabbitJob();
+      return;
+    }
+    const [c,r] = R.path[0];
+    const tx=(c+0.5)*TILE, ty=(r+0.5)*TILE;
+    const dx=tx-R.x, dy=ty-R.y, dist=Math.hypot(dx,dy);
+    const spd = 2.6*TILE * (dt/1000);
+    R.hop += dt;
+    if(dist<=spd){
+      R.x=tx; R.y=ty; R.c=c; R.r=r;
+      R.path.shift();
+      sfx.hop();
+    } else {
+      R.x += dx/dist*spd;
+      R.y += dy/dist*spd;
+    }
+  }
+  function updateCapy(dt){
+    const C = S.capy;
+    if(!C.go) return;
+    const tx=(C.go.c+0.5)*TILE, ty=(C.go.r+0.5)*TILE;
+    const dx=tx-C.x, dy=ty-C.y, dist=Math.hypot(dx,dy);
+    const spd = 1.5*TILE * (dt/1000);
+    if(dist<=spd){ C.x=tx; C.y=ty; C.c=C.go.c; C.r=C.go.r; C.go=null; }
+    else { C.x += dx/dist*spd; C.y += dy/dist*spd; }
+  }
+
+  function doHarvest(c,r){
+    const p = S.plants[key(c,r)];
+    if(!p || p.stage<3){ say("再等一下子，葉子還沒收齊。再試一次？"); return; }
+    const kind = p.kind;
+    delete S.plants[key(c,r)];
+    S.dayCounts.harvest++;
+    addFx("pop", (c+0.5)*TILE, (r+0.5)*TILE, VARIETIES[kind].color);
+    sfx.harvest();
+    if(!S.stamps[kind]){
+      S.stamps[kind] = S.day;
+      sfx.stamp();
+      say("圖鑑蓋了一枚新章："+VARIETIES[kind].name+"！", true);
+      toast("圖鑑蓋章："+VARIETIES[kind].name);
+    } else if(S.mode==="seren"){
+      say("好的，摘到一捆"+VARIETIES[kind].name+"。", true);
+    }
+    if(S.mode==="jayden" && S.deliveryDone<3){
+      S.carrying = kind;
+      say("背上了！請沿著小路，依序送到第 "+S.deliveryNext+" 號籃子。", true);
+    } else {
+      S.inventory[kind] = (S.inventory[kind]||0)+1;
+    }
+    maybeListComplete();
+  }
+  function doDeliver(n){
+    if(!S.carrying){ say("兔子手上還沒有菜，先去摘一捆吧。"); return; }
+    if(n!==S.deliveryNext){
+      say("先送到第 "+S.deliveryNext+" 號籃子喔。再試一次？", true);
+      sfx.no();
+      return;
+    }
+    const kind = S.carrying;
+    S.carrying = null;
+    S.inventory[kind] = (S.inventory[kind]||0)+1;
+    S.deliveryDone++;
+    S.deliveryNext = Math.min(3, S.deliveryNext+1);
+    addFx("stamp", ...basketPos(n));
+    sfx.ok();
+    if(S.deliveryDone>=3) say("三個籃子都送到了，今天的跑腿很棒！", true);
+    else say("第 "+n+" 號籃子收到了。下一站是第 "+S.deliveryNext+" 號。", true);
+    maybeListComplete();
+  }
+  function basketPos(n){
+    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+      if(tile(c,r)&&tile(c,r).type==="basket"&&tile(c,r).basket===n)
+        return [(c+0.5)*TILE,(r+0.4)*TILE];
+    }
+    return [0,0];
+  }
+  function maybeListComplete(){
+    refreshTools();
+    if(S.phase==="playing" && allTasksDone()){
+      $("btn-finish").hidden = false;
+      if(S.mode==="seren") say("今日清單完成了。還可以繼續擺園子，或按「今日收工」。等到太陽下山也會自動收工並存檔。", true);
+      else say("清單完成。可以繼續鋪路或擺飾，或按「今日收工」。", true);
+    }
+  }
+
+  /* ---------- actions ---------- */
+  function wrongActor(need){
+    if(need==="capy") say("這是水豚村長的工作喔，切換到水豚再做吧！");
+    else say("摘菜、送貨要請兔子跑腿，點下方的兔子再沿小路去。");
+    sfx.no();
+  }
+  function plantAt(c,r){
+    if(actor!=="capy") return wrongActor("capy");
+    if(!isSoilOpen(c,r)){ say("這格還不能種。試試空的菜畦。"); sfx.no(); return; }
+    if(S.plants[key(c,r)]){ say("這裡已經有菜了。"); sfx.no(); return; }
+    if(VARIETIES[seedKind].unlockDay > S.day){ say("這個品種明天才會登場。"); return; }
+    S.plants[key(c,r)] = { c,r, kind:seedKind, stage:0, age:0, watered: S.day===3 };
+    S.dayCounts.plant[seedKind] = (S.dayCounts.plant[seedKind]||0)+1;
+    S.capy.go = {c,r};
+    addFx("leaf", (c+0.5)*TILE, (r+0.5)*TILE);
+    sfx.plant();
+    if(S.mode==="seren"){
+      if(!S.firsts.planted){ S.firsts.planted=1; say("種好了！園子立刻不一樣了。接著點「澆水」，再點這棵菜。", true); }
+      else say("又種下一棵"+VARIETIES[seedKind].name+"。");
+    }
+    maybeListComplete(); persist();
+  }
+  function waterAt(c,r){
+    if(actor!=="capy") return wrongActor("capy");
+    const p = S.plants[key(c,r)];
+    if(!p){ say("這格沒有需要澆的菜。再試一次？"); sfx.no(); return; }
+    if(p.watered){ say("這棵已經喝飽了，葉子會自己長。"); return; }
+    p.watered = true;
+    p.age += 2000;
+    S.dayCounts.water++;
+    S.capy.go = {c,r};
+    addFx("water", (c+0.5)*TILE, (r+0.4)*TILE);
+    sfx.water();
+    if(S.mode==="seren") say("咕嘟咕嘟，謝謝你。再過一會兒就可以請兔子來摘。");
+    maybeListComplete(); persist();
+  }
+  function fenceAt(c,r){
+    if(actor!=="capy") return wrongActor("capy");
+    const t = tile(c,r);
+    if(!t || (t.type!=="grass" && t.type!=="soil")){ say("圍籬可以擺在草地或菜畦邊。"); sfx.no(); return; }
+    if(S.plants[key(c,r)]){ say("有菜的地方先不要插圍籬。"); return; }
+    const k = key(c,r);
+    if(S.fences[k]){ delete S.fences[k]; toast("收起一段圍籬"); }
+    else {
+      S.fences[k] = 1;
+      S.dayCounts.fence++;
+      sfx.place();
+      addFx("leaf",(c+0.5)*TILE,(r+0.5)*TILE);
+      say("圍籬擺好了，園子立刻整齊一點。");
+    }
+    S.capy.go = {c,r};
+    maybeListComplete(); persist();
+  }
+  function placeAt(c,r){
+    if(actor!=="capy") return wrongActor("capy");
+    const t = tile(c,r);
+    if(placeKind==="flag" || placeKind==="stone" || placeKind==="lamp"){
+      if(!t || (t.type!=="grass" && t.type!=="tree")){ say("裝飾適合放在草地上。"); return; }
+      if(S.day < (placeKind==="lamp"?5:4) && placeKind!=="stone"){ /* lamp day5, flag/stone day4 */ }
+      if((placeKind==="flag"||placeKind==="stone") && S.day<4){ say("這個裝飾第 4 日才會解鎖。"); return; }
+      if(placeKind==="lamp" && S.day<5){ say("暖燈第 5 日才會解鎖。"); return; }
+      S.decor[key(c,r)] = placeKind;
+      S.dayCounts.decor = (S.dayCounts.decor||0)+1;
+      sfx.place();
+      S.capy.go={c,r};
+      say("擺好了，園子更好看了。");
+      maybeListComplete(); persist();
+      return;
+    }
+    // place harvest into bed
+    if(!t || t.type!=="bed"){ say("請把收成擺進靠近屋子的展示菜畦。"); sfx.no(); return; }
+    if(!(S.inventory[placeKind]>0)){ say("倉庫裡還沒有這一種，請先請兔子去摘。"); return; }
+    S.inventory[placeKind]--;
+    S.displays[key(c,r)] = placeKind;
+    S.dayCounts.place++;
+    sfx.place();
+    addFx("spark",(c+0.5)*TILE,(r+0.3)*TILE);
+    say("菜畦擺好了一捆"+VARIETIES[placeKind].name+"，看起來真精神。");
+    maybeListComplete(); persist();
+  }
+  function pathAt(c,r){
+    if(S.mode!=="jayden" || S.day<4){ say("短徑編輯在第 4 日以後、進階模式才開得了。"); return; }
+    if(actor!=="capy") return wrongActor("capy");
+    const t = tile(c,r);
+    const k = key(c,r);
+    if(S.customPaths[k]){
+      delete S.customPaths[k];
+      S.dayCounts.path = Math.max(0, S.dayCounts.path-1);
+      toast("挖掉一格短徑");
+      persist(); return;
+    }
+    if(!t || (t.type!=="grass" && !(t.type==="soil" && t.lock && !isSoilOpen(c,r)))){
+      if(t && t.type==="soil"){ say("菜畦上不要鋪路。"); return; }
+      say("只能在草地、而且要挨著既有小路的地方鋪。"); sfx.no(); return;
+    }
+    if(t.type!=="grass"){ say("只能在草地上鋪短徑。"); return; }
+    if(!pathAdjacent(c,r)){ say("要接著現在的小路來鋪，這樣兔子才走得通。"); sfx.no(); return; }
+    const used = Object.keys(S.customPaths).length;
+    if(used>=8){ say("這條小徑已經夠長了，先挖掉一段再鋪吧。再試一次？"); sfx.no(); return; }
+    S.customPaths[k] = 1;
+    S.dayCounts.path++;
+    sfx.place();
+    say("短徑鋪好了。這條路只存在這台裝置，不會上網分享。");
+    maybeListComplete(); persist();
+  }
+  function rabbitTap(c,r){
+    const t = tile(c,r);
+    const p = S.plants[key(c,r)];
+    if(p && p.stage>=3){
+      if(!pathAdjacent(c,r) && !isPath(c,r)){
+        say("兔子走小路才到得了這棵。請水豚在旁邊鋪一小段路，或換一棵靠路的菜。再試一次？");
+        sfx.no(); return;
+      }
+      const dest = neighbors4(c,r).find(([x,y])=>isPath(x,y)) || [c,r];
+      sendRabbit(dest[0], dest[1], {type:"harvest", c,r});
+      say("兔子出發去摘了！");
+      return;
+    }
+    if(p && p.stage<3){
+      say(S.mode==="jayden" && !p.watered ? "這棵好像有點渴，換水豚再澆一次水試試看？" : "再等一下子，葉子還沒收齊。再試一次？");
+      return;
+    }
+    if(t && t.type==="basket"){
+      if(!S.carrying){ say("先去摘一捆，再送到籃子。"); return; }
+      sendRabbit(c,r,{type:"deliver", n:t.basket});
+      return;
+    }
+    if(t && t.type==="burrow"){
+      if(S.carrying){ sendRabbit(c,r,{type:"store"}); return; }
+    }
+    if(isPath(c,r) || S.customPaths[key(c,r)]){
+      sendRabbit(c,r, S.carrying ? {type:"store"} : null);
+      return;
+    }
+    say("點成熟的胡蘿蔔、小路或籃子，兔子就會跳過去。");
+  }
+  function handleTile(c,r){
+    if(S.phase!=="playing" && S.phase!=="after") return;
+    if(actor==="rabbit"){ rabbitTap(c,r); return; }
+    if(tool==="seed") plantAt(c,r);
+    else if(tool==="water") waterAt(c,r);
+    else if(tool==="fence") fenceAt(c,r);
+    else if(tool==="place") placeAt(c,r);
+    else if(tool==="path") pathAt(c,r);
+  }
+
+  /* ---------- tools / overlays ---------- */
+  function refreshTools(){
+    const jay = S.mode==="jayden";
+    const play = S.phase==="playing" || S.phase==="after";
+    $("btn-capy").classList.toggle("on", actor==="capy");
+    $("btn-rabbit").classList.toggle("on", actor==="rabbit");
+    ["seed","water","fence","place","path"].forEach(id => {
+      const el = $("btn-"+id);
+      if(!el) return;
+      el.classList.toggle("on", tool===id && actor==="capy");
+    });
+    const capyTools = actor==="capy";
+    $("btn-seed").hidden = !capyTools;
+    $("btn-water").hidden = !capyTools;
+    $("btn-fence").hidden = !capyTools;
+    $("btn-place").hidden = !capyTools;
+    $("btn-path").hidden = !(capyTools && jay && S.day>=4);
+    $("sub-seeds").className = "row subtools" + (capyTools && tool==="seed" ? " on" : "");
+    $("sub-place").className = "row subtools" + (capyTools && tool==="place" ? " on" : "");
+    if(tool==="seed"){
+      $("sub-seeds").innerHTML = unlockedVars().map(id => {
+        const v=VARIETIES[id];
+        return `<button class="pill ${seedKind===id?"on":""}" data-seed="${id}" type="button">${v.name}</button>`;
+      }).join("");
+    }
+    if(tool==="place"){
+      const items = unlockedVars().map(id => {
+        const n=S.inventory[id]||0;
+        return `<button class="pill ${placeKind===id?"on":""}" data-place="${id}" type="button">${VARIETIES[id].name}<span class="n">${n}</span></button>`;
+      });
+      if(S.day>=4) items.push(`<button class="pill ${placeKind==="flag"?"on":""}" data-place="flag" type="button">園旗</button>`);
+      if(S.day>=4) items.push(`<button class="pill ${placeKind==="stone"?"on":""}" data-place="stone" type="button">花石</button>`);
+      if(S.day>=5) items.push(`<button class="pill ${placeKind==="lamp"?"on":""}" data-place="lamp" type="button">暖燈</button>`);
+      $("sub-place").innerHTML = items.join("");
+    }
+    $("btn-finish").hidden = !(S.phase==="playing" && allTasksDone());
+    $("btn-mute").textContent = muted ? "靜音" : "聲音";
+    $("btn-mode-switch").textContent = S.mode==="jayden" ? "進階" : "寬鬆";
+    dayChip.textContent = "第 "+S.day+" 日・"+WEATHER[S.day].name;
+    if(S.phase==="after") dayChip.textContent = "自由照料・園子仍在";
+  }
+  function renderList(){
+    const tasks = tasksFor(S.day,S.mode);
+    $("list-body").innerHTML = tasks.map(t => {
+      const n = Math.min(countOf(t.kind), t.need);
+      const ok = n>=t.need;
+      return `<div class="task ${ok?"done":""}">${ok?"✓":"○"} ${t.label}　${n}/${t.need}</div>`;
+    }).join("");
+    $("list-note").textContent = S.mode==="seren"
+      ? "寬鬆模式：提示會多一點。做完可以提早收工，或等到太陽下山。"
+      : (S.day>=4 ? "進階：記得送貨；還可以鋪最多 8 格短徑（只存在這台裝置）。" : "進階：日落前請沿小路依序送到三個籃子。");
+  }
+  function renderDex(){
+    const body = $("dex-body");
+    body.innerHTML = VAR_ORDER.map(id => {
+      const v=VARIETIES[id], got=!!S.stamps[id];
+      const locked = v.unlockDay > S.day && !got;
+      return `<div class="stamp ${got?"got":""}" data-vid="${id}">
+        <canvas width="128" height="128"></canvas>
+        <b>${locked?"？？？":v.name}</b>
+        <em>${got?"第 "+S.stamps[id]+" 日蓋章":(locked?"尚未登場":"還沒蓋章")}</em>
+      </div>`;
+    }).join("");
+    body.querySelectorAll(".stamp").forEach(el => {
+      const id=el.getAttribute("data-vid");
+      const c=el.querySelector("canvas").getContext("2d");
+      drawCarrotIcon(c, 64, 70, 2.1, id, !S.stamps[id] && VARIETIES[id].unlockDay<=S.day, VARIETIES[id].unlockDay>S.day && !S.stamps[id]);
+    });
+  }
+
+  /* ---------- fx ---------- */
+  function addFx(type,x,y,color){
+    fx.push({type,x,y,color,t:0,life:700});
+  }
+  function updateFx(dt){
+    fx = fx.filter(p => { p.t += dt; return p.t < p.life; });
+    if(toastTimer>0){ toastTimer-=dt; if(toastTimer<=0) toastEl.style.display="none"; }
+  }
+
+  /* ---------- time of day ---------- */
+  function dayT(){
+    if(S.phase==="after") return 0.88;
+    return Math.max(0, Math.min(1, S.elapsed / DAY_LEN));
+  }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function lerpHex(a,b,t){
+    const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16);
+    const r=pa>>16,g=pa>>8&255,bl=pa&255, r2=pb>>16,g2=pb>>8&255,b2=pb&255;
+    const h=(n)=>Math.round(n).toString(16).padStart(2,"0");
+    return "#"+h(lerp(r,r2,t))+h(lerp(g,g2,t))+h(lerp(bl,b2,t));
+  }
+  function skyPalette(t){
+    const stops = [
+      [0,   {top:"#f4b6c8", mid:"#f8d9a0", bot:"#9ec8e8"}],
+      [0.15,{top:"#7ec8f0", mid:"#cfeaf8", bot:"#e8f3c8"}],
+      [0.4, {top:"#5eb0e8", mid:"#b8e0f8", bot:"#d8f0a8"}],
+      [0.65,{top:"#7ab8e0", mid:"#f0d48a", bot:"#e8c070"}],
+      [0.85,{top:"#e07050", mid:"#f4a050", bot:"#c06040"}],
+      [1,   {top:"#4a2a5a", mid:"#e07040", bot:"#5a2818"}]
+    ];
+    let i=0;
+    while(i<stops.length-1 && t>stops[i+1][0]) i++;
+    const a=stops[i], b=stops[Math.min(i+1,stops.length-1)];
+    const u = (t-a[0])/Math.max(0.0001,b[0]-a[0]);
+    return { top:lerpHex(a[1].top,b[1].top,u), mid:lerpHex(a[1].mid,b[1].mid,u), bot:lerpHex(a[1].bot,b[1].bot,u) };
+  }
+  function updateClock(){
+    const t = dayT();
+    sunFill.style.width = (t*100)+"%" ;
+    const remain = Math.max(0, DAY_LEN - S.elapsed);
+    const m = Math.ceil(remain/60000);
+    const sec = Math.ceil(remain/1000);
+    if(S.phase==="after"){ sunLabel.textContent="黃昏"; timeChip.textContent="已收工"; return; }
+    sunLabel.textContent = t<0.12?"日出": t<0.5?"上午": t<0.75?"午後": t<0.92?"黃昏將至":"日落";
+    timeChip.textContent = remain>60000 ? ("還有 "+m+" 分鐘") : ("還有 "+sec+" 秒");
+  }
+
+  /* ---------- render ---------- */
+  function resize(){
+    const wrap = $("stage-wrap");
+    const rect = wrap.getBoundingClientRect();
+    viewW = Math.max(1, rect.width);
+    viewH = Math.max(1, rect.height);
+    dpr = Math.min(2.5, window.devicePixelRatio||1);
+    canvas.width = Math.round(viewW*dpr);
+    canvas.height = Math.round(viewH*dpr);
+    canvas.style.width = viewW+"px";
+    canvas.style.height = viewH+"px";
+  }
+  function centerCam(){
+    const fit = Math.min(viewW/WORLD_W, viewH/WORLD_H);
+    cam.z = Math.max(0.7, Math.min(1.2, fit*0.98));
+    cam.x = (WORLD_W - viewW/cam.z)/2;
+    cam.y = (WORLD_H - viewH/cam.z)/2;
+    clampCam();
+  }
+  function clampCam(){
+    const vw = viewW/cam.z, vh = viewH/cam.z;
+    if(vw>=WORLD_W) cam.x = (WORLD_W-vw)/2;
+    else cam.x = Math.max(0, Math.min(WORLD_W-vw, cam.x));
+    if(vh>=WORLD_H) cam.y = (WORLD_H-vh)/2;
+    else cam.y = Math.max(0, Math.min(WORLD_H-vh, cam.y));
+  }
+  function worldFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    const sx = (e.clientX-rect.left)/cam.z + cam.x;
+    const sy = (e.clientY-rect.top)/cam.z + cam.y;
+    return {x:sx,y:sy,c:Math.floor(sx/TILE), r:Math.floor(sy/TILE)};
+  }
+
+  function draw(){
+    const w=canvas.width, h=canvas.height;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const t=dayT();
+    const sky=skyPalette(t);
+    const g=ctx.createLinearGradient(0,0,0,viewH);
+    g.addColorStop(0,sky.top); g.addColorStop(0.45,sky.mid); g.addColorStop(1,sky.bot);
+    ctx.fillStyle=g; ctx.fillRect(0,0,viewW,viewH);
+
+    // sun
+    const ang = Math.PI * (1.08 - t*1.05);
+    const sunX = viewW*0.15 + Math.cos(Math.PI-ang)*viewW*0.7;
+    const sunY = viewH*0.42 - Math.sin(ang)*viewH*0.32;
+    const sunCol = t>0.8 ? "#ff6a30" : t>0.6 ? "#ffd36a" : "#fff2a8";
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = t>0.8 ? "#ff8a40" : "#fff3b0";
+    ctx.beginPath(); ctx.arc(sunX,sunY,48,0,6.28); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = sunCol;
+    ctx.beginPath(); ctx.arc(sunX,sunY,22,0,6.28); ctx.fill();
+    ctx.restore();
+
+    // clouds
+    drawClouds(t);
+
+    ctx.save();
+    ctx.scale(cam.z, cam.z);
+    ctx.translate(-cam.x, -cam.y);
+    drawGarden(t);
+    ctx.restore();
+
+    // lighting veil
+    if(t>0.7){
+      ctx.fillStyle = `rgba(180,60,20,${(t-0.7)*0.35})`;
+      ctx.fillRect(0,0,viewW,viewH);
+    } else if(t<0.12){
+      ctx.fillStyle = `rgba(255,180,160,${(0.12-t)*0.5})`;
+      ctx.fillRect(0,0,viewW,viewH);
+    }
+  }
+  function drawClouds(t){
+    ctx.save();
+    ctx.globalAlpha = t>0.85?0.25: (S.day===2?0.7:0.45);
+    const drift = (S.elapsed/80) % 800;
+    function cloud(x,y,s){
+      ctx.fillStyle="#fff";
+      ctx.beginPath();
+      ctx.arc(x,y,16*s,0,6.28);
+      ctx.arc(x+22*s,y-6*s,20*s,0,6.28);
+      ctx.arc(x+44*s,y,16*s,0,6.28);
+      ctx.fill();
+    }
+    cloud((80+drift)%(viewW+80)-40, 36, 1.2);
+    cloud((300+drift*0.7)%(viewW+100)-50, 58, 0.9);
+    if(S.day===2) cloud((200+drift*1.2)%(viewW+90)-40, 24, 1.4);
+    ctx.restore();
+  }
+  function drawGarden(t){
+    // ground backdrop
+    ctx.fillStyle = "#5a9a4a";
+    ctx.fillRect(-40,-40,WORLD_W+80,WORLD_H+80);
+    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+      const tpe = effectiveType(c,r);
+      const x=c*TILE, y=r*TILE;
+      drawTile(tpe, x,y,c,r,t);
+    }
+    // fences
+    Object.keys(S.fences).forEach(k => {
+      const [c,r]=k.split(",").map(Number);
+      drawFence(c*TILE, r*TILE);
+    });
+    // decor
+    Object.keys(S.decor).forEach(k => {
+      const [c,r]=k.split(",").map(Number);
+      drawDecor(S.decor[k], c*TILE, r*TILE);
+    });
+    // displays in beds
+    Object.keys(S.displays).forEach(k => {
+      const [c,r]=k.split(",").map(Number);
+      drawCarrotIcon(ctx, c*TILE+36, r*TILE+40, 0.85, S.displays[k], false, false);
+    });
+    // plants
+    Object.values(S.plants).forEach(p => drawPlant(p));
+    // house, baskets labels, pond sparkle already in tiles
+    drawHouse();
+    drawCapy(S.capy.x, S.capy.y);
+    drawRabbit(S.rabbit.x, S.rabbit.y, S.rabbit.hop);
+    if(S.carrying){
+      drawCarrotIcon(ctx, S.rabbit.x+18, S.rabbit.y-28, 0.45, S.carrying, false, false);
+    }
+    // fx
+    fx.forEach(p => drawFx(p));
+  }
+  function effectiveType(c,r){
+    if(S.customPaths[key(c,r)]) return "path";
+    const t=tile(c,r);
+    if(t.type==="soil" && (t.lock||0)>S.day) return "locksoil";
+    return t.type;
+  }
+  function drawTile(type,x,y,c,r,dayp){
+    const jig = ((c*13+r*7)%5);
+    if(type==="grass" || type==="tree" || type==="locksoil"){
+      ctx.fillStyle = (c+r)%2===0 ? "#62a84f" : "#5b9e48";
+      ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = "rgba(255,255,255,0.05)";
+      ctx.fillRect(x+8,y+10,10,6);
+      if(type==="tree") drawTree(x+TILE/2, y+TILE/2+8, 1+jig*0.05);
+      if(type==="locksoil"){
+        ctx.fillStyle="rgba(80,60,30,0.28)";
+        ctx.fillRect(x+8,y+8,TILE-16,TILE-16);
+      }
+    } else if(type==="soil"){
+      ctx.fillStyle = "#62a84f";
+      ctx.fillRect(x,y,TILE,TILE);
+      const p = S.plants[key(c,r)];
+      ctx.fillStyle = (p&&p.watered) || S.day===3 ? "#5a3a22" : "#7a4a28";
+      roundRect(x+8,y+10,TILE-16,TILE-18,12);
+      ctx.fill();
+      ctx.fillStyle="rgba(0,0,0,0.12)";
+      ctx.fillRect(x+16,y+20,8,4);
+    } else if(type==="path"){
+      ctx.fillStyle="#62a84f"; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = S.customPaths[key(c,r)] ? "#c9a06a" : "#d8c09a";
+      roundRect(x+6,y+6,TILE-12,TILE-12,14); ctx.fill();
+      ctx.fillStyle="rgba(120,80,40,0.18)";
+      ctx.beginPath(); ctx.arc(x+20+jig,y+24,3,0,6.28); ctx.fill();
+    } else if(type==="water"){
+      const w1 = S.day===3 ? "#4a8ab8" : "#5aa0c8";
+      ctx.fillStyle=w1;
+      ctx.fillRect(x,y,TILE,TILE);
+      ctx.strokeStyle="rgba(255,255,255,0.35)";
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.arc(x+20, y+24+Math.sin(S.elapsed/400+c)*2, 10, 0.2, 2.8);
+      ctx.stroke();
+    } else if(type==="bed"){
+      ctx.fillStyle="#62a84f"; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle="#8a5a30";
+      roundRect(x+6,y+8,TILE-12,TILE-14,8); ctx.fill();
+      ctx.fillStyle="#5a3a1c";
+      roundRect(x+12,y+14,TILE-24,TILE-26,6); ctx.fill();
+    } else if(type==="basket"){
+      ctx.fillStyle="#62a84f"; ctx.fillRect(x,y,TILE,TILE);
+      // path under
+      ctx.fillStyle="#d8c09a";
+      roundRect(x+6,y+6,TILE-12,TILE-12,14); ctx.fill();
+      drawBasket(x+TILE/2,y+TILE/2, tile(c,r).basket);
+    } else if(type==="burrow"){
+      ctx.fillStyle="#62a84f"; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle="#d8c09a";
+      roundRect(x+6,y+6,TILE-12,TILE-12,14); ctx.fill();
+      ctx.fillStyle="#6a4a2a";
+      ctx.beginPath(); ctx.ellipse(x+36,y+44,18,12,0,0,6.28); ctx.fill();
+      ctx.fillStyle="#3a2410";
+      ctx.beginPath(); ctx.ellipse(x+36,y+46,10,8,0,0,6.28); ctx.fill();
+    } else if(type==="house"){
+      ctx.fillStyle="#62a84f"; ctx.fillRect(x,y,TILE,TILE);
+    }
+  }
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+  function drawTree(x,y,s){
+    ctx.fillStyle="#6a3a1a";
+    ctx.fillRect(x-4*s,y,8*s,16*s);
+    ctx.fillStyle="#2f7a38";
+    ctx.beginPath(); ctx.arc(x,y-10*s,20*s,0,6.28); ctx.fill();
+    ctx.fillStyle="#3d9244";
+    ctx.beginPath(); ctx.arc(x-10*s,y-4*s,14*s,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+12*s,y-6*s,15*s,0,6.28); ctx.fill();
+  }
+  function drawFence(x,y){
+    ctx.fillStyle="#8a5428";
+    ctx.fillRect(x+12,y+18,6,36);
+    ctx.fillRect(x+54,y+18,6,36);
+    ctx.fillRect(x+10,y+24,52,6);
+    ctx.fillRect(x+10,y+38,52,6);
+  }
+  function drawDecor(kind,x,y){
+    if(kind==="flag"){
+      ctx.fillStyle="#8a5428"; ctx.fillRect(x+20,y+12,5,48);
+      ctx.fillStyle="#e45a3c";
+      ctx.beginPath(); ctx.moveTo(x+25,y+14); ctx.lineTo(x+56,y+26); ctx.lineTo(x+25,y+36); ctx.fill();
+    } else if(kind==="stone"){
+      ctx.fillStyle="#c8c0b0";
+      ctx.beginPath(); ctx.ellipse(x+36,y+44,20,12,0,0,6.28); ctx.fill();
+      ctx.fillStyle="#e07090";
+      ctx.beginPath(); ctx.arc(x+24,y+36,5,0,6.28); ctx.fill();
+      ctx.fillStyle="#f0d060";
+      ctx.beginPath(); ctx.arc(x+40,y+32,4,0,6.28); ctx.fill();
+    } else if(kind==="lamp"){
+      ctx.fillStyle="#6a4a28"; ctx.fillRect(x+32,y+28,6,28);
+      ctx.fillStyle="rgba(255,200,80,0.45)";
+      ctx.beginPath(); ctx.arc(x+35,y+22,16,0,6.28); ctx.fill();
+      ctx.fillStyle="#ffd36a";
+      ctx.beginPath(); ctx.arc(x+35,y+22,8,0,6.28); ctx.fill();
+    }
+  }
+  function drawBasket(x,y,n){
+    ctx.fillStyle="#c47a30";
+    ctx.beginPath();
+    ctx.moveTo(x-18,y-8);
+    ctx.lineTo(x-14,y+16);
+    ctx.quadraticCurveTo(x,y+22,x+14,y+16);
+    ctx.lineTo(x+18,y-8);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle="#8a4a18"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(x,y-8,16,Math.PI,0); ctx.stroke();
+    ctx.fillStyle="#fff8e8";
+    ctx.font="bold 16px 'PingFang TC','Noto Sans TC',sans-serif";
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(String(n), x, y+2);
+    if(S.mode==="jayden" && S.deliveryDone>=n){
+      ctx.fillStyle="#3d8c3a";
+      ctx.font="bold 14px sans-serif";
+      ctx.fillText("✓", x+16, y-14);
+    }
+  }
+  function drawHouse(){
+    const x=1*TILE, y=1*TILE;
+    ctx.fillStyle="#e8d2a8";
+    roundRect(x+10,y+38, TILE*1.7, TILE*1.15, 8); ctx.fill();
+    ctx.fillStyle="#c45a3a";
+    ctx.beginPath();
+    ctx.moveTo(x-4,y+44);
+    ctx.lineTo(x+TILE*0.95, y+4);
+    ctx.lineTo(x+TILE*2.05, y+44);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle="#6a3a1a";
+    roundRect(x+28,y+70, 22, 34, 4); ctx.fill();
+    ctx.fillStyle="#8ec8e8";
+    roundRect(x+70,y+62, 22, 18, 4); ctx.fill();
+  }
+  function drawPlant(p){
+    const x=(p.c+0.5)*TILE, y=(p.r+0.62)*TILE;
+    const v=VARIETIES[p.kind];
+    if(p.stage===0){
+      ctx.fillStyle="#3a2410";
+      ctx.beginPath(); ctx.ellipse(x,y,5,3,0,0,6.28); ctx.fill();
+      return;
+    }
+    const sway = p.stage>=3 ? Math.sin(S.elapsed/240 + p.c)*3 : Math.sin(S.elapsed/400+p.c);
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(sway*0.03);
+    // leaves
+    ctx.fillStyle=v.leaf;
+    const ls = 0.4 + p.stage*0.25;
+    ctx.beginPath(); ctx.ellipse(-8*ls,-18*ls,5*ls,14*ls,-0.5,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(8*ls,-18*ls,5*ls,14*ls,0.5,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0,-24*ls,4*ls,12*ls,0,0,6.28); ctx.fill();
+    if(p.stage>=2){
+      ctx.fillStyle=v.color;
+      ctx.beginPath();
+      ctx.moveTo(0,-8);
+      ctx.lineTo(8+p.stage*2, 10+p.stage*3);
+      ctx.quadraticCurveTo(0, 18+p.stage*4, -8-p.stage*2, 10+p.stage*3);
+      ctx.closePath(); ctx.fill();
+      if(v.stroke){ ctx.strokeStyle=v.stroke; ctx.lineWidth=1.2; ctx.stroke(); }
+      ctx.fillStyle=v.light;
+      ctx.beginPath(); ctx.moveTo(-2,-4); ctx.lineTo(2,8); ctx.lineTo(-1,8); ctx.closePath(); ctx.fill();
+    }
+    if(p.stage>=3){
+      ctx.fillStyle="rgba(255,255,200,0.55)";
+      ctx.beginPath(); ctx.arc(10,-20,3,0,6.28); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function drawCarrotIcon(c,x,y,s,kind,ghost,locked){
+    const v=VARIETIES[kind]||VARIETIES.sun;
+    c.save();
+    c.translate(x,y); c.scale(s,s);
+    if(locked){
+      c.fillStyle="#ddd2c2";
+      c.beginPath(); c.arc(0,-4,22,0,6.28); c.fill();
+      c.fillStyle="#9a8a78";
+      c.font="bold 22px sans-serif"; c.textAlign="center"; c.fillText("?",0,4);
+      c.restore(); return;
+    }
+    if(ghost){ c.globalAlpha=0.35; }
+    c.fillStyle="rgba(255,210,80,0.35)";
+    c.beginPath(); c.arc(0,-6,26,0,6.28); c.fill();
+    c.fillStyle=v.leaf;
+    c.beginPath(); c.ellipse(-8,-28,6,16,-0.4,0,6.28); c.fill();
+    c.beginPath(); c.ellipse(8,-28,6,16,0.4,0,6.28); c.fill();
+    c.beginPath(); c.ellipse(0,-32,5,16,0,0,6.28); c.fill();
+    c.fillStyle=v.color;
+    c.beginPath(); c.moveTo(0,-16); c.lineTo(14,22); c.quadraticCurveTo(0,32,-14,22); c.closePath(); c.fill();
+    if(v.stroke){ c.strokeStyle=v.stroke; c.lineWidth=2; c.stroke(); }
+    c.fillStyle="#2a1a10";
+    c.beginPath(); c.arc(-6,-2,2.2,0,6.28); c.fill();
+    c.beginPath(); c.arc(6,-2,2.2,0,6.28); c.fill();
+    c.strokeStyle="#c06020"; c.lineWidth=1.6; c.lineCap="round";
+    c.beginPath(); c.moveTo(-5,8); c.quadraticCurveTo(0,13,5,8); c.stroke();
+    c.restore();
+  }
+  function drawCapy(x,y){
+    ctx.save();
+    ctx.translate(x,y);
+    const br = 1+Math.sin(S.elapsed/450)*0.03;
+    ctx.scale(1,br);
+    ctx.fillStyle="rgba(80,40,20,0.18)";
+    ctx.beginPath(); ctx.ellipse(0,22,28,8,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#c4956a";
+    ctx.beginPath(); ctx.ellipse(0,4,30,20,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#d8b08a";
+    ctx.beginPath(); ctx.ellipse(0,10,20,12,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#a07050";
+    ctx.beginPath(); ctx.ellipse(-22,-4,7,6,0,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(22,-4,7,6,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#d2a074";
+    ctx.beginPath(); ctx.ellipse(0,0,18,14,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#2a1a10";
+    ctx.beginPath(); ctx.arc(-7,-2,2.4,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(7,-2,2.4,0,6.28); ctx.fill();
+    ctx.fillStyle="#8a5a3a";
+    ctx.beginPath(); ctx.ellipse(0,6,6,3.2,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#3a2010";
+    ctx.beginPath(); ctx.arc(-3,6,1,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(3,6,1,0,6.28); ctx.fill();
+    ctx.fillStyle="#a07050";
+    ctx.beginPath(); ctx.ellipse(-14,20,8,6,0,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(14,20,8,6,0,0,6.28); ctx.fill();
+    if(actor==="capy"){
+      ctx.strokeStyle="#d5753a"; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(0,2,36,0,6.28); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawRabbit(x,y,hop){
+    const bounce = (S.rabbit.path&&S.rabbit.path.length) ? Math.abs(Math.sin(hop/120))*10 : Math.sin(S.elapsed/350)*2;
+    ctx.save();
+    ctx.translate(x,y-bounce);
+    ctx.fillStyle="rgba(80,40,20,0.15)";
+    ctx.beginPath(); ctx.ellipse(0,24,18,6,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#f4f0e8";
+    ctx.beginPath(); ctx.ellipse(-12,-28,6,18,-0.3,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(10,-30,6,19,0.25,0,6.28); ctx.fill();
+    ctx.fillStyle="#f5b7c5";
+    ctx.beginPath(); ctx.ellipse(-12,-28,3,12,-0.3,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(10,-30,3,13,0.25,0,6.28); ctx.fill();
+    ctx.fillStyle="#f7f3ec";
+    ctx.beginPath(); ctx.ellipse(0,6,20,22,0,0,6.28); ctx.fill();
+    ctx.fillStyle="#2a1a10";
+    ctx.beginPath(); ctx.arc(-7,-2,2.6,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(7,-2,2.6,0,6.28); ctx.fill();
+    ctx.fillStyle="#f3a0b0";
+    ctx.beginPath(); ctx.ellipse(0,6,4,2.6,0,0,6.28); ctx.fill();
+    ctx.strokeStyle="#c09090"; ctx.lineWidth=1.6; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(-7,12); ctx.quadraticCurveTo(0,17,7,12); ctx.stroke();
+    ctx.fillStyle="#fff";
+    ctx.beginPath(); ctx.arc(16,16,7,0,6.28); ctx.fill();
+    ctx.fillStyle="#f0d8c0";
+    ctx.beginPath(); ctx.ellipse(-10,24,6,4,0,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(8,24,6,4,0,0,6.28); ctx.fill();
+    if(actor==="rabbit"){
+      ctx.strokeStyle="#6a4a28"; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(0,2,34,0,6.28); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawFx(p){
+    const k=p.t/p.life;
+    ctx.globalAlpha = 1-k;
+    if(p.type==="water"){
+      ctx.fillStyle="#7ec8f0";
+      for(let i=0;i<6;i++){
+        const a=i*1.05;
+        ctx.beginPath(); ctx.arc(p.x+Math.cos(a)*k*16, p.y+Math.sin(a)*k*10, 3,0,6.28); ctx.fill();
+      }
+    } else if(p.type==="leaf" || p.type==="spark" || p.type==="pop" || p.type==="stamp"){
+      ctx.fillStyle = p.color || "#ffe28a";
+      ctx.beginPath(); ctx.arc(p.x, p.y-k*24, 6*(1-k*0.4),0,6.28); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- input ---------- */
+  function onPtrDown(e){
+    ensureAudio();
+    canvas.setPointerCapture?.(e.pointerId);
+    pointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
+    if(pointers.size===2){
+      const pts=[...pointers.values()];
+      const dx=pts[0].x-pts[1].x, dy=pts[0].y-pts[1].y;
+      pinch = { dist:Math.hypot(dx,dy), z:cam.z, mid:{x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2}, cam:{x:cam.x,y:cam.y} };
+      drag = null;
+    } else if(pointers.size===1){
+      const w = worldFromEvent(e);
+      drag = {x:e.clientX,y:e.clientY, camX:cam.x, camY:cam.y, moved:false, wc:w.c, wr:w.r};
+    }
+  }
+  function onPtrMove(e){
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
+    if(pointers.size===2 && pinch){
+      const pts=[...pointers.values()];
+      const dx=pts[0].x-pts[1].x, dy=pts[0].y-pts[1].y;
+      const dist=Math.hypot(dx,dy);
+      const nz = Math.max(0.65, Math.min(1.8, pinch.z * (dist/pinch.dist)));
+      const rect=canvas.getBoundingClientRect();
+      const mx=(pts[0].x+pts[1].x)/2 - rect.left;
+      const my=(pts[0].y+pts[1].y)/2 - rect.top;
+      const wx = cam.x + mx/cam.z, wy = cam.y + my/cam.z;
+      cam.z = nz;
+      cam.x = wx - mx/cam.z;
+      cam.y = wy - my/cam.z;
+      clampCam();
+      return;
+    }
+    if(drag && pointers.size===1){
+      const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+      if(Math.hypot(dx,dy)>12) drag.moved = true;
+      if(drag.moved){
+        cam.x = drag.camX - dx/cam.z;
+        cam.y = drag.camY - dy/cam.z;
+        clampCam();
+      }
+    }
+  }
+  function onPtrUp(e){
+    const wasDrag = drag;
+    pointers.delete(e.pointerId);
+    if(pointers.size<2) pinch=null;
+    if(pointers.size===0){
+      if(wasDrag && !wasDrag.moved){
+        handleTile(wasDrag.wc, wasDrag.wr);
+      }
+      drag=null;
+    }
+  }
+  function onWheel(e){
+    e.preventDefault();
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const wx=cam.x+mx/cam.z, wy=cam.y+my/cam.z;
+    cam.z = Math.max(0.65, Math.min(1.8, cam.z * (e.deltaY>0?0.92:1.08)));
+    cam.x = wx - mx/cam.z; cam.y = wy - my/cam.z;
+    clampCam();
+  }
+
+  /* ---------- idle hints ---------- */
+  function maybeHint(dt){
+    if(S.phase!=="playing") return;
+    hintTimer += dt;
+    const gap = S.mode==="seren" ? 8000 : 20000;
+    if(hintTimer < gap) return;
+    hintTimer = 0;
+    const next = tasksFor(S.day,S.mode).find(t=>!taskDone(t));
+    if(!next){ say("清單完成了。想收工就按「今日收工」，或等到太陽下山。"); return; }
+    if(next.kind.startsWith("plant")) say("還差一點：選種子，點空菜畦就可以種。");
+    else if(next.kind==="water") say("點「澆水」，再點剛種的菜畦。");
+    else if(next.kind==="harvest") say("葉子跳舞就換兔子，點成熟的胡蘿蔔去摘。");
+    else if(next.kind==="fence") say("用水豚點「圍籬」，再點草地擺一段。");
+    else if(next.kind==="place") say("先有收成，再用水豚把菜擺進屋子旁的展示菜畦。");
+    else if(next.kind==="deliver") say("兔子背上菜以後，依序點 1、2、3 號籃子。");
+    else if(next.kind==="path") say("用水豚點「鋪路」，在挨著小路的草地上鋪短徑。");
+    else if(next.kind==="decor"||next.kind==="beauty") say("用水豚的「擺放」，把園旗、花石或收成擺出來。");
+    else if(next.kind.startsWith("stamp")) say("摘到新品種就會自動蓋圖鑑章。");
+  }
+
+  /* ---------- loop ---------- */
+  function loop(ts){
+    const dt = lastTs ? Math.min(50, ts-lastTs) : 16;
+    lastTs = ts;
+    if(S.phase==="playing"){
+      S.elapsed += dt;
+      if(S.elapsed >= DAY_LEN) finishDay("sunset");
+      updateGrowth(dt);
+      updateRabbit(dt);
+      updateCapy(dt);
+      maybeHint(dt);
+      if(ts-lastSave>4000){ persist(); lastSave=ts; }
+    } else if(S.phase==="after"){
+      updateGrowth(dt);
+      updateRabbit(dt);
+      updateCapy(dt);
+    } else {
+      updateRabbit(dt);
+      updateCapy(dt);
+    }
+    updateFx(dt);
+    if(screen==="play"){ updateClock(); draw(); }
+    requestAnimationFrame(loop);
+  }
+
+  /* ---------- events ---------- */
+  function bind(){
+    $("btn-mode-seren").onclick = () => { pendingNewMode="seren"; refreshTitle(); };
+    $("btn-mode-jayden").onclick = () => { pendingNewMode="jayden"; refreshTitle(); };
+    $("btn-continue").onclick = () => {
+      if(!loadSave()){ toast("還沒有存檔"); return; }
+      mode = pendingNewMode;
+      S.mode = mode; // switching difficulty keeps garden
+      if(S.phase==="sunset"){ showScreen("sunset"); return; }
+      if(S.phase==="playing" || S.phase==="after") startDay(false);
+      else startDay(true);
+    };
+    $("btn-new").onclick = () => {
+      confirmAction = "new";
+      $("cf-title").textContent="開一個新園子？";
+      $("cf-body").textContent="現在的園子、圖鑑與短徑都會清掉，而且只存在這台裝置，無法復原。";
+      $("ov-confirm").classList.add("on");
+    };
+    $("cf-no").onclick = () => $("ov-confirm").classList.remove("on");
+    $("cf-yes").onclick = () => {
+      $("ov-confirm").classList.remove("on");
+      if(confirmAction==="new"){
+        S = defaultState();
+        mode = pendingNewMode;
+        S.mode = mode;
+        muted = false;
+        startDay(true);
+      }
+    };
+    $("btn-capy").onclick = () => { actor="capy"; if(tool==="path" && !(S.mode==="jayden"&&S.day>=4)) tool="seed"; refreshTools(); say(S.mode==="seren"?"水豚村長準備好了：可以種、澆水、擺圍籬和收成。":"改由水豚規劃。"); };
+    $("btn-rabbit").onclick = () => { actor="rabbit"; refreshTools(); say("兔子準備跑腿：點成熟的菜或籃子，牠會沿小路跳過去。"); };
+    $("btn-seed").onclick = () => { tool="seed"; refreshTools(); };
+    $("btn-water").onclick = () => { tool="water"; refreshTools(); };
+    $("btn-fence").onclick = () => { tool="fence"; refreshTools(); };
+    $("btn-place").onclick = () => { tool="place"; refreshTools(); };
+    $("btn-path").onclick = () => { tool="path"; refreshTools(); };
+    let seedDrag=null;
+    $("sub-seeds").addEventListener("click", e => {
+      const b=e.target.closest("[data-seed]"); if(!b) return;
+      seedKind=b.getAttribute("data-seed"); refreshTools();
+    });
+    $("sub-seeds").addEventListener("pointerdown", e => {
+      const b=e.target.closest("[data-seed]"); if(!b) return;
+      seedKind=b.getAttribute("data-seed"); seedDrag=seedKind; refreshTools();
+    });
+    document.addEventListener("pointerup", e => {
+      if(!seedDrag) return;
+      const kind=seedDrag; seedDrag=null;
+      const rect=canvas.getBoundingClientRect();
+      if(e.clientX<rect.left||e.clientX>rect.right||e.clientY<rect.top||e.clientY>rect.bottom) return;
+      if(screen!=="play") return;
+      actor="capy"; tool="seed"; seedKind=kind; refreshTools();
+      const w=worldFromEvent(e);
+      plantAt(w.c,w.r);
+    });
+    $("sub-place").addEventListener("click", e => {
+      const b=e.target.closest("[data-place]"); if(!b) return;
+      placeKind=b.getAttribute("data-place"); refreshTools();
+    });
+    $("btn-list").onclick = () => { renderList(); $("ov-list").classList.add("on"); };
+    $("list-close").onclick = () => $("ov-list").classList.remove("on");
+    $("ov-list").addEventListener("click", e => { if(e.target.id==="ov-list") $("ov-list").classList.remove("on"); });
+    $("btn-dex").onclick = () => { renderDex(); $("ov-dex").classList.add("on"); };
+    $("dex-close").onclick = () => $("ov-dex").classList.remove("on");
+    $("ov-dex").addEventListener("click", e => { if(e.target.id==="ov-dex") $("ov-dex").classList.remove("on"); });
+    $("btn-mute").onclick = () => { muted=!muted; S.muted=muted; refreshTools(); persist(); };
+    $("btn-finish").onclick = () => finishDay("early");
+    $("btn-mode-switch").onclick = () => {
+      const next = S.mode==="seren" ? "jayden" : "seren";
+      S.mode = next; mode = next;
+      // do not scramble garden / day / stamps
+      if(next==="seren") say("已切換為寬鬆。園子與圖鑑都還在。送貨改為可選，不會打亂存檔。", true);
+      else say("已切換為進階。園子與圖鑑都還在。"+(S.day>=4?" 現在可以鋪短徑。":" 記得沿小路送貨到三個籃子。"), true);
+      refreshTools(); persist();
+    };
+    $("btn-next-day").onclick = () => advanceOrFree();
+    $("btn-to-title").onclick = () => { persist(); showScreen("title"); refreshTitle(); };
+
+    canvas.addEventListener("pointerdown", onPtrDown);
+    canvas.addEventListener("pointermove", onPtrMove);
+    canvas.addEventListener("pointerup", onPtrUp);
+    canvas.addEventListener("pointercancel", onPtrUp);
+    canvas.addEventListener("wheel", onWheel, {passive:false});
+    window.addEventListener("resize", () => { resize(); clampCam(); });
+    window.addEventListener("orientationchange", () => setTimeout(()=>{ resize(); clampCam(); }, 180));
+  }
+
+  /* boot */
+  bind();
+  if(loadSave()){ pendingNewMode = S.mode; }
+  refreshTitle();
+  resize();
+  requestAnimationFrame(loop);
+
+  window.__CARROT_GARDEN__ = {
+    version: VERSION,
+    saveKey: SAVE_KEY,
+    getState(){ return { version:VERSION, day:S.day, phase:S.phase, mode:S.mode, stamps:Object.assign({},S.stamps), counts:JSON.parse(JSON.stringify(S.dayCounts)), inventory:Object.assign({},S.inventory), deliveryDone:S.deliveryDone, customPathCount:Object.keys(S.customPaths).length, plantCount:Object.keys(S.plants).length, elapsed:S.elapsed, tasks: tasksFor(S.day,S.mode).map(tk=>({label:tk.label,need:tk.need,got:countOf(tk.kind),done:taskDone(tk)})) }; },
+    getSave(){ return localStorage.getItem(SAVE_KEY); }
+  };
+
+  function simulate(ms){
+    const step=50;
+    for(let t=0;t<ms;t+=step){
+      if(S.phase==="playing"){
+        S.elapsed += step;
+        updateGrowth(step);
+        updateRabbit(step);
+        updateCapy(step);
+      } else {
+        updateRabbit(step);
+        updateCapy(step);
+      }
+      updateFx(step);
+    }
+  }
+  function runAutoTest(){
+    const log=[];
+    try{
+      localStorage.removeItem(SAVE_KEY);
+      pendingNewMode="seren"; mode="seren";
+      S=defaultState(); S.mode="seren"; muted=true;
+      startDay(true);
+      actor="capy"; tool="seed"; seedKind="sun";
+      [[4,3],[5,3],[3,3]].forEach(([c,r])=>plantAt(c,r));
+      tool="water";
+      [[4,3],[5,3]].forEach(([c,r])=>waterAt(c,r));
+      log.push("planted "+Object.keys(S.plants).length+" watered "+S.dayCounts.water);
+      simulate(20000);
+      const ripe=Object.values(S.plants).filter(p=>p.stage>=3);
+      log.push("ripe "+ripe.length+" stages "+Object.values(S.plants).map(p=>p.stage).join(","));
+      actor="rabbit"; refreshTools();
+      ripe.slice(0,2).forEach(p=>rabbitTap(p.c,p.r));
+      simulate(12000);
+      log.push("harvest "+S.dayCounts.harvest+" stamps "+JSON.stringify(S.stamps)+" done "+allTasksDone());
+      const listOk=allTasksDone();
+      if(listOk) finishDay("early");
+      const raw=localStorage.getItem(SAVE_KEY);
+      const o=raw?JSON.parse(raw):null;
+      const saveOk=!!(o && o.phase==="sunset" && o.stamps && o.stamps.sun && o.tiles && o.version===VERSION);
+      const loaded=loadSave();
+      const reloadOk=loaded && S.day===1 && S.stamps.sun && S.phase==="sunset";
+      // five-day task uniqueness
+      const labels=[1,2,3,4,5].map(d=>tasksFor(d,"seren").map(x=>x.label).join("/"));
+      const uniqueDays=new Set(labels).size===5;
+      const jayHasDeliver=tasksFor(1,"jayden").some(x=>x.kind==="deliver");
+      const serenNoDeliver=!tasksFor(1,"seren").some(x=>x.kind==="deliver");
+      const jayDay4Path=tasksFor(4,"jayden").some(x=>x.kind==="path");
+      const serenDay4NoPath=!tasksFor(4,"seren").some(x=>x.kind==="path");
+      log.push("daysUnique="+uniqueDays+" jayDeliver="+jayHasDeliver+" serenNoDeliver="+serenNoDeliver+" jayPath="+jayDay4Path);
+      // Jayden delivery + day4 path, without wiping stamp proof: use a fresh in-memory then restore
+      const keep=localStorage.getItem(SAVE_KEY);
+      S=defaultState(); S.mode="jayden"; mode="jayden"; S.day=4; startDay(true);
+      actor="capy"; tool="path";
+      pathAt(1,6); pathAt(1,7);
+      const pathOk=Object.keys(S.customPaths).length>=2 && S.dayCounts.path>=2;
+      // mode switch keeps paths/stamps
+      S.stamps.snow=4; S.mode="seren"; mode="seren";
+      const modeOk=S.stamps.snow===4 && Object.keys(S.customPaths).length>=2;
+      localStorage.setItem(SAVE_KEY, keep);
+      loadSave();
+      const extras=uniqueDays && jayHasDeliver && serenNoDeliver && jayDay4Path && serenDay4NoPath && pathOk && modeOk;
+      log.push("pathOk="+pathOk+" modeKeep="+modeOk);
+      const ok=listOk && saveOk && reloadOk && extras;
+      const msg=(ok?"AUTOTEST_OK ":"AUTOTEST_FAIL ")+log.join(" | ")+" | save="+saveOk+" reload="+reloadOk+" phase="+(o&&o.phase);
+      document.title=msg;
+      let pre=document.getElementById("autotest-result");
+      if(!pre){ pre=document.createElement("pre"); pre.id="autotest-result"; document.body.appendChild(pre); }
+      pre.textContent=msg;
+    }catch(err){
+      const msg="AUTOTEST_FAIL "+(err&&err.stack||err);
+      document.title=msg;
+      let pre=document.getElementById("autotest-result");
+      if(!pre){ pre=document.createElement("pre"); pre.id="autotest-result"; document.body.appendChild(pre); }
+      pre.textContent=msg;
+    }
+  }
+  if(/(?:\?|&)autotest=1(?:&|$)/.test(location.search)){
+    setTimeout(runAutoTest, 50);
+  }
+})();
+</script>
+</body>
+</html>
