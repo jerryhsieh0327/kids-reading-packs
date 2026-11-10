@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="潮燈塔"/>
 <meta name="theme-color" content="#1a5f7a"/>
-<meta name="tide-lighthouse-version" content="2026-11-10-v1"/>
+<meta name="tide-lighthouse-version" content="2026-11-10-v2"/>
 <meta name="description" content="潮燈塔・珀珀與苔苔：把熄滅的燈塔一盞盞點亮，升起港旗，船才找得到回家的路。"/>
 <title>潮燈塔・珀珀與苔苔</title>
-<!-- tide-lighthouse version: 2026-11-10-v1 -->
+<!-- tide-lighthouse version: 2026-11-10-v2 -->
 <style>
 :root{
   --ink:#14313c;
@@ -259,7 +259,7 @@ body.portrait #orient-hint{display:block}
     <div class="card" style="max-height:90%;overflow:auto">
       <h2 class="h2">設定</h2>
       <p class="sub" style="margin-bottom:8px">兩個孩子跑同一套關卡，只是輔助開關不同。預設照顧 9 歲一次能跑完數關。</p>
-      <div class="toggle"><span>守護模式（碰水會彈開、不掉下去）</span><button class="switch on" id="sw-guard" aria-pressed="true"><i></i></button></div>
+      <div class="toggle"><span>守護模式（檢查點較密、碰霧較寬容；掉進水一樣會失敗）</span><button class="switch on" id="sw-guard" aria-pressed="true"><i></i></button></div>
       <div class="toggle"><span>領航氣泡（提示落腳點）</span><button class="switch on" id="sw-bubbles" aria-pressed="true"><i></i></button></div>
       <div class="toggle"><span>點按跳躍、自動緩慢前走</span><button class="switch" id="sw-auto" aria-pressed="false"><i></i></button></div>
       <div class="toggle"><span>難關可開「限時加星」（不完成也不影響主線）</span><button class="switch" id="sw-star" aria-pressed="false"><i></i></button></div>
@@ -280,8 +280,8 @@ body.portrait #orient-hint{display:block}
   </div>
 </div>
 <script>
-/* tide-lighthouse version: 2026-11-10-v1 */
-const VERSION = "tide-lighthouse version: 2026-11-10-v1";
+/* tide-lighthouse version: 2026-11-10-v2 */
+const VERSION = "tide-lighthouse version: 2026-11-10-v2";
 const SAVE_KEY = "tide-lighthouse-v1";
 const STEP = 1/60;
 const GRAVITY = 2200;
@@ -303,7 +303,7 @@ const ISLANDS = [
 const POSTCARDS = [
   {id:"pc1", title:"港口黃昏", body:"今天碼頭的燈熄了，船只好靠著遠處的鈴聲慢慢摸回來。珀珀說：我們去把燈點亮吧。", level:"dock-2"},
   {id:"pc2", title:"霧團團的午睡", body:"霧團團不是壞孩子，只是太想睡覺，一不小心把燈芯當成了軟枕頭。被追上就會晃晃身子讓路。", level:"dock-light"},
-  {id:"pc3", title:"浮標的約定", body:"每一座浮標都是港口的小約定：掉進水裡也不要緊，會被輕輕送回最近的那一座。", level:"dock-4"},
+  {id:"pc3", title:"浮標的約定", body:"每一座浮標都是港口的小約定：掉進水裡這一輪就算失敗，但會被送回最近的那一座，不必整關重來。", level:"dock-4"},
   {id:"pc4", title:"紅樹的氣根", body:"退潮以後，紅樹的氣根變成一座座小小跳台。苔苔最喜歡在這裡練習高跳。", level:"mangrove-3"},
   {id:"pc5", title:"兩人的燈芯", body:"燈芯要送到燈塔頂，旗桿上的港旗才會升起。兩個人可以輪流跑，也可以跌倒了把燈芯交給下一位。", level:"mangrove-light"},
   {id:"pc6", title:"回家的港旗", body:"港旗一升起，遠處的船就看得到閃閃的光。把一座燈塔點亮，今天就可以收工了。", level:"mangrove-4"}
@@ -313,8 +313,8 @@ const HOWTO = [
   {title:"怎麼玩　1／5", ill:"🗼 🌊 ⛵", copy:"潮汐群島的七座燈塔相繼熄滅。愛打瞌睡的霧團團把燈芯藏在各關盡頭——牠只是一團會打呼的白霧，不是可怕的怪物。珀珀與苔苔要跑到港旗，把燈芯送回燈塔頂，船才找得到回家的路。"},
   {title:"怎麼玩　2／5", ill:"🦊 　 🐸", copy:"珀珀是琥珀色的小狐狸，港口快遞，跑得穩、跳距普通，還能推箱子搭橋。苔苔是綠色小青蛙，燈塔小領航員，跳得高、落地稍滑，可以在水面連跳荷葉。一個人玩時，隨時都能切換這兩隻。"},
   {title:"怎麼玩　3／5", ill:"◀ ▶　 跳", copy:"把平板橫過來最好玩。左邊是方向鍵，右邊是跳躍和「使用道具」。按住方向的同時可以點跳躍。若覺得方向鍵不好按，可在設定裡打開「點按跳躍、自動緩慢前走」。風燈籠能短距離滑翔，潮汐靴能在水面跑一小段，殼斗笠能多承受一次碰撞。道具都在關裡撿到，沒有商店。"},
-  {title:"怎麼玩　4／5", ill:"🛟 　 🚩", copy:"路上的浮標是檢查點。不小心掉進水裡，只會回到最近的浮標，不用整關重來，也沒有倒數計時嚇你。跑到關末，原創的港旗升起，這一關就過了。沿路可撿潮汐貝；有些角落藏著明信片，集到後可在燈塔本營慢慢看。"},
-  {title:"怎麼玩　5／5", ill:"🤝 　 💡", copy:"兩人共用一台 iPad 時，預設是「輪流跑同一關」：一人升旗或用完一次嘗試，就把平板交給另一人，比比誰少掉進水、誰先找到明信片。也可以改成「接力嘗試」：共用同一趟，跌倒就換人接著跑，像傳遞燈芯。9 歲可開守護模式與領航氣泡——守護模式下碰水會被彈開，不會掉下去。點亮一座燈塔就可以收工，進度會存在這台平板裡。"}
+  {title:"怎麼玩　4／5", ill:"🛟 　 🚩", copy:"路上的浮標是檢查點。掉進水裡（腳下沒有荷葉、也沒有潮汐靴時）就算失敗，會回到最近的浮標再試，不用整關重來，也沒有倒數計時嚇你。踩荷葉或用潮汐靴在水面跑一小段，都還是可以的。跑到關末，原創的港旗升起，這一關就過了。沿路可撿潮汐貝；有些角落藏著明信片，集到後可在燈塔本營慢慢看。"},
+  {title:"怎麼玩　5／5", ill:"🤝 　 💡", copy:"兩人共用一台 iPad 時，預設是「輪流跑同一關」：一人升旗或用完一次嘗試，就把平板交給另一人，比比誰少掉進水、誰先找到明信片。也可以改成「接力嘗試」：共用同一趟，跌倒就換人接著跑，像傳遞燈芯。9 歲可開守護模式與領航氣泡：檢查點較密、碰到霧團團較寬容，並可提示落腳點；但掉進水一樣會失敗，同樣回到最近浮標。教學關與正式關規則相同。點亮一座燈塔就可以收工，進度會存在這台平板裡。"}
 ];
 
 function plat(x,y,w,h,t){return {x,y,w,h,t:t||"sand"};}
@@ -1416,13 +1416,6 @@ function updatePlay(dt){
       p.y=Math.min(p.y, w.y-p.h+4);
       if(p.vy>0) p.vy=0;
       p.grounded=true;
-    } else if(guardian){
-      p.y=w.y-p.h-2;
-      p.vy=-520;
-      p.vx *= 0.4;
-      play.invuln=0.3;
-      sfx.bump();
-      showCue("守護模式：被水面輕輕彈開了。", 1200);
     } else {
       respawn("掉進水裡了，回到最近的浮標再試一次。");
     }
@@ -1431,8 +1424,7 @@ function updatePlay(dt){
   if(p.x<8) p.x=8;
   if(p.x+p.w>play.lv.w-8) p.x=play.lv.w-8-p.w;
   if(p.y>760 && !play.finished){
-    if(guardian){ p.y=500; p.vy=-400; }
-    else respawn("掉下去了，回到最近的浮標。");
+    respawn("掉下去了，回到最近的浮標。");
   }
   if(p.y<-40) p.y=-40;
 
@@ -1948,20 +1940,27 @@ async function runSelfTest(){
     save=defaultSave();
     loadSave();
     ok("loadSave restores dock-1 and howto", save.howtoDone===true && !!save.completed["dock-1"]);
-    // guardian bounce
-    startLevel("dock-1");
-    save.settings.guardian=true;
-    play.player.x=500; play.player.y=500; play.player.vy=200; play.player.grounded=false;
-    const falls0=play.falls;
-    for(let i=0;i<30;i++) updatePlay(STEP);
-    ok("guardian does not fall in water", play.falls===falls0 && play.player.y < 540, "y="+play.player.y+" falls="+play.falls);
-    // without guardian, falling in water respawns
-    startLevel("dock-1");
-    save.settings.guardian=false;
-    save.settings.playMode="solo";
-    play.player.x=500; play.player.y=530; play.player.vy=200; play.checkpoint={x:120,y:468};
-    for(let i=0;i<45;i++) updatePlay(STEP);
-    ok("non-guardian respawns at buoy", play.falls>=1 && Math.abs(play.player.x-120)<80, "x="+play.player.x+" falls="+play.falls);
+    function dunk(id, guardianOn, cx, cy, wx, wy){
+      save.settings.guardian=guardianOn;
+      save.settings.playMode="solo";
+      startLevel(id);
+      play.checkpoint={x:cx,y:cy};
+      play.player.x=wx; play.player.y=wy; play.player.vy=200; play.player.grounded=false;
+      play.bootsTime=0; play.itemsGot.boots=0;
+      for(let i=0;i<45;i++) updatePlay(STEP);
+      return {falls:play.falls, x:play.player.x, y:play.player.y, vy:play.player.vy};
+    }
+    const gTut=dunk("dock-1", true, 120, 468, 500, 530);
+    ok("guardian+tutorial: water fail returns to buoy", gTut.falls>=1 && Math.abs(gTut.x-120)<80, "x="+gTut.x+" y="+gTut.y+" falls="+gTut.falls);
+    const nTut=dunk("dock-1", false, 120, 468, 500, 530);
+    ok("no-guardian+tutorial: water fail returns to buoy", nTut.falls>=1 && Math.abs(nTut.x-120)<80, "x="+nTut.x+" y="+nTut.y+" falls="+nTut.falls);
+    const gOff=dunk("dock-2", true, 500, 468, 700, 530);
+    ok("guardian+official: water fail returns to buoy", gOff.falls>=1 && Math.abs(gOff.x-500)<80, "x="+gOff.x+" y="+gOff.y+" falls="+gOff.falls);
+    const nOff=dunk("dock-2", false, 500, 468, 700, 530);
+    ok("no-guardian+official: water fail returns to buoy", nOff.falls>=1 && Math.abs(nOff.x-500)<80, "x="+nOff.x+" y="+nOff.y+" falls="+nOff.falls);
+    const settingsTxt=document.querySelector("#settings-ov").innerText;
+    const howtoTxt=HOWTO.map(h=>h.copy).join("\n");
+    ok("copy matches water-fail rule", !howtoTxt.includes("彈開") && !howtoTxt.includes("不掉下") && !settingsTxt.includes("彈開") && settingsTxt.includes("掉進水一樣會失敗"));
     // character switch changes abilities
     startLevel("dock-2");
     play.player.who="popo";
@@ -1973,7 +1972,7 @@ async function runSelfTest(){
     // locked islands stay locked after completing only dock-1
     ok("still cannot enter island 2-6", [2,3,4,5,6].every(i=>islandOpen(i)===false));
     ok("12 levels present", LEVELS.length===12);
-    ok("version marker", VERSION==="tide-lighthouse version: 2026-11-10-v1");
+    ok("version marker", VERSION==="tide-lighthouse version: 2026-11-10-v2");
   }catch(err){
     out.push("FAIL  exception  "+err.stack);
   }
