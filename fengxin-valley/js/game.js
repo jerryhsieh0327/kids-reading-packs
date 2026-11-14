@@ -1,7 +1,7 @@
 /* 風信谷值班・栗栗與咚咚 — 3D v1  2026-11-14 */
 /* Locked typography: copy exact characters. Radical-correct codepoints:
    咚 U+549A (口+冬), 嗝 U+55DD (口+鬲), 瞌 U+778C (目+臿), 躡 U+8EA1 (足+聶), 纜 U+7E9C */
-const VERSION = "fengxin-valley-3d version: 2026-11-14-v1";
+const VERSION = "fengxin-valley-3d version: 2026-11-14-v2";
 const SAVE_KEY = "fengxinValley.v1";
 const LILI = "栗栗";
 const DONG = "\u549A\u549A";
@@ -445,7 +445,8 @@ function buildWorld(ms){
       world.gateSolid = world.solids[world.solids.length-1];
     }
     if(ms.n===3){
-      world.boxes.push({x:700,y:480,w:70,h:70},{x:860,y:500,w:70,h:70});
+      // Keep boxes on the boardwalk but clear of the roadside bushes so they can be pushed up or down off the mid path.
+      world.boxes.push({x:760,y:478,w:70,h:70},{x:960,y:478,w:70,h:70});
       world.solids.push(rect(640,300,80,180,"bush"), rect(640,620,80,180,"bush"));
     }
     if(ms.n===4){
@@ -487,8 +488,13 @@ function buildWorld(ms){
     if(ms.n===1) world.pals.push({id:ms.pal,x:1280,y:500,r:22,freed:false,follow:false,inCar:true});
     if(ms.n===2) [[600,400],[800,620],[1100,480],[700,240]].forEach(([x,y])=>world.leaks.push({x,y,r:22,closed:false}));
     if(ms.n===3){
-      world.boxes.push({x:600,y:470,w:74,h:74},{x:800,y:500,w:74,h:74},{x:980,y:460,w:74,h:74});
-      world.solids.push(rect(560,300,80,140,"wood"), rect(560,620,80,140,"wood"));
+      // Mid platform over a walkable gap (same rule as the creek boardwalk) so crates can be
+      // pushed off the center path, and the only way to the exit is along that platform.
+      addExit(world, 1400, 520);
+      world.water.push(rect(0,0,world.w,470,"gap"), rect(0,570,world.w,430,"gap"));
+      world.decor.push({kind:"boardwalk", x:80, y:470, w:1440, h:100});
+      // Packed crate row, same plank height as the creek, so you cannot walk around or between them.
+      world.boxes.push({x:680,y:478,w:74,h:74},{x:762,y:478,w:74,h:74},{x:844,y:478,w:74,h:74},{x:926,y:478,w:74,h:74});
     }
     if(ms.n===4){
       world.leaks.push({x:700,y:400,r:22,closed:false},{x:900,y:640,r:22,closed:false});
@@ -507,7 +513,15 @@ function buildWorld(ms){
     addCheckpoint(world, 560, 640, "m1");
     addExit(world, 1400, 520);
     if(ms.n===1){
-      world.boxes.push({x:640,y:500,w:70,h:70});
+      // Passage just right of the lower mill wall, leading up to the waterwheel; the crate fills it.
+      // Vertical 70px passage to the waterwheel; the crate fills it. A left wall
+      // stops sneaking around, and the mid wall reaches the top so you cannot
+      // walk over it to the wheel. Push the crate down into the yard to open the way.
+      world.solids.push(
+        rect(80,500,265,140,"stone"),
+        rect(420,40,840,600,"stone")
+      );
+      world.boxes.push({x:345,y:500,w:70,h:70});
       world.wheels.push({x:200,y:360,r:40,running:true});
     }
     if(ms.n===2){
@@ -626,17 +640,26 @@ function tryMove(ent, dx, dy, asBox){
     return true;
   };
   if(step(ent.x+dx, ent.y+dy)){ ent.x+=dx; ent.y+=dy; return true; }
-  if(step(ent.x+dx, ent.y)){ ent.x+=dx; return true; }
-  if(step(ent.x, ent.y+dy)){ ent.y+=dy; return true; }
+  // Walk into a crate to push it (before axis-slide, which would otherwise swallow
+  // a straight horizontal/vertical bump and never move the crate).
   if(!asBox){
     for(const b of play.world.boxes){
-      if(circleHitRect(ent.x+dx, ent.y+dy, ent.r, b)){
+      if(circleHitRect(ent.x+dx, ent.y+dy, ent.r, b) || circleHitRect(ent.x+dx, ent.y, ent.r, b) || circleHitRect(ent.x, ent.y+dy, ent.r, b)){
         const px=dx*0.7, py=dy*0.7;
         const oldx=b.x, oldy=b.y;
         b.x+=px; b.y+=py;
         let blocked=false;
         for(const s of allSolids()){ if(s!==b && aabb(b,s)) {blocked=true; break;} }
-        if(!blocked){ for(const wt of play.world.water){ if(aabb(b,wt)) {blocked=true; break;} } }
+        // Water must not pin crates in place. A crate that still overlaps a boardwalk
+        // (even if it also overlaps water, or hangs off the plank) can be pushed, so a
+        // 70-tall crate can be moved off a 100-tall walkway's mid path. Crates fully
+        // off the plank still cannot be shoved into open water.
+        if(!blocked){
+          const onBoard = play.world.decor.some(d=>d.kind==="boardwalk" && aabb(b,d));
+          if(!onBoard){
+            for(const wt of play.world.water){ if(aabb(b,wt)) {blocked=true; break;} }
+          }
+        }
         if(blocked){ b.x=oldx; b.y=oldy; }
         else {
           if(step(ent.x+dx*0.4, ent.y+dy*0.4)){ ent.x+=dx*0.4; ent.y+=dy*0.4; }
@@ -645,6 +668,8 @@ function tryMove(ent, dx, dy, asBox){
       }
     }
   }
+  if(step(ent.x+dx, ent.y)){ ent.x+=dx; return true; }
+  if(step(ent.x, ent.y+dy)){ ent.y+=dy; return true; }
   return false;
 }
 function facingVec(ent){
@@ -755,16 +780,43 @@ function nextTarget(){
   }
   return w.exit;
 }
+function pointBlockedForPath(x,y,r){
+  const onBoard = play.world.decor.some(d=>d.kind==="boardwalk" && x>d.x && x<d.x+d.w && y>d.y && y<d.y+d.h);
+  if(!onBoard){
+    for(const wt of play.world.water){ if(circleHitRect(x,y,r,wt)) return true; }
+  }
+  for(const s of allSolids()){ if(circleHitRect(x,y,r,s)) return true; }
+  return false;
+}
+function canPath(a,b){
+  const r=18, step=24;
+  if(Math.hypot((a.x||a[0])-(b.x||b[0]), (a.y||a[1])-(b.y||b[1]))<step && !pointBlockedForPath(b.x,b.y,r)) return true;
+  const sx=Math.round(a.x/step), sy=Math.round(a.y/step);
+  const tx=Math.round(b.x/step), ty=Math.round(b.y/step);
+  const key=(x,y)=>x+","+y;
+  const seen=new Set([key(sx,sy)]);
+  const q=[[sx,sy]];
+  const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  let qi=0;
+  while(qi<q.length){
+    const [cx,cy]=q[qi++];
+    if(Math.abs(cx-tx)+Math.abs(cy-ty)<=1) return true;
+    for(const [dx,dy] of dirs){
+      const nx=cx+dx, ny=cy+dy, k=key(nx,ny);
+      if(seen.has(k)) continue;
+      const x=nx*step, y=ny*step;
+      if(x<20||y<20||x>play.world.w-20||y>play.world.h-20) continue;
+      if(pointBlockedForPath(x,y,r)) continue;
+      seen.add(k); q.push([nx,ny]);
+    }
+  }
+  return false;
+}
 function pathClearEnough(){
   const w=play.world;
   if(!w.boxes.length) return true;
-  const samples=20, a=w.start, b=w.exit;
-  for(let i=1;i<samples;i++){
-    const x=lerp(a.x,b.x,i/samples), y=lerp(a.y,b.y,i/samples);
-    for(const box of w.boxes){
-      if(x>box.x-8 && x<box.x+box.w+8 && y>box.y-8 && y<box.y+box.h+8) return false;
-    }
-  }
+  if(!canPath(w.start, w.exit)) return false;
+  for(const wh of w.wheels){ if(!canPath(w.start, {x:wh.x, y:wh.y})) return false; }
   return true;
 }
 function refreshObjectives(){
@@ -1833,7 +1885,7 @@ function boot(){
     if(!ok) console.warn("self-check failed");
     requestAnimationFrame(loop);
     if("serviceWorker" in navigator && location.protocol==="https:"){
-      navigator.serviceWorker.register("sw.js").catch(()=>{});
+      navigator.serviceWorker.register("sw.js?v=2").catch(()=>{});
     }
   }catch(err){
     console.error("boot failed", err);

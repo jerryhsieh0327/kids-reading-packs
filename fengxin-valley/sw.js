@@ -1,4 +1,4 @@
-const CACHE = "fengxin-valley-3d-v1";
+const CACHE = "fengxin-valley-3d-v2";
 const ASSETS = [
   "./",
   "./index.html",
