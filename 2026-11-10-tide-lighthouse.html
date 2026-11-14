@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="潮燈塔"/>
 <meta name="theme-color" content="#1a5f7a"/>
-<meta name="tide-lighthouse-version" content="2026-11-10-v2"/>
+<meta name="tide-lighthouse-version" content="2026-11-10-v3"/>
 <meta name="description" content="潮燈塔・珀珀與苔苔：把熄滅的燈塔一盞盞點亮，升起港旗，船才找得到回家的路。"/>
 <title>潮燈塔・珀珀與苔苔</title>
-<!-- tide-lighthouse version: 2026-11-10-v2 -->
+<!-- tide-lighthouse version: 2026-11-10-v3 -->
 <style>
 :root{
   --ink:#14313c;
@@ -233,6 +233,7 @@ body.portrait #orient-hint{display:block}
       <div class="row" style="margin-top:16px">
         <button class="btn" id="win-next">下一關</button>
         <button class="btn ghost" id="win-map">回到地圖</button>
+        <button class="btn ghost" id="win-clockout" style="display:none">今日收工（選用）</button>
       </div>
     </div>
   </div>
@@ -280,8 +281,8 @@ body.portrait #orient-hint{display:block}
   </div>
 </div>
 <script>
-/* tide-lighthouse version: 2026-11-10-v2 */
-const VERSION = "tide-lighthouse version: 2026-11-10-v2";
+/* tide-lighthouse version: 2026-11-10-v3 */
+const VERSION = "tide-lighthouse version: 2026-11-10-v3";
 const SAVE_KEY = "tide-lighthouse-v1";
 const STEP = 1/60;
 const GRAVITY = 2200;
@@ -293,8 +294,8 @@ const TAITAI = {speed:240, jump:900, friction:900, air:800};
 const ISLANDS = [
   {id:"dock", name:"淺灘碼頭", weather:"教學關，天氣晴朗、潮水溫柔", unlocked:true, hint:"從這裡學會跑跳、推箱、踩荷葉和升旗。"},
   {id:"mangrove", name:"紅樹林跳台", weather:"潮氣根是天然跳台", unlocked:true, hint:"氣根與潮溝，跳躍稍緊，還有選項難關。"},
-  {id:"wind", name:"風鈴崖", weather:"預告：常有海風，風鈴叮叮響", unlocked:false},
-  {id:"tidepool", name:"潮池迷宮", weather:"預告：午後退潮，潮池會露出小路", unlocked:false},
+  {id:"wind", name:"風鈴崖", weather:"常有海風，風鈴叮叮響", unlocked:false, hint:"沿著懸崖和風裡搖晃的木橋往上跳。"},
+  {id:"tidepool", name:"潮池迷宮", weather:"午後退潮，潮池會露出小路", unlocked:false, hint:"退潮後的水窪像迷宮，上下兩條路都能到港旗。"},
   {id:"nightmarket", name:"夜市木棧", weather:"預告：傍晚燈火，木棧暖烘烘", unlocked:false},
   {id:"storm", name:"暴風螺階", weather:"預告：強風浪高，要沿著螺階走", unlocked:false},
   {id:"star", name:"星頂燈塔", weather:"預告：清澈星夜，最後一座燈塔在最上面", unlocked:false}
@@ -306,7 +307,11 @@ const POSTCARDS = [
   {id:"pc3", title:"浮標的約定", body:"每一座浮標都是港口的小約定：掉進水裡這一輪就算失敗，但會被送回最近的那一座，不必整關重來。", level:"dock-4"},
   {id:"pc4", title:"紅樹的氣根", body:"退潮以後，紅樹的氣根變成一座座小小跳台。苔苔最喜歡在這裡練習高跳。", level:"mangrove-3"},
   {id:"pc5", title:"兩人的燈芯", body:"燈芯要送到燈塔頂，旗桿上的港旗才會升起。兩個人可以輪流跑，也可以跌倒了把燈芯交給下一位。", level:"mangrove-light"},
-  {id:"pc6", title:"回家的港旗", body:"港旗一升起，遠處的船就看得到閃閃的光。把一座燈塔點亮，今天就可以收工了。", level:"mangrove-4"}
+  {id:"pc6", title:"回家的港旗", body:"港旗一升起，遠處的船就看得到閃閃的光。把一座燈塔點亮後，可以繼續下一座，也可以先收工，隨時再來。", level:"mangrove-4"},
+  {id:"pc7", title:"風鈴的悄悄話", body:"風鈴崖的風鈴不是在嚇人，只是海風經過時，想跟路過的人打聲招呼。", level:"wind-3"},
+  {id:"pc8", title:"懸崖上的日落", body:"點亮風鈴崖的燈塔時，晚霞會把整排風鈴染成琥珀色。珀珀說這顏色跟自己的毛一模一樣。", level:"wind-light"},
+  {id:"pc9", title:"退潮的小路", body:"午後一退潮，淺淺的水窪就變成迷宮。苔苔最喜歡數一數，今天露出了幾條新路。", level:"tidepool-3"},
+  {id:"pc10", title:"迷宮裡的貝殼", body:"潮池迷宮的岩縫裡常常藏著潮汐貝。慢慢找就好，沒有人會催你。", level:"tidepool-4"}
 ];
 
 const HOWTO = [
@@ -314,7 +319,7 @@ const HOWTO = [
   {title:"怎麼玩　2／5", ill:"🦊 　 🐸", copy:"珀珀是琥珀色的小狐狸，港口快遞，跑得穩、跳距普通，還能推箱子搭橋。苔苔是綠色小青蛙，燈塔小領航員，跳得高、落地稍滑，可以在水面連跳荷葉。一個人玩時，隨時都能切換這兩隻。"},
   {title:"怎麼玩　3／5", ill:"◀ ▶　 跳", copy:"把平板橫過來最好玩。左邊是方向鍵，右邊是跳躍和「使用道具」。按住方向的同時可以點跳躍。若覺得方向鍵不好按，可在設定裡打開「點按跳躍、自動緩慢前走」。風燈籠能短距離滑翔，潮汐靴能在水面跑一小段，殼斗笠能多承受一次碰撞。道具都在關裡撿到，沒有商店。"},
   {title:"怎麼玩　4／5", ill:"🛟 　 🚩", copy:"路上的浮標是檢查點。掉進水裡（腳下沒有荷葉、也沒有潮汐靴時）就算失敗，會回到最近的浮標再試，不用整關重來，也沒有倒數計時嚇你。踩荷葉或用潮汐靴在水面跑一小段，都還是可以的。跑到關末，原創的港旗升起，這一關就過了。沿路可撿潮汐貝；有些角落藏著明信片，集到後可在燈塔本營慢慢看。"},
-  {title:"怎麼玩　5／5", ill:"🤝 　 💡", copy:"兩人共用一台 iPad 時，預設是「輪流跑同一關」：一人升旗或用完一次嘗試，就把平板交給另一人，比比誰少掉進水、誰先找到明信片。也可以改成「接力嘗試」：共用同一趟，跌倒就換人接著跑，像傳遞燈芯。9 歲可開守護模式與領航氣泡：檢查點較密、碰到霧團團較寬容，並可提示落腳點；但掉進水一樣會失敗，同樣回到最近浮標。教學關與正式關規則相同。點亮一座燈塔就可以收工，進度會存在這台平板裡。"}
+  {title:"怎麼玩　5／5", ill:"🤝 　 💡", copy:"兩人共用一台 iPad 時，預設是「輪流跑同一關」：一人升旗或用完一次嘗試，就把平板交給另一人，比比誰少掉進水、誰先找到明信片。也可以改成「接力嘗試」：共用同一趟，跌倒就換人接著跑，像傳遞燈芯。9 歲可開守護模式與領航氣泡：檢查點較密、碰到霧團團較寬容，並可提示落腳點；但掉進水一樣會失敗，同樣回到最近浮標。教學關與正式關規則相同。點亮一座燈塔後可以立刻前往下一座，也可以選用「今日收工」離開；這只是存檔離開，不會鎖住今天，也沒有每天只能玩一關或限時的限制。進度會存在這台平板裡。"}
 ];
 
 function plat(x,y,w,h,t){return {x,y,w,h,t:t||"sand"};}
@@ -510,7 +515,209 @@ function buildLevels2(L){
   });
   return L;
 }
-const LEVELS = buildLevels2(buildLevels());
+
+function buildLevelsWindTide(L){
+  // Island 2 風鈴崖
+  L.push({
+    id:"wind-1", island:2, kind:"normal", name:"風鈴小徑", idx:1,
+    w:3400, cue:"歡迎來到風鈴崖。海風把木板吹得輕輕搖，沿著石階往上跳，空隙比碼頭稍緊。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,380,220,"stone"), plat(520,500,160,22,"wood"), plat(780,460,150,22,"stone"), plat(1060,420,150,22,"wood"), plat(1340,460,160,22,"stone"), plat(1640,420,150,22,"wood"), plat(1940,380,160,22,"stone"), plat(2260,430,160,22,"wood"), plat(2560,520,840,220,"stone")],
+    water:[{x:380,y:540,w:2180,h:240}],
+    buoys:[{x:220,y:520},{x:1120,y:420},{x:2000,y:380},{x:2680,y:520}],
+    shells:[{x:840,y:420,id:"w1a"},{x:1720,y:380,id:"w1b"},{x:2380,y:390,id:"w1c"}],
+    boxes:[], lilies:[{x:640,y:510}], items:[], fogs:[], postcards:[],
+    flag:{x:3180,y:520}
+  });
+  L.push({
+    id:"wind-2", island:2, kind:"normal", name:"懸崖木橋", idx:2,
+    w:3600, cue:"風把木橋吹來吹去，等它靠近再跳。中途有風燈籠，可在空中滑一小段。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,320,220,"stone"),
+      mv(440,500,120,18,"wood",440,500,700,500,48),
+      plat(860,480,150,22,"stone"),
+      mv(1140,430,120,18,"wood",1140,430,1140,310,40),
+      plat(1420,360,160,22,"stone"),
+      plat(1700,400,140,22,"wood"),
+      mv(1980,380,130,18,"wood",1980,380,2300,380,52),
+      plat(2480,420,150,22,"stone"),
+      plat(2780,520,820,220,"stone")],
+    water:[{x:320,y:540,w:2460,h:250}],
+    buoys:[{x:200,y:520},{x:940,y:480},{x:1480,y:360},{x:2860,y:520}],
+    shells:[{x:920,y:440,id:"w2a"},{x:1480,y:320,id:"w2b"},{x:2540,y:380,id:"w2c"}],
+    boxes:[], lilies:[{x:780,y:510},{x:2400,y:510}],
+    items:[{x:1500,y:320,kind:"lantern"}],
+    fogs:[{x:1800,y:330,kind:"idle"}], postcards:[],
+    flag:{x:3380,y:520}
+  });
+  L.push({
+    id:"wind-3", island:2, kind:"normal", name:"鐘聲迴廊", idx:3,
+    w:3600, cue:"下面是比較穩的石路，上面的迴廊藏著明信片。兩條路都能到港旗。",
+    spawn:{x:120,y:468},
+    plats:[
+      plat(0,520,400,220,"stone"), plat(560,520,200,220,"stone"), plat(920,520,220,220,"stone"), plat(1300,520,240,220,"stone"), plat(1700,520,200,220,"stone"), plat(2060,520,240,220,"stone"), plat(2480,520,1120,220,"stone"),
+      plat(400,380,160,20,"wood"), plat(700,320,150,20,"wood"), plat(1020,270,160,20,"wood"), plat(1360,240,180,20,"wood"), plat(1680,280,150,20,"wood"), plat(1980,250,160,20,"wood"), plat(2300,310,180,20,"wood")
+    ],
+    water:[{x:400,y:540,w:160,h:220},{x:760,y:540,w:160,h:220},{x:1140,y:540,w:160,h:220},{x:1540,y:540,w:160,h:220},{x:1900,y:540,w:160,h:220},{x:2300,y:540,w:180,h:220}],
+    buoys:[{x:280,y:520},{x:1400,y:520},{x:2140,y:520},{x:2600,y:520}],
+    shells:[{x:760,y:280,id:"w3a"},{x:1420,y:200,id:"w3b"},{x:1800,y:470,id:"w3c"}],
+    boxes:[{x:500,y:472,w:48,h:48}], lilies:[{x:500,y:510},{x:1620,y:510}],
+    items:[{x:1080,y:230,kind:"lantern"}],
+    fogs:[{x:2100,y:430,kind:"idle"}],
+    postcards:[{x:1420,y:190,id:"pc7"}],
+    flag:{x:3300,y:520}
+  });
+  L.push({
+    id:"wind-4", island:2, kind:"normal", name:"高崖連台", idx:4,
+    w:3800, cue:"石台愈來愈高。換成苔苔比較好跳；若是珀珀，先撿風燈籠再滑翔。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,360,220,"stone"), plat(500,440,140,22,"wood"), plat(740,380,130,22,"stone"), plat(1000,320,130,22,"wood"), plat(1280,260,140,22,"stone"), plat(1560,300,130,22,"wood"), plat(1840,240,140,22,"stone"), plat(2140,300,140,22,"wood"), plat(2440,250,140,22,"stone"), plat(2740,340,150,22,"wood"), plat(3040,420,150,22,"stone"), plat(3180,470,130,22,"wood"), plat(3320,520,480,220,"stone")],
+    water:[{x:360,y:540,w:2960,h:260}],
+    buoys:[{x:220,y:520},{x:1060,y:320},{x:2180,y:300},{x:3400,y:520}],
+    shells:[{x:800,y:340,id:"w4a"},{x:1600,y:260,id:"w4b"},{x:3080,y:380,id:"w4c"}],
+    boxes:[], lilies:[{x:680,y:510},{x:1700,y:510},{x:2500,y:510}],
+    items:[{x:540,y:400,kind:"lantern"},{x:1860,y:200,kind:"lantern"}],
+    fogs:[{x:2000,y:200,kind:"idle"}],
+    postcards:[],
+    flag:{x:3600,y:520}
+  });
+  L.push({
+    id:"wind-light", island:2, kind:"light", name:"風鈴燈芯", idx:5,
+    w:4000, cue:"點燈關：帶燈芯的霧團團會被海風慢慢吹向燈塔。輕推其他霧團團讓路，把燈芯送到港旗。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,500,220,"stone"), plat(640,500,180,22,"wood"), plat(1040,520,300,220,"stone"), plat(1500,440,180,22,"wood"), plat(1860,520,280,220,"stone"), plat(2280,400,180,22,"wood"), plat(2640,460,200,22,"stone"), plat(3000,520,1000,220,"wood")],
+    water:[{x:500,y:540,w:140,h:240},{x:820,y:540,w:220,h:240},{x:1340,y:540,w:160,h:240},{x:2140,y:540,w:140,h:240},{x:2460,y:540,w:180,h:240}],
+    buoys:[{x:360,y:520},{x:1160,y:520},{x:2000,y:520},{x:3120,y:520}],
+    shells:[{x:720,y:450,id:"wl1"},{x:1940,y:470,id:"wl2"}],
+    boxes:[], lilies:[{x:580,y:510},{x:940,y:510},{x:2240,y:510}],
+    items:[{x:1560,y:400,kind:"hat"}],
+    fogs:[{x:800,y:420,kind:"idle"},{x:1600,y:360,kind:"idle"},{x:2200,y:430,kind:"idle"},{x:2500,y:330,kind:"wick",flee:true},{x:2900,y:430,kind:"idle"}],
+    postcards:[{x:3180,y:430,id:"pc8"}],
+    flag:{x:3680,y:520}, lighthouse:{x:3760,y:520}
+  });
+  L.push({
+    id:"wind-hard", island:2, kind:"hard", name:"風口窄梁", idx:6,
+    w:3800, cue:"選項難關：風口上的窄梁和移動木板。限時加星可在設定打開，不完成也不影響主線。",
+    spawn:{x:100,y:468}, starTime:100,
+    plats:[plat(0,520,240,220,"stone"),
+      plat(360,480,70,16,"wood"), plat(520,430,70,16,"stone"),
+      mv(680,380,80,16,"wood",680,380,680,280,42),
+      plat(900,300,70,16,"stone"),
+      mv(1100,340,90,16,"wood",1100,340,1400,340,60),
+      plat(1600,300,70,16,"stone"), plat(1800,250,70,16,"wood"),
+      mv(2000,300,80,16,"wood",2000,300,2000,200,40),
+      plat(2240,260,70,16,"stone"), plat(2460,330,70,16,"wood"),
+      mv(2660,400,90,16,"wood",2660,400,2900,400,50),
+      plat(3120,520,680,220,"stone")],
+    water:[{x:240,y:540,w:2880,h:260}],
+    buoys:[{x:140,y:520},{x:1640,y:300},{x:3200,y:520}],
+    shells:[{x:940,y:260,id:"wh1"},{x:2280,y:220,id:"wh2"}],
+    boxes:[], lilies:[], items:[{x:540,y:390,kind:"lantern"}],
+    fogs:[{x:1500,y:270,kind:"idle"},{x:2500,y:260,kind:"idle"}],
+    postcards:[],
+    flag:{x:3500,y:520}
+  });
+
+  // Island 3 潮池迷宮
+  L.push({
+    id:"tidepool-1", island:3, kind:"normal", name:"退潮淺池", idx:1,
+    w:3400, cue:"歡迎來到潮池迷宮。退潮後露出一個個淺池，跳過去，或換成苔苔踩荷葉。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,400,220,"stone"), plat(560,520,180,220,"stone"), plat(880,500,160,22,"stone"), plat(1180,520,200,220,"stone"), plat(1520,500,160,22,"stone"), plat(1820,520,200,220,"stone"), plat(2160,480,160,22,"stone"), plat(2480,520,920,220,"stone")],
+    water:[{x:400,y:540,w:160,h:220},{x:740,y:540,w:140,h:220},{x:1040,y:540,w:140,h:220},{x:1380,y:540,w:140,h:220},{x:1680,y:540,w:140,h:220},{x:2020,y:540,w:140,h:220},{x:2320,y:540,w:160,h:220}],
+    buoys:[{x:260,y:520},{x:1260,y:520},{x:1900,y:520},{x:2600,y:520}],
+    shells:[{x:640,y:470,id:"t1a"},{x:960,y:460,id:"t1b"},{x:2240,y:440,id:"t1c"}],
+    boxes:[], lilies:[{x:480,y:510},{x:1100,y:510},{x:1740,y:510},{x:2380,y:510}],
+    items:[], fogs:[], postcards:[],
+    flag:{x:3180,y:520}
+  });
+  L.push({
+    id:"tidepool-2", island:3, kind:"normal", name:"岩盤迴路", idx:2,
+    w:3600, cue:"有的潮溝要用珀珀推箱子搭橋。沿路有潮汐靴，可在水面跑一小段。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,640,220,"stone"), plat(840,520,400,220,"stone"), plat(1400,430,280,22,"wood"), plat(1400,520,200,220,"stone"), plat(1880,520,1720,220,"stone")],
+    water:[{x:640,y:540,w:200,h:220},{x:1240,y:540,w:160,h:220},{x:1600,y:540,w:280,h:220}],
+    buoys:[{x:500,y:520},{x:1000,y:520},{x:2000,y:520}],
+    shells:[{x:920,y:470,id:"t2a"},{x:1500,y:390,id:"t2b"},{x:2300,y:470,id:"t2c"}],
+    boxes:[{x:430,y:472,w:48,h:48},{x:1080,y:472,w:48,h:48}],
+    lilies:[{x:720,y:510}],
+    items:[{x:1540,y:390,kind:"boots"}],
+    fogs:[{x:2100,y:430,kind:"idle"}], postcards:[],
+    flag:{x:3320,y:520}
+  });
+  L.push({
+    id:"tidepool-3", island:3, kind:"normal", name:"水窪迷徑", idx:3,
+    w:3600, cue:"水窪像迷宮。下面可連跳荷葉，上面的岩架藏著明信片。兩條都能到港旗。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,420,220,"stone"), plat(2480,520,1120,220,"stone"),
+      plat(420,390,200,22,"wood"), plat(760,330,200,22,"wood"), plat(1080,300,180,22,"wood"), plat(1400,330,220,22,"wood"), plat(1760,380,200,22,"wood"), plat(2100,400,180,22,"wood"), plat(2280,460,160,22,"stone")],
+    water:[{x:420,y:540,w:2060,h:240}],
+    buoys:[{x:300,y:520},{x:1560,y:330},{x:2560,y:520}],
+    shells:[{x:900,y:470,id:"t3a"},{x:1480,y:280,id:"t3b"},{x:2180,y:360,id:"t3c"}],
+    boxes:[],
+    lilies:[{x:540,y:500},{x:680,y:492},{x:820,y:500},{x:960,y:488},{x:1100,y:500},{x:1240,y:490},{x:1380,y:500},{x:1520,y:492},{x:1660,y:500},{x:1800,y:490},{x:1940,y:500},{x:2080,y:492},{x:2220,y:500},{x:2360,y:498}],
+    items:[{x:1160,y:260,kind:"boots"}],
+    fogs:[{x:1900,y:430,kind:"idle"}],
+    postcards:[{x:1420,y:190,id:"pc9"}],
+    flag:{x:3320,y:520}
+  });
+  L.push({
+    id:"tidepool-4", island:3, kind:"normal", name:"潮隙雙道", idx:4,
+    w:3800, cue:"上一條岩隙比較高，下一條潮溝有荷葉。兩邊都能到，上面還藏著一張明信片。",
+    spawn:{x:120,y:468},
+    plats:[
+      plat(0,520,360,220,"stone"), plat(560,520,180,220,"stone"), plat(900,520,200,220,"stone"), plat(1260,520,200,220,"stone"), plat(1620,520,200,220,"stone"), plat(1980,520,220,220,"stone"), plat(2360,520,1440,220,"stone"),
+      plat(400,360,150,20,"wood"), plat(680,300,150,20,"wood"), plat(1000,250,160,20,"wood"), plat(1320,220,170,20,"wood"), plat(1640,260,150,20,"wood"), plat(1960,230,160,20,"wood"), plat(2280,280,180,20,"wood")
+    ],
+    water:[{x:360,y:540,w:200,h:220},{x:740,y:540,w:160,h:220},{x:1100,y:540,w:160,h:220},{x:1460,y:540,w:160,h:220},{x:1820,y:540,w:160,h:220},{x:2200,y:540,w:160,h:220}],
+    buoys:[{x:220,y:520},{x:1340,y:520},{x:2060,y:520},{x:2520,y:520}],
+    shells:[{x:760,y:260,id:"t4a"},{x:1400,y:180,id:"t4b"},{x:2100,y:470,id:"t4c"}],
+    boxes:[], lilies:[{x:460,y:510},{x:1180,y:510},{x:1880,y:510}],
+    items:[{x:1080,y:210,kind:"lantern"}],
+    fogs:[{x:2000,y:430,kind:"idle"}],
+    postcards:[{x:1360,y:170,id:"pc10"}],
+    flag:{x:3520,y:520}
+  });
+  L.push({
+    id:"tidepool-light", island:3, kind:"light", name:"潮池燈芯", idx:5,
+    w:4000, cue:"點燈關：霧團團把燈芯藏在潮池盡頭。避開或輕推牠們，把燈芯送到燈塔港旗。",
+    spawn:{x:120,y:468},
+    plats:[plat(0,520,500,220,"stone"), plat(660,500,200,22,"stone"), plat(1040,520,300,220,"stone"), plat(1500,440,180,22,"wood"), plat(1860,520,280,220,"stone"), plat(2300,400,180,22,"wood"), plat(2660,460,200,22,"stone"), plat(3000,520,1000,220,"stone")],
+    water:[{x:500,y:540,w:160,h:240},{x:860,y:540,w:180,h:240},{x:1340,y:540,w:160,h:240},{x:2140,y:540,w:160,h:240},{x:2480,y:540,w:180,h:240}],
+    buoys:[{x:360,y:520},{x:1160,y:520},{x:2000,y:520},{x:3120,y:520}],
+    shells:[{x:760,y:450,id:"tl1"},{x:1940,y:470,id:"tl2"}],
+    boxes:[{x:320,y:472,w:48,h:48}], lilies:[{x:580,y:510},{x:940,y:510},{x:2240,y:510}],
+    items:[{x:1560,y:400,kind:"hat"}],
+    fogs:[{x:800,y:420,kind:"idle"},{x:1600,y:360,kind:"idle"},{x:2200,y:430,kind:"idle"},{x:2500,y:330,kind:"wick",flee:true},{x:2900,y:430,kind:"idle"}],
+    postcards:[],
+    flag:{x:3680,y:520}, lighthouse:{x:3760,y:520}
+  });
+  L.push({
+    id:"tidepool-hard", island:3, kind:"hard", name:"岩縫窄跳", idx:6,
+    w:3800, cue:"選項難關：更窄的岩縫與移動石台。限時加星可在設定打開，不完成也不影響主線。",
+    spawn:{x:100,y:468}, starTime:100,
+    plats:[plat(0,520,240,220,"stone"),
+      plat(360,480,70,16,"stone"), plat(520,430,70,16,"stone"),
+      mv(680,380,80,16,"wood",680,380,680,280,42),
+      plat(900,300,70,16,"stone"),
+      mv(1100,340,90,16,"wood",1100,340,1400,340,60),
+      plat(1600,300,70,16,"stone"), plat(1800,250,70,16,"stone"),
+      mv(2000,300,80,16,"wood",2000,300,2000,200,40),
+      plat(2240,260,70,16,"stone"), plat(2460,330,70,16,"stone"),
+      mv(2660,400,90,16,"wood",2660,400,2900,400,50),
+      plat(3120,520,680,220,"stone")],
+    water:[{x:240,y:540,w:2880,h:260}],
+    buoys:[{x:140,y:520},{x:1640,y:300},{x:3200,y:520}],
+    shells:[{x:940,y:260,id:"th1"},{x:2280,y:220,id:"th2"}],
+    boxes:[], lilies:[], items:[{x:540,y:390,kind:"lantern"}],
+    fogs:[{x:1500,y:270,kind:"idle"},{x:2500,y:260,kind:"idle"}],
+    postcards:[],
+    flag:{x:3500,y:520}
+  });
+  return L;
+}
+
+const LEVELS = buildLevelsWindTide(buildLevels2(buildLevels()));
 const LEVEL_BY_ID = Object.fromEntries(LEVELS.map(l=>[l.id,l]));
 
 function defaultSave(){
@@ -551,9 +758,10 @@ function persist(){
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){}
 }
 function islandOpen(i){
+  if(i<0 || i>=ISLANDS.length) return false;
+  if(i>=4) return false;
   if(i===0) return true;
-  if(i===1) return !!save.lit[0] || !!save.islandUnlocked[1];
-  return false;
+  return !!save.lit[i-1] || !!save.islandUnlocked[i];
 }
 function islandRegularsDone(i){
   return LEVELS.filter(l=>l.island===i && l.kind==="normal" && save.completed[l.id]).length;
@@ -1099,6 +1307,7 @@ $("btn-pause").onclick=()=>togglePause();
 $("pause-resume").onclick=()=>togglePause(false);
 $("pause-map").onclick=()=>{ togglePause(false); abandonToMap(); };
 $("win-map").onclick=()=>{ showOv("complete-ov",false); showScreen("map-screen"); refreshMapUI(); };
+$("win-clockout").onclick=()=>{ showOv("complete-ov",false); openClockout(true); };
 $("co-map").onclick=()=>{ showOv("clockout-ov",false); showScreen("map-screen"); refreshMapUI(); };
 $("co-title-btn").onclick=()=>{ showOv("clockout-ov",false); showTitle(); };
 
@@ -1125,6 +1334,8 @@ function nextLevel(lv){
   for(let k=i+1;k<list.length;k++){
     if(list[k].kind!=="hard") return list[k];
   }
+  const nxtIsland = LEVELS.find(l=>l.island===lv.island+1 && l.kind==="normal" && l.idx===1);
+  if(nxtIsland && islandOpen(nxtIsland.island)) return nxtIsland;
   return null;
 }
 
@@ -1273,37 +1484,27 @@ function finishLevel(){
   let litNow=false;
   if(lv.kind==="light"){
     save.lit[lv.island]=true;
-    if(lv.island===0) save.islandUnlocked[1]=true;
+    if(lv.island<3) save.islandUnlocked[lv.island+1]=true;
     litNow=true;
     sfx.light();
   }
   persist();
   const nameshell = Object.keys(play.collected).length;
   const pc = Object.keys(play.postcardGot).length;
+  const nxt=nextLevel(lv);
   $("win-title").textContent = litNow ? "燈塔點亮了！" : "港旗升起了！";
   $("win-copy").textContent = `${playerName()} 跑完「${lv.name}」。這關撿到潮汐貝 ${nameshell} 枚${pc?"，還找到明信片！":"。"}掉進水裡 ${play.falls} 次。` +
     (play.starWon?"　限時加星成功！":"") +
-    (litNow?"　地圖上這座島會亮起來。點亮這座就可以收工，也可以繼續下一座。":"");
-  const nxt=nextLevel(lv);
-  if(litNow){
-    $("win-next").style.display="inline-flex";
-    $("win-next").textContent="點亮這座就好／今日收工";
-    $("win-next").onclick=()=>{
-      showOv("complete-ov",false);
-      openClockout(true);
-    };
-  } else {
-    $("win-next").style.display = nxt ? "inline-flex" : "none";
-    $("win-next").textContent="下一關";
-    $("win-next").onclick=()=>{
-      showOv("complete-ov",false);
-      if(save.settings.playMode==="turn"){
-        requestSwapAfterWin(nxt);
-      } else {
-        if(nxt) startLevel(nxt.id); else { showScreen("map-screen"); refreshMapUI(); }
-      }
-    };
-  }
+    (litNow?(nxt?"　地圖上這座島會亮起來。可以直接前往下一座；「今日收工」只是選用的離開方式，不會鎖住今天。":"　地圖上這座島會亮起來。下一批島嶼還在準備中，可以先回地圖或選用今日收工。"):"");
+  $("win-next").style.display = nxt ? "inline-flex" : "none";
+  $("win-next").textContent = litNow && nxt && nxt.island!==lv.island ? "前往下一座島" : "下一關";
+  $("win-clockout").style.display = "inline-flex";
+  $("win-next").onclick=()=>{
+    showOv("complete-ov",false);
+    if(!nxt){ showScreen("map-screen"); refreshMapUI(); return; }
+    if(save.settings.playMode==="turn") requestSwapAfterWin(nxt);
+    else startLevel(nxt.id);
+  };
   showOv("complete-ov", true);
 }
 function requestSwapAfterWin(nxt){
@@ -1321,9 +1522,9 @@ function requestSwapAfterWin(nxt){
 }
 function openClockout(fromLight){
   persist();
-  $("co-title").textContent = fromLight ? "今日收工・點亮這座就好" : "今日收工";
+  $("co-title").textContent = "今日收工";
   const litCount=Object.keys(save.lit).filter(k=>save.lit[k]).length;
-  $("co-copy").textContent = `進度已經存在這台平板裡（地圖進度、已點亮燈塔、潮汐貝與明信片、難度與兩人設定）。目前點亮 ${litCount} 座燈塔。下次打開同一個網址就能接著玩。`;
+  $("co-copy").textContent = `進度已經存好了（地圖進度、已點亮燈塔、潮汐貝與明信片、難度與兩人設定）。目前點亮 ${litCount} 座燈塔。「今日收工」只是選用的離開方式，不會鎖住今天，也沒有每日關卡或時限；想繼續的話隨時可以再進下一座或下一關。`;
   showOv("clockout-ov", true);
 }
 
@@ -1546,6 +1747,8 @@ function skyColors(kind, island){
   if(kind==="light") return ["#f4a261","#e07a5f","#3d5a6c"];
   if(kind==="hard") return ["#7aa2c4","#4d6f8a","#203848"];
   if(island===1) return ["#9fd4c4","#5fa8a0","#2b5d55"];
+  if(island===2) return ["#cde7f2","#8eb8d0","#4a6f88"];
+  if(island===3) return ["#b8ddd8","#5fa0a8","#2c5c64"];
   return ["#ffd6a5","#8ecae6","#2a6f84"];
 }
 function renderPlay(ctx){
@@ -1679,6 +1882,7 @@ function drawPlatform(ctx,p){
   let col="#e0c394", top="#f3e0bb", edge="#b88954";
   if(p.t==="wood"){ col="#b07945"; top="#d49a5c"; edge="#7a4a28"; }
   if(p.t==="root"){ col="#4a6a3a"; top="#6b8f52"; edge="#2f4526"; }
+  if(p.t==="stone"){ col="#8a8e8b"; top="#c4c8c3"; edge="#5a5e5b"; }
   ctx.fillStyle=col;
   roundRect(ctx,p.x,p.y,p.w,p.h, p.h<30?6:10);
   ctx.fill();
@@ -1695,6 +1899,10 @@ function drawPlatform(ctx,p){
   if(p.t==="sand"){
     ctx.fillStyle="#c9a06a";
     for(let i=8;i<p.w;i+=22) ctx.fillRect(p.x+i,p.y+14,3,3);
+  }
+  if(p.t==="stone"){
+    ctx.fillStyle="#6e7370";
+    for(let i=10;i<p.w;i+=26) ctx.fillRect(p.x+i,p.y+16,4,3);
   }
 }
 function drawShell(ctx,x,y,t){
@@ -1904,9 +2112,11 @@ async function runSelfTest(){
     ok("howto required then map", save.howtoDone===true && $("map-screen").classList.contains("on"));
     ok("island0 open", islandOpen(0)===true);
     ok("island1 locked until light", islandOpen(1)===false);
+    ok("wind and tidepool locked at start", islandOpen(2)===false && islandOpen(3)===false);
     const locked=[];
-    for(let i=2;i<=6;i++){ if(islandOpen(i)) locked.push(ISLANDS[i].name); }
-    ok("5 later islands visible but locked", locked.length===0, ISLANDS.slice(2).map(x=>x.name).join("、"));
+    for(let i=1;i<=6;i++){ if(islandOpen(i)) locked.push(ISLANDS[i].name); }
+    ok("islands 1-6 locked at start", locked.length===0, ISLANDS.slice(1).map(x=>x.name).join("、"));
+    ok("later names kept", ISLANDS[4].name==="夜市木棧" && ISLANDS[5].name==="暴風螺階" && ISLANDS[6].name==="星頂燈塔");
     ok("dock-1 unlocked", levelUnlocked(LEVEL_BY_ID["dock-1"])===true);
     ok("dock-2 locked at start", levelUnlocked(LEVEL_BY_ID["dock-2"])===false);
     startLevel("dock-1");
@@ -1970,9 +2180,26 @@ async function runSelfTest(){
     switchChar();
     ok("switch back to popo", play.player.who==="popo");
     // locked islands stay locked after completing only dock-1
-    ok("still cannot enter island 2-6", [2,3,4,5,6].every(i=>islandOpen(i)===false));
-    ok("12 levels present", LEVELS.length===12);
-    ok("version marker", VERSION==="tide-lighthouse version: 2026-11-10-v2");
+    ok("still cannot enter island 1-6 after only dock-1", [1,2,3,4,5,6].every(i=>islandOpen(i)===false));
+    ok("24 levels present", LEVELS.length===24);
+    ok("wind 6 levels", LEVELS.filter(l=>l.island===2).length===6);
+    ok("tidepool 6 levels", LEVELS.filter(l=>l.island===3).length===6);
+    save.lit[0]=true;
+    ok("after dock light, mangrove open", islandOpen(1)===true && islandOpen(2)===false);
+    ok("next after dock-light is mangrove-1", nextLevel(LEVEL_BY_ID["dock-light"]).id==="mangrove-1");
+    save.lit[1]=true;
+    ok("after mangrove light, wind open", islandOpen(2)===true && islandOpen(3)===false && ISLANDS[2].name==="風鈴崖");
+    ok("next after mangrove-light is wind-1", nextLevel(LEVEL_BY_ID["mangrove-light"]).id==="wind-1");
+    save.lit[2]=true;
+    ok("after wind light, tidepool open", islandOpen(3)===true && islandOpen(4)===false && ISLANDS[3].name==="潮池迷宮");
+    ok("next after wind-light is tidepool-1", nextLevel(LEVEL_BY_ID["wind-light"]).id==="tidepool-1");
+    save.lit[3]=true;
+    ok("nightmarket storm star stay locked", islandOpen(4)===false && islandOpen(5)===false && islandOpen(6)===false);
+    const oldShape={version:1,howtoDone:true,settings:defaultSave().settings,currentPlayer:"A",completed:{"dock-1":{shells:[]}},shells:{},postcards:{},lit:{0:true,1:true},islandUnlocked:{0:true,1:true},stats:defaultSave().stats};
+    localStorage.setItem(SAVE_KEY, JSON.stringify(oldShape));
+    loadSave();
+    ok("old save keeps progress and opens wind", save.howtoDone && save.completed["dock-1"] && islandOpen(1) && islandOpen(2) && !islandOpen(3) && ISLANDS[2].name==="風鈴崖");
+    ok("version marker", VERSION==="tide-lighthouse version: 2026-11-10-v3");
   }catch(err){
     out.push("FAIL  exception  "+err.stack);
   }
