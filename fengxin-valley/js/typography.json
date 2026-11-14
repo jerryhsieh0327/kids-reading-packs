@@ -1,0 +1,38 @@
+{
+  "title": "風信谷值班・栗栗與咚咚",
+  "lili": "栗栗",
+  "dong": "咚咚",
+  "species": "幾維鳥",
+  "huhu": "呼呼",
+  "core": "打嗝核心",
+  "coreTask": "讓打嗝核心安靜下來",
+  "mode": "單人闖關",
+  "sleep": "打瞌睡",
+  "sneak": "躡手躡腳走過打呼的呼呼並把夥伴帶到出口",
+  "mapsOpen": [
+    "溪邊棧道",
+    "玻璃溫室",
+    "雲端纜車站",
+    "舊水車磨坊"
+  ],
+  "mapsLocked": [
+    "山谷市集",
+    "地下泉廊",
+    "風車丘",
+    "星象觀測坪"
+  ],
+  "btnUse": "使用器具",
+  "btnCall": "呼喚咚咚",
+  "diffLoose": "寬鬆",
+  "diffTight": "加緊",
+  "night": "夜間加更",
+  "hints": "值班提示",
+  "clockout": "今日下班",
+  "codepoints": {
+    "DONG": "U+549A",
+    "CORE_GE": "U+55DD",
+    "KE": "U+778C",
+    "NIE": "U+8EA1",
+    "LAN": "U+7E9C"
+  }
+}
