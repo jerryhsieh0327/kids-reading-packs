@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="風信谷值班"/>
+<meta name="theme-color" content="#d7b44a"/>
+<meta name="description" content="單人闖關。跟著見習巡護員栗栗與幾維鳥咚咚，讓打嗝核心安靜下來。"/>
+<title>風信谷值班・栗栗與咚咚</title>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<link rel="icon" type="image/png" href="icons/favicon.png"/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div id="app">
+  <div id="scr-title" class="screen on">
+    <div id="title-stage"></div>
+    <div id="title-logo">
+      <h1>風信谷值班・栗栗與咚咚</h1>
+      <div class="sub">單人闖關　立體值班</div>
+    </div>
+    <div id="title-panel">
+      <span id="mode-badge">單人闖關</span>
+      <h1>今日要值哪一班？</h1>
+      <p>一夜之間，風信谷的氣象信標、纜車和水車開始打嗝。跟著見習巡護員栗栗與幾維鳥咚咚，一則一則把今天的班值完。</p>
+      <button class="btn big teal" id="btn-start">開始值班</button>
+      <button class="btn wood" id="btn-continue">繼續上次的班</button>
+      <button class="btn ghost" id="btn-howto-title">怎麼玩</button>
+    </div>
+  </div>
+
+  <div id="scr-cabin" class="screen">
+    <div id="cabin-map-wrap">
+      <div id="cabin-stage"></div>
+      <div id="hotspots"></div>
+    </div>
+    <div id="cabin-top">
+      <div class="chip" id="cabin-title">風信谷值班小屋</div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <div class="seg" id="diff-seg">
+          <button data-diff="loose" class="on">寬鬆</button>
+          <button data-diff="tight">加緊</button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="toggle on" id="btn-hints">值班提示 開</button>
+          <button class="toggle" id="btn-night">夜間加更 關</button>
+        </div>
+      </div>
+    </div>
+    <div id="cabin-bot">
+      <div class="chip" id="player-chip">
+        <span>輪流值同一班</span>
+        <button class="btn" id="btn-swap-player" style="min-height:44px;padding:6px 12px;font-size:16px">換人：選手一</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn wood" id="btn-board">任務木板</button>
+        <button class="btn ghost" id="btn-howto-cabin">怎麼玩</button>
+        <button class="btn scarf" id="btn-clockout">今日下班</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="scr-board" class="screen">
+    <div class="board-card">
+      <h2 id="board-title">任務木板</h2>
+      <p id="board-sub" style="text-align:center;font-weight:700;margin-bottom:8px;color:var(--ink-soft)"></p>
+      <div id="board-list"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px">
+        <button class="btn ghost" id="btn-board-back">回小屋</button>
+        <button class="btn wood" id="btn-board-map">看山谷地圖</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="scr-brief" class="screen">
+    <div id="brief-tablet">
+      <div id="brief-left"><div id="brief-stage"></div></div>
+      <div id="brief-right">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span id="brief-progress" style="font-weight:800;font-size:18px">燈籠 0/5</span>
+          <button class="btn ghost" id="btn-brief-back" style="min-height:44px;padding:6px 12px">回木板</button>
+        </div>
+        <h2 id="brief-title">今日值班</h2>
+        <div id="brief-checks"></div>
+        <p id="brief-meta"></p>
+        <div id="brief-diff">
+          <button class="btn" data-briefdiff="loose">寬鬆</button>
+          <button class="btn wood" data-briefdiff="tight">加緊</button>
+        </div>
+        <button class="btn big scarf" id="btn-depart">出發值班</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="scr-play" class="screen">
+    <div id="play-stage"></div>
+    <div id="play-hud">
+      <div id="hud-left">
+        <div id="hud-mission"></div>
+        <div id="hud-checks"></div>
+      </div>
+      <div id="hud-right">
+        <div id="hourglass"><canvas id="hg-canvas" width="54" height="52"></canvas><span id="hg-sec"></span></div>
+        <button id="who-btn" type="button"><span id="who-face"></span><span id="who-name">栗栗</span></button>
+        <button id="btn-pause" type="button">暫停</button>
+      </div>
+    </div>
+    <div id="cam-btns">
+      <button type="button" id="cam-in" aria-label="鏡頭拉近">＋</button>
+      <button type="button" id="cam-out" aria-label="鏡頭拉遠">－</button>
+      <button type="button" id="cam-left" aria-label="鏡頭左轉">↺</button>
+      <button type="button" id="cam-right" aria-label="鏡頭右轉">↻</button>
+    </div>
+    <div id="cue"></div>
+    <div id="stick-wrap"><div id="stick-base"><div id="stick-knob"></div></div></div>
+    <div id="act-btns">
+      <button id="btn-use" type="button">使用器具</button>
+      <button id="btn-call" type="button">呼喚咚咚</button>
+    </div>
+  </div>
+
+  <div id="scr-clockout" class="screen">
+    <div class="card" style="text-align:center">
+      <h2>今日下班</h2>
+      <p id="clockout-msg" style="font-size:18px;line-height:1.6;margin:12px 0 18px;color:var(--ink-soft)"></p>
+      <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn teal big" id="btn-clockout-ok">先收工，進度已存</button>
+        <button class="btn wood" id="btn-clockout-more">再值一則</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="scr-help" class="screen">
+    <div class="card">
+      <h2>怎麼玩</h2>
+      <p>在值班小屋的地圖或任務木板上選一則任務，先看簡報，再出發值班。</p>
+      <p>用左邊的方向盤走動。右邊「使用器具」可以讓栗栗噴泡沫、解打嗝核心，或讓咚咚推閥門、提燈照路。點角色圖可以隨時切換操作栗栗或咚咚；「呼喚咚咚」會請咚咚用暖芯燈指出下一處。</p>
+      <p>這是單人闖關，不聯機、不對戰。共用 iPad 時可以按「換人」輪流值同一班。</p>
+      <p>做完一則會回到小屋，木板會勾起來，被救的夥伴會在小屋走動。值完一張地圖的五則主線，就會解鎖下一張已開放的地圖。</p>
+      <p>時間到了，打嗝核心只會打瞌睡，然後再試一次，不會爆炸。失敗會回到最近的暖芯檢查點。</p>
+      <p>家長想收工時，點「今日下班」會存檔離開；這不會鎖住當天，隨時還可以再進來繼續值。</p>
+      <p>寬鬆檔適合約 9 歲：沙漏較寬、謎題較短、路上有暖芯燈跡。加緊檔適合約 11 歲：沙漏較緊、謎題較長，還可選夜間加更（同地圖加難，不擋主線）。右邊還可以微調鏡頭遠近與左右。</p>
+      <div style="text-align:center;margin-top:12px"><button class="btn teal" id="btn-help-close">知道了</button></div>
+    </div>
+  </div>
+
+  <div id="ov-pause" class="ov">
+    <div class="card">
+      <h2>暫停一下</h2>
+      <p>進度還在，隨時可以繼續這則值班。</p>
+      <div class="row">
+        <button class="btn teal big" id="btn-resume">繼續值班</button>
+        <button class="btn wood" id="btn-abandon">回到小屋</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ov-asleep" class="ov">
+    <div class="card">
+      <h2 id="asleep-title">打嗝核心打瞌睡了</h2>
+      <p id="asleep-msg">沙漏走完了，裝置進入休眠。沒有爆炸，我們輕輕再試一次就好。</p>
+      <div class="row">
+        <button class="btn teal big" id="btn-retry">再試一次</button>
+        <button class="btn ghost" id="btn-asleep-cabin">回到小屋</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ov-done" class="ov">
+    <div class="card">
+      <h2>這則值完了</h2>
+      <p id="done-msg">木板上會勾起來。我們回小屋看看夥伴吧。</p>
+      <div class="row">
+        <button class="btn teal big" id="btn-done-cabin">回小屋</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ov-core" class="ov">
+    <div class="card">
+      <h2>讓打嗝核心安靜下來</h2>
+      <p id="core-hint" style="margin-bottom:6px"></p>
+      <div id="core-seq"></div>
+      <div id="core-status"></div>
+      <div id="core-machine"></div>
+      <div class="row">
+        <button class="btn ghost" id="btn-core-close">先離開</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <div id="rotate">請把 iPad 橫過來，比較好值班。</div>
+  <pre id="selftest-out"></pre>
+</div>
+<script src="js/three.min.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
