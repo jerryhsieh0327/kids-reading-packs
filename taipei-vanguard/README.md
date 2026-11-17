@@ -11,9 +11,9 @@ A self-contained, English-language single-player browser FPS designed for landsc
 
 ## Gameplay
 
-Use left touch pad to move. Drag in the right-side view area to turn; tap FIRE to shoot. Aim, Reload, Switch, Shield, Drone and Arc Key are visible in the HUD. When an objective is near, an INTERACT button appears. Rescue targets and disable consoles are marked on the mini-map. Escort personnel follow when nearby. Enemies deal non-graphic damage, never blood effects. Completing a mission unlocks the next and saves stars in browser localStorage.
+Use the left touch pad to walk forward/back and to turn your view left/right (turning, not sidestepping). Hold RUN to sprint, tap JUMP to leap over low cover, and hold HIDE next to a low wall to take cover and reduce incoming fire. Drag in the right-side view area to look around; tap FIRE to shoot. When you are next to a rescue target or device, INTERACT completes that objective. Aim, Reload, Switch, Shield, Drone and Arc Key are visible in the HUD. When an objective is near, an INTERACT button appears. Rescue targets and disable consoles are marked on the mini-map. Escort personnel follow when nearby. Enemies deal non-graphic damage, never blood effects. Completing a mission unlocks the next and saves stars in browser localStorage.
 
-Desktop testing: WASD / arrows for motion and turning, Space to shoot, R to reload, F interact, Q shield, E drone, 1/2 weapons, Shift for faster movement, Esc to pause.
+Desktop testing: W/S or Up/Down walk forward and back; A/D or Left/Right turn the view (no sidestep strafe). Shift to run, V or J to jump, C or Ctrl to hide/take cover. Space to shoot, R to reload, F interact, Q shield, E drone, 1/2 weapons, Esc to pause.
 
 ## Included campaign (latest approved mapping)
 
@@ -35,7 +35,7 @@ Desktop testing: WASD / arrows for motion and turning, Space to shoot, R to relo
 ## Implementation notes and limitations
 
 - This is an **independently playable 2.5D canvas ray-cast FPS**, not a WebGL/Unity-quality true 3D production. Distinct landmark facades are procedurally painted and supplemented by small thumbnail crops from the *two user-provided approved art samples*. The image references represent stylistic concepts, not fully modeled authentic landmark interiors.
-- Dynamic hostile units, shooting, hits, armor, aiming, collision, mission objectives, rescues, escorts, timed device interactions, defense waves, HUD, procedural landmark silhouettes, touch controls, generated Web Audio effects and save progress are included.
+- Dynamic hostile units that run, patrol, and chase; shooting, hits, armor, aiming, collision, mission objectives, rescues, escorts, timed device interactions, defense waves, HUD, recognizable Taipei landmark backdrops and facade textures, touch controls, generated Web Audio effects and save progress are included.
 - The story, dialogue and mission labels are English. No external resources are loaded by the code.
 - Combat rules and mission flows are implemented at an arcade level; advanced NPC pathfinding, detailed environmental art, story cutscenes, professional animation, fully voiced dialogue, and detailed building geometry are not yet available.
 - Audio begins only after a user action when permitted by browser autoplay policies.
@@ -50,6 +50,8 @@ Desktop testing: WASD / arrows for motion and turning, Space to shoot, R to relo
 - `assets/icon.svg`, `assets/icon-180.png`, `assets/icon-512.png` — original app icons
 - `assets/approved-fps.png`, `assets/approved-briefing.png` — provided approved reference artwork (also used on menu)
 - `assets/landmark-1.png` … `assets/landmark-8.png` — eight thumbnail crops from the approved briefing artwork
+- `assets/place-1.png` … `assets/place-8.png` — fallback landmark plates if a scene plate is missing
+- `assets/scene-1.png` … `assets/scene-8.png` — official ChatGPT first-person environment plates for the eight Taipei landmarks (used as in-game backdrops)
 - `assets/veil-guard.png`, `assets/veil-bot.png` — character cutouts from the approved FPS artwork
 
 All files remain local to this package. Copyrights for user-supplied imagery remain with their respective owners.
@@ -62,7 +64,7 @@ From this directory, serve the files over HTTP and open `index.html` in a deskto
 
 then visit `http://127.0.0.1:8765/`. Opening the file path directly can work in some browsers, but a static server is more reliable.
 
-This Version 1 package is not published yet. When it is published later, use a new GitHub Pages path; do not overwrite 風信谷, 胡蘿蔔園, or 潮燈塔.
+Publish only as the `taipei-vanguard/` folder on the existing GitHub Pages site. Do not overwrite 風信谷, 胡蘿蔔園, or 潮燈塔.
 
 ## Known variances
 
