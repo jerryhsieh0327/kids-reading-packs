@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#102e58">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Taipei Vanguard">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="stylesheet" href="style.css">
+  <title>Taipei Vanguard: Skyline Alert</title>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene" aria-label="Playable first-person Taipei mission scene"></canvas>
+  <div id="flash"></div>
+  <div id="shell">
+    <header class="topbar"><div class="brand"><span class="brand-top">TAIPEI VANGUARD</span><span class="brand-bottom">SKYLINE ALERT</span></div><div class="top-right"><span class="pill">SINGLE-PLAYER • TAIPEI V1</span><button id="soundToggle" class="tiny" aria-label="Toggle sound">♫ ON</button><button id="fullscreen" class="tiny" aria-label="Fullscreen">⛶</button></div></header>
+    <section id="menu" class="panel-screen active"><div class="menu-art"><div class="menu-copy"><span class="eyebrow">VANGUARD RESPONSE UNIT</span><h1>Taipei Vanguard:<br><strong>Skyline Alert</strong></h1><p>Eight iconic Taipei landmarks. Twelve original missions. One city to protect.</p><div class="button-row"><button class="primary" id="continueBtn">▶ Start Campaign</button><button class="secondary" id="openMissions">Mission Select</button></div><div class="small-info">First-person action • Rescue • Escort • Disable • Offline • No ads</div></div></div><div class="bottom-tip">Designed for landscape iPad Safari · Move on the left, aim on the right, tap FIRE to shoot</div></section>
+    <section id="missionSelect" class="panel-screen"><div class="section-head"><div><span class="eyebrow">CAMPAIGN</span><h2>12 Missions · 8 Taipei Maps</h2></div><button class="secondary" data-back>← Back</button></div><div id="missionGrid" class="mission-grid"></div></section>
+    <section id="briefing" class="panel-screen"><div class="section-head"><div><span class="eyebrow" id="briefNumber">MISSION 01</span><h2 id="briefTitle">Tower Lobby Sweep</h2></div><button class="secondary" data-back>← Missions</button></div><div class="brief-layout"><div class="brief-poster"><div id="briefLandscape" class="brief-landmark"></div><div class="brief-location" id="briefLocation"></div></div><div class="brief-text"><div class="difficulty" id="briefDifficulty">CASUAL</div><p id="briefStory"></p><h3>YOUR OBJECTIVES</h3><ol id="briefObjectives"></ol><div class="brief-rules"><div><span>WIN</span><p id="briefWin"></p></div><div><span>LOSE</span><p id="briefLose"></p></div></div><button class="primary wide" id="deployBtn">▶ DEPLOY</button></div></div></section>
+    <section id="results" class="panel-screen"><div class="result-card"><div class="result-icon" id="resultIcon">★</div><span class="eyebrow">VANGUARD REPORT</span><h2 id="resultTitle">MISSION COMPLETE</h2><p id="resultSub"></p><div class="result-stats" id="resultStats"></div><div class="button-row"><button class="primary" id="resultPrimary">Continue</button><button class="secondary" id="resultSecondary">Mission Select</button></div></div></section>
+    <div id="gameHUD" hidden>
+      <div class="hud-top"><div class="hud-objective"><span class="hud-kicker" id="hudMission">MISSION 01</span><span id="hudObjective">Locate hostile units</span></div><div class="hud-timer" id="hudTimer">TIME 08:00</div><button id="pauseBtn" class="hud-pause">Ⅱ</button></div>
+      <canvas id="minimap" width="166" height="166" aria-label="Mini-map"></canvas>
+      <div id="notice" class="notice"></div>
+      <div class="crosshair" id="crosshair"><i></i><i></i><i></i><i></i></div>
+      <div class="hud-bottom-left"><div class="operator"><div class="avatar">A</div><div><b>AIDEN LIN</b><small>FIELD OPERATOR</small></div></div><div class="armor-line"><span>ARMOR</span><div class="bar-track"><div id="armorBar"></div></div><b id="armorText">100</b></div><div class="tool-strip"><button data-tool="shield" aria-label="Halo Shield">⬡<small>SHIELD</small></button><button data-tool="drone" aria-label="Scout Wing Drone">✥<small>DRONE</small></button><button data-tool="device" aria-label="Arc Key Disabler">⌁<small>ARC KEY</small></button></div></div>
+      <div class="hud-bottom-right"><div class="ammo-box"><small id="weaponName">SKYLINE RIFLE</small><b id="ammoText">24 / 120</b></div><div class="touch-actions"><button id="aimBtn">◎<small>AIM</small></button><button id="reloadBtn">↻<small>RELOAD</small></button><button id="switchBtn">⇄<small>SWITCH</small></button></div></div>
+      <div class="touch-left" id="movePad"><div class="pad-ring"><div class="pad-knob" id="moveKnob"></div></div><span>MOVE</span></div>
+      <div class="touch-right" id="lookPad"><span>DRAG TO LOOK</span></div>
+      <button id="fireBtn" aria-label="Fire weapon"><span>✦</span>FIRE</button>
+      <button id="interactBtn" aria-label="Interact">INTERACT</button>
+      <div id="missionPrompt"></div>
+    </div>
+    <div id="pauseOverlay" hidden><div class="pause-card"><span class="eyebrow">MISSION PAUSED</span><h2>Pause Menu</h2><p>Progress is saved between completed missions.</p><button class="primary" id="resumeBtn">Resume Mission</button><button class="secondary" id="restartBtn">Restart Mission</button><button class="secondary" id="quitBtn">Return to Missions</button></div></div>
+    <div id="rotateHint">↻<h2>Rotate your iPad</h2><p>Taipei Vanguard is made for landscape play.</p></div>
+  </div>
+</div>
+<script src="game.js" defer></script>
+</body></html>
